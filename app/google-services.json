@@ -1,33 +1,35 @@
 {
   "project_info": {
-    "project_number": "508452433613",
-    "project_id": "firebase-ibhoomi"
+    "project_number": "54727747743",
+    "firebase_url": "https://placero-219617.firebaseio.com",
+    "project_id": "placero-219617",
+    "storage_bucket": "placero-219617.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:508452433613:android:9366d4c114b38f67",
+        "mobilesdk_app_id": "1:54727747743:android:9366d4c114b38f67",
         "android_client_info": {
           "package_name": "lm.pkp.com.landmap"
         }
       },
       "oauth_client": [
         {
-          "client_id": "508452433613-a96iq68m5gs6ri3ct7fds7rcmg40nh9a.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
-          "client_id": "508452433613-3efgq5j38urbhq0pmpebb8e2a5fhuf2t.apps.googleusercontent.com",
+          "client_id": "54727747743-7j6oec4kcj6l61fdrf7pslpo851pnft7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "lm.pkp.com.landmap",
-            "certificate_hash": "816586d115229c15ae03a3f4d58a73d574378f92"
+            "certificate_hash": "dab0b6144127faff61ccb510ed77336c5f137550"
           }
+        },
+        {
+          "client_id": "54727747743-8fkipjekseaj84uuk18ka5fardddv3jf.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAGQItIMMsVu8kjvrU1KCR-zm1Xfdcxgnw"
+          "current_key": "AIzaSyD-CkxZ3XV-hiBZV_plcx5Phl1ZfP0vNQo"
         }
       ],
       "services": {
@@ -35,11 +37,16 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54727747743-8fkipjekseaj84uuk18ka5fardddv3jf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

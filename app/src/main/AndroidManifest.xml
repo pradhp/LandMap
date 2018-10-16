@@ -27,11 +27,15 @@
         >
 
         <meta-data
+            tools:replace="android:value"
+            android:name="android.support.VERSION"
+            android:value="26.0.1" />
+        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCLE-Ia_CzHSmBQ90Z6jQNWewcR0pSbLTo" />
+            android:value="AIzaSyAMLb43HC5Gnxhw1KVOXJoLfkhCkQMU1N8" />
 
         <activity
             android:name=".google.signin.SignInActivity"
