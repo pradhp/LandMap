@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="lm.pkp.com.landmap">
+    package="com.pearnode.app.placero">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".custom.LandmapApplication"
+        android:name="com.pearnode.app.placero.custom.PlaceroApplication"
         android:largeHeap="true"
         android:allowClearUserData="true"
         tools:replace="android:icon"
@@ -38,7 +38,7 @@
             android:value="AIzaSyAMLb43HC5Gnxhw1KVOXJoLfkhCkQMU1N8" />
 
         <activity
-            android:name=".google.signin.SignInActivity"
+            android:name="com.pearnode.app.placero.google.signin.SignInActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden"
             android:clearTaskOnLaunch="true"
@@ -52,107 +52,107 @@
         </activity>
 
         <activity
-            android:name=".AreaDashboardActivity"
+            android:name="com.pearnode.app.placero.AreaDashboardActivity"
             android:label="@string/title_activity_area_dashboard"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaDetailsActivity"
+            android:name="com.pearnode.app.placero.AreaDetailsActivity"
             android:label="@string/title_activity_position_marker"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaMapPlotterActivity"
+            android:name="com.pearnode.app.placero.AreaMapPlotterActivity"
             android:label="@string/title_activity_land_plotter"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".CombinedAreasPlotterActivity"
+            android:name="com.pearnode.app.placero.CombinedAreasPlotterActivity"
             android:label="@string/title_activity_land_plotter"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaEditActivity"
+            android:name="com.pearnode.app.placero.AreaEditActivity"
             android:label="@string/title_activity_area_edit"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaShareActivity"
+            android:name="com.pearnode.app.placero.AreaShareActivity"
             android:label="@string/label_share_area"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".SplashActivity"
+            android:name="com.pearnode.app.placero.SplashActivity"
             android:label="@string/label_pre_load_splash"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaCameraPictureActivity"
+            android:name="com.pearnode.app.placero.AreaCameraPictureActivity"
             android:label="@string/area_add_image"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaCameraVideoActivity"
+            android:name="com.pearnode.app.placero.AreaCameraVideoActivity"
             android:label="@string/area_add_video"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaDocumentChooserActivity"
+            android:name="com.pearnode.app.placero.AreaDocumentChooserActivity"
             android:label="@string/choose_document"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaAddResourcesActivity"
+            android:name="com.pearnode.app.placero.AreaAddResourcesActivity"
             android:label="@string/area_add_resources"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".UploadResourcesActivity"
+            android:name="com.pearnode.app.placero.UploadResourcesActivity"
             android:label="@string/choose_document"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".DownloadDriveResourcesActivity"
+            android:name="com.pearnode.app.placero.DownloadDriveResourcesActivity"
             android:label="@string/area_resources"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".RemoveDriveResourcesActivity"
+            android:name="com.pearnode.app.placero.RemoveDriveResourcesActivity"
             android:label="@string/area_resources"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".ShareDriveResourcesActivity"
+            android:name="com.pearnode.app.placero.ShareDriveResourcesActivity"
             android:label="@string/area_resources"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".ShareUploadedResourcesActivity"
+            android:name="com.pearnode.app.placero.ShareUploadedResourcesActivity"
             android:label="@string/area_resources"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".AreaResourceDisplayActivity"
+            android:name="com.pearnode.app.placero.AreaResourceDisplayActivity"
             android:label="@string/area_resources"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".CreateCommonFolderStructureActivity"
+            android:name="com.pearnode.app.placero.CreateCommonFolderStructureActivity"
             android:label="@string/choose_document"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".CreateAreaFoldersActivity"
+            android:name="com.pearnode.app.placero.CreateAreaFoldersActivity"
             android:label="@string/choose_document"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".TagAssignmentActivity"
+            android:name="com.pearnode.app.placero.TagAssignmentActivity"
             android:label="@string/choose_document"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
@@ -160,19 +160,19 @@
             android:screenOrientation="portrait"></activity>
 
         <service
-            android:name=".connectivity.services.AreaSynchronizationService"
+            android:name="com.pearnode.app.placero.connectivity.services.AreaSynchronizationService"
             android:exported="false"/>
         <service
-            android:name=".connectivity.services.PositionSynchronizationService"
+            android:name="com.pearnode.app.placero.connectivity.services.PositionSynchronizationService"
             android:exported="false"/>
         <service
-            android:name=".connectivity.services.ResourceSynchronizationService"
+            android:name="com.pearnode.app.placero.connectivity.services.ResourceSynchronizationService"
             android:exported="false"/>
         <service
-            android:name=".area.reporting.AreaReportingService"
+            android:name="com.pearnode.app.placero.area.reporting.AreaReportingService"
             android:exported="false"/>
 
-        <receiver android:name=".connectivity.ConnectivityChangeReceiver" >
+        <receiver android:name="com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="lm.pkp.com.APPLICATION_START" />

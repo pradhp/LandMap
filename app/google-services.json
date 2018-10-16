@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:54727747743:android:9366d4c114b38f67",
+        "mobilesdk_app_id": "1:54727747743:android:edfb7f564d141a39",
         "android_client_info": {
-          "package_name": "lm.pkp.com.landmap"
+          "package_name": "com.pearnode.app.placero"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "54727747743-7j6oec4kcj6l61fdrf7pslpo851pnft7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "lm.pkp.com.landmap",
+            "package_name": "com.pearnode.app.placero",
             "certificate_hash": "dab0b6144127faff61ccb510ed77336c5f137550"
           }
         },
@@ -29,7 +29,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD-CkxZ3XV-hiBZV_plcx5Phl1ZfP0vNQo"
+          "current_key": "AIzaSyBUJEkmqjkyfASzlBvP9q4_aHd0fQ12CIY"
         }
       ],
       "services": {

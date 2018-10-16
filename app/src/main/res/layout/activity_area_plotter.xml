@@ -1,4 +1,4 @@
-<lm.pkp.com.landmap.custom.MapWrapperLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.pearnode.app.placero.custom.MapWrapperLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/map_relative_layout">
@@ -10,4 +10,4 @@
         class="com.google.android.gms.maps.SupportMapFragment"
         android:layout_above="@+id/latlongLocation" />
 
-</lm.pkp.com.landmap.custom.MapWrapperLayout>
+</com.pearnode.app.placero.custom.MapWrapperLayout>
