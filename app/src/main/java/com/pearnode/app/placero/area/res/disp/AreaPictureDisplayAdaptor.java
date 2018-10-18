@@ -25,7 +25,6 @@ import java.util.ArrayList;
 
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
-import com.pearnode.app.placero.RemoveDriveResourcesActivity;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
@@ -118,10 +117,6 @@ final class AreaPictureDisplayAdaptor extends BaseAdapter {
                     @Override
                     public void onClick(View v) {
                         if (PermissionManager.INSTANCE.hasAccess(PermissionConstants.REMOVE_RESOURCES)) {
-                            Intent intent = new Intent(referredView.getContext(), RemoveDriveResourcesActivity.class);
-                            intent.putExtra("resource_ids", resourceId);
-                            intent.putExtra("tab_position", tabPosition);
-
                             DriveDBHelper ddh = new DriveDBHelper(fragment.getContext());
                             Resource resource = ddh.getDriveResourceByResourceId(resourceId);
 
@@ -131,7 +126,6 @@ final class AreaPictureDisplayAdaptor extends BaseAdapter {
 
                             dataSet.remove(pictureDisplayElement);
                             notifyDataSetChanged();
-                            referredView.getContext().startActivity(intent);
                         } else {
                             showErrorMessage(referredView, "Do not have removal rights", "error");
                         }

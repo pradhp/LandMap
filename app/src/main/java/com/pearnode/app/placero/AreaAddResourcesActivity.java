@@ -89,8 +89,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
                     showMessage("Nothing to upload.", "error");
                     return;
                 }
-                Intent i = new Intent(AreaAddResourcesActivity.this, UploadResourcesActivity.class);
-                startActivity(i);
+                // TODO: Start a task to upload the resources.
             }
         });
 

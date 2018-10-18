@@ -41,7 +41,6 @@ import java.util.UUID;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.tasks.RemoveAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
@@ -63,7 +62,7 @@ import com.pearnode.common.TaskFinishedListener;
 
 public class AreaDetailsActivity extends AppCompatActivity implements LocationPositionReceiver {
 
-    private Area ae;
+    private Area area;
     private boolean online = true;
 
     private final ArrayList<Position> positionList = new ArrayList<Position>();
@@ -78,15 +77,15 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         setContentView(R.layout.activity_area_details);
         getSupportActionBar().hide();
 
-        ae = AreaContext.INSTANCE.getAreaElement();
+        area = AreaContext.INSTANCE.getAreaElement();
 
         Toolbar topTB = (Toolbar) findViewById(R.id.toolbar_top);
         ColorDrawable topDrawable = (ColorDrawable) topTB.getBackground().getCurrent();
-        topDrawable.setColor(ColorProvider.getAreaToolBarColor(ae));
+        topDrawable.setColor(ColorProvider.getAreaToolBarColor(area));
 
         Toolbar bottomTB = (Toolbar) findViewById(R.id.toolbar_bottom);
         ColorDrawable bottomDrawable = (ColorDrawable) bottomTB.getBackground().getCurrent();
-        bottomDrawable.setColor(ColorProvider.getAreaToolBarColor(ae));
+        bottomDrawable.setColor(ColorProvider.getAreaToolBarColor(area));
 
         if (!askForLocationPermission()) {
             showMessage("No permission given for location fix !!", "error");
@@ -94,14 +93,14 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         }
 
         ListView posListView = (ListView) findViewById(R.id.positionList);
-        positionList.addAll(ae.getPositions());
+        positionList.addAll(area.getPositions());
 
         adaptor = new PositionListAdaptor(this, R.id.positionList, positionList);
         posListView.setAdapter(adaptor);
         adaptor.notifyDataSetChanged();
 
         TextView areaNameView = (TextView) findViewById(R.id.area_name_text);
-        String areaName = ae.getName();
+        String areaName = area.getName();
         if (areaName.length() > 16) {
             areaName = areaName.substring(0, 15).concat("...");
         }
@@ -182,7 +181,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                     showMessage("No Internet..", "error");
                     return;
                 }
-                List<Position> positions = ae.getPositions();
+                List<Position> positions = area.getPositions();
                 if (positions.size() >= 1) {
                     Intent intent = new Intent(getApplicationContext(), AreaMapPlotterActivity.class);
                     startActivity(intent);
@@ -200,7 +199,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                     showMessage("No Internet..", "error");
                     return;
                 }
-                List<Position> positions = ae.getPositions();
+                List<Position> positions = area.getPositions();
                 if (positions.size() > 0) {
                     UserElement userElement = UserContext.getInstance().getUserElement();
                     Position position = userElement.getSelections().getPosition();
@@ -208,7 +207,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                         position = positions.get(0);
                     }
                     Uri gmmIntentUri = Uri.parse("google.navigation:q="
-                            + position.getLat() + "," + position.getLon()+"&daddr=" + ae.getName());
+                            + position.getLat() + "," + position.getLon()+"&daddr=" + area.getName());
                     Intent navigationIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     navigationIntent.setPackage("com.google.android.apps.maps");
                     startActivity(navigationIntent);
@@ -252,14 +251,8 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         displayResItem.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(online){
-                    Intent intent = new Intent(getApplicationContext(), DownloadDriveResourcesActivity.class);
-                    startActivity(intent);
-                }else {
-                    Intent displayIntent = new Intent(getApplicationContext(), AreaResourceDisplayActivity.class);
-                    startActivity(displayIntent);
-                    finish();
-                }
+                Intent intent = new Intent(getApplicationContext(), AreaResourceDisplayActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -270,7 +263,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                 if(online){
                     WeatherManager weatherManager = new WeatherManager(getApplicationContext(),
                             new WeatherDataCallback());
-                    weatherManager.loadWeatherInfoForPosition(ae.getCenterPosition());
+                    weatherManager.loadWeatherInfoForPosition(area.getCenterPosition());
                 }else {
                     showMessage("Internet unavailable", "error");
                 }
@@ -293,7 +286,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
     @Override
     public void receivedLocationPostion(Position pe) {
         pe.setName("P_" + UUID.randomUUID());
-        pe.setUniqueAreaId(ae.getUniqueId());
+        pe.setUniqueAreaId(area.getUniqueId());
 
         Area ae = AreaContext.INSTANCE.getAreaElement();
         List<Position> positions = ae.getPositions();
@@ -419,7 +412,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                 .setPositiveButton(string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         RemoveAreaTask rat = new RemoveAreaTask(getApplicationContext(), new DeleteAreaCallback());
-                        rat.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ae);
+                        rat.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, area);
                     }
                 })
                 .setNegativeButton(string.no, new DialogInterface.OnClickListener() {
@@ -435,7 +428,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
 
         @Override
         public void onTaskFinished(String response) {
-            Intent removeIntent = new Intent(getApplicationContext(), RemoveDriveResourcesActivity.class);
+            Intent removeIntent = new Intent(getApplicationContext(), AreaDashboardActivity.class);
             startActivity(removeIntent);
             finish();
         }

@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
-import com.pearnode.app.placero.RemoveDriveResourcesActivity;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
@@ -110,10 +109,6 @@ final class AreaDocumentDisplayAdaptor extends BaseAdapter {
                 deleteButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(referredView.getContext(), RemoveDriveResourcesActivity.class);
-                        intent.putExtra("resource_ids", resourceId);
-                        intent.putExtra("tab_position", tabPosition);
-
                         DriveDBHelper ddh = new DriveDBHelper(fragment.getContext());
                         Resource resource = ddh.getDriveResourceByResourceId(resourceId);
 
@@ -123,8 +118,6 @@ final class AreaDocumentDisplayAdaptor extends BaseAdapter {
 
                         dataSet.remove(documentDisplayElement);
                         notifyDataSetChanged();
-
-                        referredView.getContext().startActivity(intent);
                     }
                 });
 
