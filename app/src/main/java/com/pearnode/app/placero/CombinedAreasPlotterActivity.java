@@ -46,13 +46,13 @@ import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.MapWrapperLayout;
 import com.pearnode.app.placero.custom.OnInfoWindowElemTouchListener;
-import com.pearnode.app.placero.drive.DriveResource;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.util.ColorProvider;
 
 public class CombinedAreasPlotterActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -68,13 +68,13 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     private SupportMapFragment mapFragment;
     private List<String> areaIds = new ArrayList<>();
 
-    private Map<String, LinkedHashMap<Marker, PositionElement>> areaBoundaryMarkers = new HashMap<>();
-    private Map<String, LinkedHashMap<Marker, DriveResource>> areaMediaMarkers = new HashMap<>();
-    private Map<String, LinkedHashMap<Marker, PositionElement>> areaMediaPositions = new HashMap<>();
-    private Map<Marker, AreaElement> markerAreaMap = new LinkedHashMap<>();
+    private Map<String, LinkedHashMap<Marker, Position>> areaBoundaryMarkers = new HashMap<>();
+    private Map<String, LinkedHashMap<Marker, Resource>> areaMediaMarkers = new HashMap<>();
+    private Map<String, LinkedHashMap<Marker, Position>> areaMediaPositions = new HashMap<>();
+    private Map<Marker, Area> markerAreaMap = new LinkedHashMap<>();
 
     private Map<String, Marker> areaCenterMarkers = new HashMap<>();
-    private Map<String, PositionElement> areaCenterPositions = new HashMap<>();
+    private Map<String, Position> areaCenterPositions = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +116,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     private void plotUsingAreas() {
         AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
         for (String areaId : areaIds) {
-            AreaElement ae = adh.getAreaById(areaId);
+            Area ae = adh.getAreaById(areaId);
             plotPolygonUsingPositions(ae);
             plotMediaPoints(ae);
         }
@@ -125,46 +125,46 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
         zoomCamera();
     }
 
-    private void plotPolygonUsingPositions(AreaElement areaElement) {
-        AreaContext.INSTANCE.centerize(areaElement);
+    private void plotPolygonUsingPositions(Area area) {
+        AreaContext.INSTANCE.centerize(area);
 
-        String areaId = areaElement.getUniqueId();
-        areaCenterPositions.put(areaId, areaElement.getCenterPosition());
+        String areaId = area.getUniqueId();
+        areaCenterPositions.put(areaId, area.getCenterPosition());
 
-        List<PositionElement> positionElements = areaElement.getPositions();
-        int noOfPositions = positionElements.size();
+        List<Position> positions = area.getPositions();
+        int noOfPositions = positions.size();
         if (noOfPositions == 0) {
             return;
         }
 
-        LinkedHashMap<Marker, PositionElement> boundaryMarkers = areaBoundaryMarkers.get(areaId);
+        LinkedHashMap<Marker, Position> boundaryMarkers = areaBoundaryMarkers.get(areaId);
         if (boundaryMarkers == null) {
             boundaryMarkers = new LinkedHashMap<>();
             areaBoundaryMarkers.put(areaId, boundaryMarkers);
         }
 
         for (int i = 0; i < noOfPositions; i++) {
-            PositionElement pe = positionElements.get(i);
+            Position pe = positions.get(i);
             String positionType = pe.getType();
             if (positionType.equalsIgnoreCase("boundary")) {
                 Marker marker = buildMarker(pe);
                 boundaryMarkers.put(marker, pe);
-                markerAreaMap.put(marker, areaElement);
+                markerAreaMap.put(marker, area);
             }
         }
 
-        PositionElement centerPosition = areaElement.getCenterPosition();
+        Position centerPosition = area.getCenterPosition();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(centerPosition.getLat(), centerPosition.getLon()));
 
         Marker centerMarker = googleMap.addMarker(markerOptions);
         centerMarker.setTag("AreaCenter");
         centerMarker.setVisible(true);
-        centerMarker.setTitle(areaElement.getName());
+        centerMarker.setTitle(area.getName());
         //centerMarker.showInfoWindow();
 
         areaCenterMarkers.put(areaId, centerMarker);
-        markerAreaMap.put(centerMarker, areaElement);
+        markerAreaMap.put(centerMarker, area);
 
         PolygonOptions polyOptions = new PolygonOptions();
         polyOptions = polyOptions
@@ -181,31 +181,31 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
         double polygonAreaSqFt = polygonAreaSqMt * 10.7639;
 
         AreaMeasure areaMeasure = new AreaMeasure(polygonAreaSqFt);
-        areaElement.setMeasure(areaMeasure);
+        area.setMeasure(areaMeasure);
     }
 
-    private void plotMediaPoints(AreaElement areaElement) {
-        String areaId = areaElement.getUniqueId();
+    private void plotMediaPoints(Area area) {
+        String areaId = area.getUniqueId();
         Marker centerMarker = areaCenterMarkers.get(areaId);
 
-        LinkedHashMap<Marker, DriveResource> mediaMarkers = areaMediaMarkers.get(areaId);
+        LinkedHashMap<Marker, Resource> mediaMarkers = areaMediaMarkers.get(areaId);
         if (mediaMarkers == null) {
             mediaMarkers = new LinkedHashMap<>();
             areaMediaMarkers.put(areaId, mediaMarkers);
         }
-        LinkedHashMap<Marker, PositionElement> mediaPositions = areaMediaPositions.get(areaId);
+        LinkedHashMap<Marker, Position> mediaPositions = areaMediaPositions.get(areaId);
         if (mediaPositions == null) {
             mediaPositions = new LinkedHashMap<>();
             areaMediaPositions.put(areaId, mediaPositions);
         }
 
-        List<DriveResource> driveResources = areaElement.getMediaResources();
+        List<Resource> resources = area.getMediaResources();
         BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(R.drawable.video_map);
         BitmapDescriptor pictureBMap = BitmapDescriptorFactory.fromResource(R.drawable.camera_map);
-        for (int i = 0; i < driveResources.size(); i++) {
-            DriveResource resource = driveResources.get(i);
+        for (int i = 0; i < resources.size(); i++) {
+            Resource resource = resources.get(i);
             if (resource.getType().equals("file")) {
-                PositionElement resourcePosition = resource.getPosition();
+                Position resourcePosition = resource.getPosition();
                 if (resourcePosition != null) {
                     if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
                         continue;
@@ -237,7 +237,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
 
                     mediaMarkers.put(marker, resource);
                     mediaPositions.put(marker, resourcePosition);
-                    markerAreaMap.put(marker, areaElement);
+                    markerAreaMap.put(marker, area);
                 }
             }
         }
@@ -254,15 +254,15 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
 
             @Override
             public View getInfoContents(Marker marker) {
-                AreaElement areaObj = markerAreaMap.get(marker);
+                Area areaObj = markerAreaMap.get(marker);
                 String areaId = areaObj.getUniqueId();
 
                 Marker centerMarker = areaCenterMarkers.get(areaId);
                 String markerTag = (String) marker.getTag();
 
                 if (markerTag.equalsIgnoreCase("PositionMarker")) {
-                    LinkedHashMap<Marker, PositionElement> boundaryMarkers = areaBoundaryMarkers.get(areaId);
-                    PositionElement position = boundaryMarkers.get(marker);
+                    LinkedHashMap<Marker, Position> boundaryMarkers = areaBoundaryMarkers.get(areaId);
+                    Position position = boundaryMarkers.get(marker);
                     infoImage.setImageResource(drawable.position);
                     infoTitle.setText(position.getName());
                     CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(position.getCreatedOnMillis()),
@@ -281,8 +281,8 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                 }
 
                 if (markerTag.equalsIgnoreCase("MediaMarker")) {
-                    LinkedHashMap<Marker, DriveResource> mediaMarkers = areaMediaMarkers.get(areaId);
-                    DriveResource resource = mediaMarkers.get(marker);
+                    LinkedHashMap<Marker, Resource> mediaMarkers = areaMediaMarkers.get(areaId);
+                    Resource resource = mediaMarkers.get(marker);
                     String thumbRootPath = "";
                     if (resource.getContentType().equalsIgnoreCase("Video")) {
                         thumbRootPath = ac.getAreaLocalVideoThumbnailRoot(areaId).getAbsolutePath();
@@ -327,7 +327,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
 
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                AreaElement areaObj = markerAreaMap.get(marker);
+                Area areaObj = markerAreaMap.get(marker);
                 String areaId = areaObj.getUniqueId();
 
                 File areaLocalImageRoot = ac.getAreaLocalImageRoot(areaId);
@@ -339,8 +339,8 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                 intent.setAction(Intent.ACTION_VIEW);
                 String markerTag = (String) marker.getTag();
                 if (markerTag.equalsIgnoreCase("MediaMarker")) {
-                    LinkedHashMap<Marker, DriveResource> mediaMarkers = areaMediaMarkers.get(areaId);
-                    DriveResource resource = mediaMarkers.get(marker);
+                    LinkedHashMap<Marker, Resource> mediaMarkers = areaMediaMarkers.get(areaId);
+                    Resource resource = mediaMarkers.get(marker);
                     String contentType = resource.getContentType();
                     if (contentType.equalsIgnoreCase("Image")) {
                         File file = new File(imageRootPath + File.separatorChar + resource.getName());
@@ -366,7 +366,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
         infoButton.setOnTouchListener(infoButtonListener);
     }
 
-    public Marker buildMarker(PositionElement pe) {
+    public Marker buildMarker(Position pe) {
         LatLng position = new LatLng(pe.getLat(), pe.getLon());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");

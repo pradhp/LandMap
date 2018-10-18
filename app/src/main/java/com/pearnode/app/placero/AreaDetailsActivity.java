@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
@@ -39,15 +40,16 @@ import java.util.UUID;
 
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.tasks.RemoveAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionListAdaptor;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
@@ -57,13 +59,14 @@ import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.app.placero.weather.WeatherDisplayFragment;
 import com.pearnode.app.placero.weather.WeatherManager;
 import com.pearnode.app.placero.weather.model.WeatherElement;
+import com.pearnode.common.TaskFinishedListener;
 
 public class AreaDetailsActivity extends AppCompatActivity implements LocationPositionReceiver {
 
-    private AreaElement ae;
+    private Area ae;
     private boolean online = true;
 
-    private final ArrayList<PositionElement> positionList = new ArrayList<PositionElement>();
+    private final ArrayList<Position> positionList = new ArrayList<Position>();
     private PositionListAdaptor adaptor;
 
     @Override
@@ -179,7 +182,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                     showMessage("No Internet..", "error");
                     return;
                 }
-                List<PositionElement> positions = ae.getPositions();
+                List<Position> positions = ae.getPositions();
                 if (positions.size() >= 1) {
                     Intent intent = new Intent(getApplicationContext(), AreaMapPlotterActivity.class);
                     startActivity(intent);
@@ -197,10 +200,10 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                     showMessage("No Internet..", "error");
                     return;
                 }
-                List<PositionElement> positions = ae.getPositions();
+                List<Position> positions = ae.getPositions();
                 if (positions.size() > 0) {
                     UserElement userElement = UserContext.getInstance().getUserElement();
-                    PositionElement position = userElement.getSelections().getPosition();
+                    Position position = userElement.getSelections().getPosition();
                     if(position == null){
                         position = positions.get(0);
                     }
@@ -288,12 +291,12 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
     }
 
     @Override
-    public void receivedLocationPostion(PositionElement pe) {
+    public void receivedLocationPostion(Position pe) {
         pe.setName("P_" + UUID.randomUUID());
         pe.setUniqueAreaId(ae.getUniqueId());
 
-        AreaElement ae = AreaContext.INSTANCE.getAreaElement();
-        List<PositionElement> positions = ae.getPositions();
+        Area ae = AreaContext.INSTANCE.getAreaElement();
+        List<Position> positions = ae.getPositions();
         if(!positions.contains(pe)){
             pe.setName("Position_" + positions.size());
             positions.add(pe);
@@ -415,34 +418,30 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                 .setMessage("Do you really want to remove the area ?")
                 .setPositiveButton(string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        AreaDBHelper adh = new AreaDBHelper(getApplicationContext(), new DeleteAreaCallback());
-                        if(!adh.deleteAreaFromServer(ae)){
-                            Intent intent = new Intent(getApplicationContext(), AreaDashboardActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }else {
-                            adh.deleteArea(ae);
-                        }
+                        RemoveAreaTask rat = new RemoveAreaTask(getApplicationContext(), new DeleteAreaCallback());
+                        rat.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ae);
                     }
                 })
                 .setNegativeButton(string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // Add some marker in the context saying that GPS is not enabled.
+                        dialog.dismiss();
                     }
                 })
                 .show();
     }
 
-    private class DeleteAreaCallback implements AsyncTaskCallback {
+    private class DeleteAreaCallback implements TaskFinishedListener {
+
         @Override
-        public void taskCompleted(Object result) {
+        public void onTaskFinished(String response) {
             Intent removeIntent = new Intent(getApplicationContext(), RemoveDriveResourcesActivity.class);
             startActivity(removeIntent);
             finish();
         }
     }
 
-    public void showPositionEdit(final PositionElement positionElement){
+    public void showPositionEdit(final Position position){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Change Position Details");
 
@@ -452,25 +451,25 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         builder.setView(v);
 
         final EditText posNameView = (EditText) v.findViewById(R.id.position_name);
-        posNameView.setText(positionElement.getName());
+        posNameView.setText(position.getName());
 
         final EditText posDescView = (EditText) v.findViewById(R.id.position_desc);
-        posDescView.setText(positionElement.getDescription());
+        posDescView.setText(position.getDescription());
 
         final Spinner spinner = (Spinner) v.findViewById(id.position_type);
-        String ptype = StringUtils.capitalize(positionElement.getType());
+        String ptype = StringUtils.capitalize(position.getType());
         spinner.setSelection(((ArrayAdapter)spinner.getAdapter()).getPosition(ptype));
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                positionElement.setName(posNameView.getText().toString());
-                positionElement.setType(spinner.getSelectedItem().toString());
-                positionElement.setDescription(posDescView.getText().toString());
+                position.setName(posNameView.getText().toString());
+                position.setType(spinner.getSelectedItem().toString());
+                position.setDescription(posDescView.getText().toString());
 
                 PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-                pdh.updatePositionLocally(positionElement);
-                pdh.updatePositionToServer(positionElement);
+                pdh.updatePositionLocally(position);
+                pdh.updatePositionToServer(position);
 
                 adaptor.notifyDataSetChanged();
                 dialog.dismiss();

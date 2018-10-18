@@ -141,16 +141,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
-        <activity
-            android:name="com.pearnode.app.placero.CreateCommonFolderStructureActivity"
-            android:label="@string/choose_document"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
-        <activity
-            android:name="com.pearnode.app.placero.CreateAreaFoldersActivity"
-            android:label="@string/choose_document"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
+
         <activity
             android:name="com.pearnode.app.placero.TagAssignmentActivity"
             android:label="@string/choose_document"

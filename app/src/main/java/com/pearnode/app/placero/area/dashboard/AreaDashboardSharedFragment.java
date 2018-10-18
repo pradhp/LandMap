@@ -24,7 +24,7 @@ import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
@@ -95,7 +95,7 @@ public class AreaDashboardSharedFragment extends Fragment
 
         AreaDBHelper adh = new AreaDBHelper(mView.getContext());
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        ArrayList<AreaElement> sharedAreas = adh.getAreas("shared");
+        ArrayList<Area> sharedAreas = adh.getAreas("shared");
         viewAdapter = new AreaItemAdaptor(mView.getContext(), layout.area_element_row, sharedAreas);
 
         if (sharedAreas.size() > 0) {
@@ -176,7 +176,7 @@ public class AreaDashboardSharedFragment extends Fragment
                     mView.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
 
                     ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-                    ArrayAdapter<AreaElement> adapter = (ArrayAdapter<AreaElement>) areaListView.getAdapter();
+                    ArrayAdapter<Area> adapter = (ArrayAdapter<Area>) areaListView.getAdapter();
                     adapter.getFilter().filter(editable.toString());
 
                     mView.findViewById(id.splash_panel).setVisibility(View.GONE);
@@ -184,11 +184,6 @@ public class AreaDashboardSharedFragment extends Fragment
             }
         }
 
-    }
-
-    @Override
-    public void setOffline(boolean offline) {
-        this.offline = offline;
     }
 
     @Override

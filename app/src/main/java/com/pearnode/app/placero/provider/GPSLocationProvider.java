@@ -17,16 +17,16 @@ import java.util.List;
 import java.util.UUID;
 
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 
 public class GPSLocationProvider implements LocationListener {
 
     private final Activity activity;
     private LocationPositionReceiver receiver;
     private int timeout = 30;
-    private final PositionElement pe = new PositionElement();
+    private final Position pe = new Position();
 
     public GPSLocationProvider(Activity activity) {
         this.activity = activity;
@@ -68,12 +68,12 @@ public class GPSLocationProvider implements LocationListener {
     public void onLocationChanged(Location location) {
         pe.setUniqueId(UUID.randomUUID().toString());
 
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
-        List<PositionElement> positions = areaElement.getPositions();
+        Area area = AreaContext.INSTANCE.getAreaElement();
+        List<Position> positions = area.getPositions();
         pe.setName("Position_" + (positions.size() + 1));
         pe.setLon(location.getLongitude());
         pe.setLat(location.getLatitude());
-        pe.setUniqueAreaId(areaElement.getUniqueId());
+        pe.setUniqueAreaId(area.getUniqueId());
         pe.setCreatedOnMillis(System.currentTimeMillis() + "");
 
         if (receiver != null) {

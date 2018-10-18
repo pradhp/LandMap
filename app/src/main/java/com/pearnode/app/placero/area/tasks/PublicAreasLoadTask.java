@@ -15,19 +15,20 @@ import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.pearnode.app.placero.area.model.AreaAddress;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Address;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.util.GeneralUtil;
+import com.pearnode.constants.APIRegistry;
 
 /**
  * Created by Rinky on 21-10-2017.
@@ -58,7 +59,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = "http://"+ GeneralUtil.dbHost+"/lm/AreaPublicSearch.php";
+            String urlString = APIRegistry.PUBLIC_AREAS_SEARCH;
             URL url = null;
             if (postDataParams.length > 0) {
                 JSONObject postDataParam = postDataParams[0];
@@ -103,34 +104,35 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
             JSONArray responseArr = new JSONArray(s);
             for (int i = 0; i < responseArr.length(); i++) {
                 JSONObject responseObj = (JSONObject) responseArr.get(i);
-
                 JSONObject areaObj = (JSONObject) responseObj.get("area");
 
-                AreaElement ae = new AreaElement();
-                ae.setName(areaObj.getString("name"));
-                ae.setCreatedBy(areaObj.getString("created_by"));
-                ae.setDescription(areaObj.getString("description"));
-                ae.getCenterPosition().setLat(areaObj.getDouble("center_lat"));
-                ae.getCenterPosition().setLon(areaObj.getDouble("center_lon"));
-                ae.setUniqueId(areaObj.getString("unique_id"));
+                Area area = new Area();
+                area.setName(areaObj.getString("name"));
+                area.setCreatedBy(areaObj.getString("created_by"));
+                area.setDescription(areaObj.getString("description"));
+                area.getCenterPosition().setLat(areaObj.getDouble("center_lat"));
+                area.getCenterPosition().setLon(areaObj.getDouble("center_lon"));
+                area.setUniqueId(areaObj.getString("unique_id"));
+                area.setDirty(0);
+                area.setDirtyAction("none");
+                area.setType(areaObj.getString("type"));
+
                 AreaMeasure measure = new AreaMeasure(areaObj.getDouble("measure_sqft"));
-                ae.setMeasure(measure);
+                area.setMeasure(measure);
+                adh.insertArea(area);
 
                 String addressText = areaObj.getString("address");
-                AreaAddress areaAddress = AreaAddress.fromStoredAddress(addressText);
-                if(areaAddress != null){
-                    ae.setAddress(areaAddress);
-                    tdh.insertTagsLocally(areaAddress.getTags(), "area", ae.getUniqueId());
+                Address address = Address.fromStoredAddress(addressText);
+                if(address != null){
+                    area.setAddress(address);
+                    tdh.insertTagsLocally(address.getTags(), "area", area.getUniqueId());
                 }
-
-                ae.setType(areaObj.getString("type"));
-                this.adh.insertAreaFromServer(ae);
 
                 JSONArray positionsArr = (JSONArray) responseObj.get("positions");
                 for (int p = 0; p < positionsArr.length(); p++) {
                     JSONObject positionObj = (JSONObject) positionsArr.get(p);
 
-                    PositionElement pe = new PositionElement();
+                    Position pe = new Position();
                     pe.setUniqueId((String) positionObj.get("unique_id"));
                     pe.setUniqueAreaId((String) positionObj.get("unique_area_id"));
                     pe.setName((String) positionObj.get("name"));
@@ -147,7 +149,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                 for (int d = 0; d < driveArr.length(); d++) {
                     JSONObject driveObj = (JSONObject) driveArr.get(d);
 
-                    DriveResource dr = new DriveResource();
+                    Resource dr = new Resource();
                     dr.setUniqueId(driveObj.getString("unique_id"));
                     dr.setAreaId(driveObj.getString("area_id"));
                     dr.setUserId(driveObj.getString("user_id"));
@@ -159,7 +161,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     dr.setMimeType(driveObj.getString("mime_type"));
                     dr.setContentType(driveObj.getString("content_type"));
 
-                    PositionElement position = new PositionElement();
+                    Position position = new Position();
                     try{
                         position.setLat(driveObj.getDouble("latitude"));
                         position.setLon(driveObj.getDouble("longitude"));

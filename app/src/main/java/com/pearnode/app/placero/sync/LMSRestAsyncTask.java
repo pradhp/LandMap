@@ -18,7 +18,7 @@ import java.util.Iterator;
 import javax.net.ssl.HttpsURLConnection;
 
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.util.GeneralUtil;
+import com.pearnode.constants.APIRegistry;
 
 /**
  * Created by Rinky on 21-10-2017.
@@ -40,7 +40,7 @@ public class LMSRestAsyncTask extends AsyncTask<JSONObject, Void, String> {
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = "http://"+ GeneralUtil.dbHost+"/lm/";
+            String urlString = APIRegistry.GENERIC_SEARCH;
             JSONObject postDataParam = postDataParams[0];
             String requestType = postDataParam.getString("requestType");
             URL url = new URL(urlString + requestType + ".php");

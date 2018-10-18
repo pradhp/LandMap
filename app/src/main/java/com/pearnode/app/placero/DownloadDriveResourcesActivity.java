@@ -38,10 +38,10 @@ import java.util.List;
 
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
@@ -199,10 +199,10 @@ public class DownloadDriveResourcesActivity extends Activity implements Permissi
         protected Boolean doInBackground(Void... params) {
             try {
                 AreaContext ac = AreaContext.INSTANCE;
-                AreaElement ae = ac.getAreaElement();
-                List<DriveResource> resources = ae.getMediaResources();
+                Area ae = ac.getAreaElement();
+                List<Resource> resources = ae.getMediaResources();
                 for (int j = 0; j < resources.size(); j++) {
-                    DriveResource resource = resources.get(j);
+                    Resource resource = resources.get(j);
                     String contentType = resource.getContentType();
                     if (!resource.getType().equalsIgnoreCase("folder")) {
                         File storeRoot = ac.getLocalStoreLocationForDriveResource(resource);

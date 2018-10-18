@@ -16,7 +16,7 @@ import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.AreaDetailsActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
@@ -27,11 +27,11 @@ import com.pearnode.app.placero.util.AreaPopulationUtil;
  */
 public class AreaItemAdaptor extends ArrayAdapter {
 
-    private ArrayList<AreaElement> items;
-    private final ArrayList<AreaElement> fixedItems = new ArrayList<>();
+    private ArrayList<Area> items;
+    private final ArrayList<Area> fixedItems = new ArrayList<>();
     private final Context context;
 
-    public AreaItemAdaptor(Context context, int textViewResourceId, ArrayList<AreaElement> items) {
+    public AreaItemAdaptor(Context context, int textViewResourceId, ArrayList<Area> items) {
         super(context, textViewResourceId, items);
         this.context = context;
         this.items = items;
@@ -48,9 +48,9 @@ public class AreaItemAdaptor extends ArrayAdapter {
 
         final AreaContext areaContext = AreaContext.INSTANCE;
         areaContext.setDisplayBMap(null);
-        final AreaElement areaElement = items.get(position);
+        final Area area = items.get(position);
 
-        AreaPopulationUtil.INSTANCE.populateAreaElement(itemView, areaElement);
+        AreaPopulationUtil.INSTANCE.populateAreaElement(itemView, area);
 
         itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -62,7 +62,7 @@ public class AreaItemAdaptor extends ArrayAdapter {
                 }
                 v.setBackgroundResource(R.drawable.rounded_area_list_view_sel);
                 UserElement userElement = UserContext.getInstance().getUserElement();
-                userElement.getSelections().setArea(areaElement);
+                userElement.getSelections().setArea(area);
 
                 final Activity activity = (Activity) context;
                 final View reportView = activity.findViewById(R.id.action_generate_report);
@@ -78,9 +78,9 @@ public class AreaItemAdaptor extends ArrayAdapter {
                 final AreaDashboardActivity activity = (AreaDashboardActivity) context;
                 activity.unregisterReceiver(activity.broadcastReceiver);
 
-                AreaContext.INSTANCE.setAreaElement(areaElement, activity);
+                AreaContext.INSTANCE.setAreaElement(area, activity);
                 UserElement userElement = UserContext.getInstance().getUserElement();
-                userElement.getSelections().setArea(areaElement);
+                userElement.getSelections().setArea(area);
 
                 Intent intent = new Intent(activity, AreaDetailsActivity.class);
                 activity.startActivity(intent);
@@ -102,28 +102,28 @@ public class AreaItemAdaptor extends ArrayAdapter {
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, Filter.FilterResults results) {
-                items = (ArrayList<AreaElement>) results.values;
+                items = (ArrayList<Area>) results.values;
                 notifyDataSetChanged();
             }
 
             @Override
             protected Filter.FilterResults performFiltering(CharSequence constraint) {
-                List<AreaElement> filteredResults = getFilteredResults(constraint);
+                List<Area> filteredResults = getFilteredResults(constraint);
                 Filter.FilterResults results = new Filter.FilterResults();
                 results.values = filteredResults;
                 return results;
             }
 
-            private List<AreaElement> getFilteredResults(CharSequence constraint) {
-                List<AreaElement> results = new ArrayList<>();
+            private List<Area> getFilteredResults(CharSequence constraint) {
+                List<Area> results = new ArrayList<>();
                 for (int i = 0; i < fixedItems.size(); i++) {
-                    AreaElement areaElement = fixedItems.get(i);
-                    String areaName = areaElement.getName().toLowerCase();
-                    String description = areaElement.getDescription().toLowerCase();
-                    String address = areaElement.getAddress().getDisplaybleAddress();
+                    Area area = fixedItems.get(i);
+                    String areaName = area.getName().toLowerCase();
+                    String description = area.getDescription().toLowerCase();
+                    String address = area.getAddress().getDisplaybleAddress();
                     String cons = constraint.toString().toLowerCase();
                     if (areaName.contains(cons) || description.contains(constraint) || address.contains(constraint)) {
-                        results.add(areaElement);
+                        results.add(area);
                     }
                 }
                 return results;
@@ -136,7 +136,7 @@ public class AreaItemAdaptor extends ArrayAdapter {
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, Filter.FilterResults results) {
-                items = (ArrayList<AreaElement>) results.values;
+                items = (ArrayList<Area>) results.values;
                 notifyDataSetChanged();
             }
 
@@ -151,12 +151,12 @@ public class AreaItemAdaptor extends ArrayAdapter {
 
     public Filter getFilterChain(final List<String> filterables, final List<String> executables) {
         return new Filter() {
-            ArrayList<AreaElement> filteredItems = fixedItems;
+            ArrayList<Area> filteredItems = fixedItems;
 
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, Filter.FilterResults results) {
-                items = (ArrayList<AreaElement>) results.values;
+                items = (ArrayList<Area>) results.values;
                 notifyDataSetChanged();
             }
 
@@ -167,42 +167,42 @@ public class AreaItemAdaptor extends ArrayAdapter {
                 if(constraint == null || constraint.toString().trim().equals("")){
                     results.values = fixedItems;
                 }else {
-                    filteredItems = (ArrayList<AreaElement>) filterByConstraint(fixedItems, constraintStr);
+                    filteredItems = (ArrayList<Area>) filterByConstraint(fixedItems, constraintStr);
                 }
                 for (String filterable: filterables) {
-                    filteredItems = (ArrayList<AreaElement>) filterByFilterable(filteredItems, filterable);
+                    filteredItems = (ArrayList<Area>) filterByFilterable(filteredItems, filterable);
                 }
                 for (String executable: executables) {
-                    filteredItems = (ArrayList<AreaElement>) filterByExecutable(filteredItems, executable);
+                    filteredItems = (ArrayList<Area>) filterByExecutable(filteredItems, executable);
                 }
                 results.values = filteredItems;
                 return results;
             }
 
-            private List<AreaElement> filterByFilterable(ArrayList<AreaElement> filterableItems, String filterable) {
+            private List<Area> filterByFilterable(ArrayList<Area> filterableItems, String filterable) {
                 if(filterableItems.size() == 0){
                     return filterableItems;
                 }
-                List<AreaElement> results = new ArrayList<>();
+                List<Area> results = new ArrayList<>();
                 for (int i = 0; i < filterableItems.size(); i++) {
-                    AreaElement areaElement = filterableItems.get(i);
-                    String address = areaElement.getAddress().getDisplaybleAddress().toLowerCase();
+                    Area area = filterableItems.get(i);
+                    String address = area.getAddress().getDisplaybleAddress().toLowerCase();
                     String lowerFilterable = filterable.toString().toLowerCase();
                     if (address.contains(lowerFilterable)) {
-                        results.add(areaElement);
+                        results.add(area);
                     }
                 }
                 return results;
             }
 
-            private List<AreaElement> filterByExecutable(ArrayList<AreaElement> executableItems, String executable) {
+            private List<Area> filterByExecutable(ArrayList<Area> executableItems, String executable) {
                 if(executableItems.size() == 0){
                     return executableItems;
                 }
-                List<AreaElement> results = new ArrayList<>();
+                List<Area> results = new ArrayList<>();
                 for (int i = 0; i < executableItems.size(); i++) {
-                    AreaElement areaElement = executableItems.get(i);
-                    AreaMeasure measure = areaElement.getMeasure();
+                    Area area = executableItems.get(i);
+                    AreaMeasure measure = area.getMeasure();
 
                     String[] splitExec = executable.split(" ");
                     double instanceValue = measure.getValueByField(splitExec[0]);
@@ -212,23 +212,23 @@ public class AreaItemAdaptor extends ArrayAdapter {
 
                     if(condition.equalsIgnoreCase("greater_than")){
                         if(instanceValue > conditionValue){
-                            results.add(areaElement);
+                            results.add(area);
                         }
                     }else if(condition.equalsIgnoreCase("less_than")){
                         if(instanceValue < conditionValue){
-                            results.add(areaElement);
+                            results.add(area);
                         }
                     }else if(condition.equalsIgnoreCase("equals")){
                         if(instanceValue == conditionValue){
-                            results.add(areaElement);
+                            results.add(area);
                         }
                     }else if(condition.equalsIgnoreCase("less_than_equals")){
                         if(instanceValue <= conditionValue){
-                            results.add(areaElement);
+                            results.add(area);
                         }
                     }else if(condition.equalsIgnoreCase("greater_than_equals")){
                         if(instanceValue >= conditionValue){
-                            results.add(areaElement);
+                            results.add(area);
                         }
                     }
 
@@ -236,16 +236,16 @@ public class AreaItemAdaptor extends ArrayAdapter {
                 return results;
             }
 
-            private List<AreaElement> filterByConstraint(ArrayList<AreaElement> filterableItems, String constraint) {
-                List<AreaElement> results = new ArrayList<>();
+            private List<Area> filterByConstraint(ArrayList<Area> filterableItems, String constraint) {
+                List<Area> results = new ArrayList<>();
                 for (int i = 0; i < filterableItems.size(); i++) {
-                    AreaElement areaElement = filterableItems.get(i);
-                    String areaName = areaElement.getName().toLowerCase();
-                    String description = areaElement.getDescription().toLowerCase();
-                    String address = areaElement.getAddress().getDisplaybleAddress();
+                    Area area = filterableItems.get(i);
+                    String areaName = area.getName().toLowerCase();
+                    String description = area.getDescription().toLowerCase();
+                    String address = area.getAddress().getDisplaybleAddress();
                     String cons = constraint.toString().toLowerCase();
                     if (areaName.contains(cons) || description.contains(constraint) || address.contains(constraint)) {
-                        results.add(areaElement);
+                        results.add(area);
                     }
                 }
                 return results;
@@ -253,7 +253,7 @@ public class AreaItemAdaptor extends ArrayAdapter {
         };
     }
 
-    public ArrayList<AreaElement> getItems() {
+    public ArrayList<Area> getItems() {
         return this.items;
     }
 

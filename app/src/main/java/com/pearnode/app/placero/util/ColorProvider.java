@@ -2,7 +2,7 @@ package com.pearnode.app.placero.util;
 
 import android.graphics.Color;
 
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 
 /**
  * Created by USER on 11/12/2017.
@@ -28,20 +28,20 @@ public class ColorProvider {
 
     public static final int DEFAULT_DIRTY_ITEM_COLOR = Color.parseColor("#F8F2DF");
 
-    public static final int getAreaToolBarColor(AreaElement areaElement) {
-        if (areaElement.getType().equalsIgnoreCase("shared")) {
+    public static final int getAreaToolBarColor(Area area) {
+        if (area.getType().equalsIgnoreCase("shared")) {
             return BUFF_YELLOW_TOOLBAR;
-        } else if (areaElement.getType().equalsIgnoreCase("public")) {
+        } else if (area.getType().equalsIgnoreCase("public")) {
             return BUFF_ORANGE_TOOLBAR;
         } else {
             return BUFF_BLUE_TOOLBAR;
         }
     }
 
-    public static final int getAreaDetailsColor(AreaElement areaElement) {
-        if (areaElement.getType().equalsIgnoreCase("shared")) {
+    public static final int getAreaDetailsColor(Area area) {
+        if (area.getType().equalsIgnoreCase("shared")) {
             return BUFF_YELLOW_AREA_DISPLAY;
-        } else if (areaElement.getType().equalsIgnoreCase("public")) {
+        } else if (area.getType().equalsIgnoreCase("public")) {
             return BUFF_ORANGE_AREA_DISPLAY;
         } else {
             return BUFF_BLUE_AREA_DISPLAY;

@@ -23,7 +23,7 @@ import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
@@ -150,7 +150,7 @@ public class AreaDashboardPublicFragment extends Fragment
         public void taskCompleted(Object result) {
             AreaDBHelper adh = new AreaDBHelper(mActivity);
 
-            final ArrayList<AreaElement> publicAreas = adh.getAreas("public");
+            final ArrayList<Area> publicAreas = adh.getAreas("public");
             if(publicAreas.size() > 0){
                 mView.findViewById(id.area_display_list).setVisibility(View.VISIBLE);
                 mView.findViewById(id.public_area_empty_layout).setVisibility(View.GONE);

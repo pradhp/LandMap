@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -27,11 +28,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.dashboard.AreaDashboardOwnedFragment;
 import com.pearnode.app.placero.area.dashboard.AreaDashboardPublicFragment;
 import com.pearnode.app.placero.area.dashboard.AreaDashboardSharedFragment;
@@ -39,6 +41,7 @@ import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.reporting.AreaReportingService;
 import com.pearnode.app.placero.area.reporting.ReportingContext;
 import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
+import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.connectivity.services.AreaSynchronizationService;
 import com.pearnode.app.placero.connectivity.services.PositionSynchronizationService;
@@ -49,17 +52,18 @@ import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.TagElement;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 import com.pearnode.app.placero.util.ColorProvider;
+import com.pearnode.common.TaskFinishedListener;
 
 public class AreaDashboardActivity extends AppCompatActivity {
 
@@ -99,25 +103,29 @@ public class AreaDashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 findViewById(id.splash_panel).setVisibility(View.VISIBLE);
-                AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
-                AreaElement areaElement = adh.insertAreaLocally(online);
+
+                Area area = new Area();
+                String uniqueId = UUID.randomUUID().toString();
+                area.setUniqueId(uniqueId);
+                area.setName("PL_" + uniqueId);
+                area.setCreatedBy(UserContext.getInstance().getUserElement().getEmail());
 
                 PermissionElement pe = new PermissionElement();
                 pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                pe.setAreaId(areaElement.getUniqueId());
+                pe.setAreaId(area.getUniqueId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
 
                 PermissionsDBHelper pdh = new PermissionsDBHelper(getApplicationContext());
                 pdh.insertPermissionLocally(pe);
-                areaElement.getUserPermissions().put(PermissionConstants.FULL_CONTROL, pe);
+                area.getUserPermissions().put(PermissionConstants.FULL_CONTROL, pe);
 
                 // Resetting the context for new Area
-                AreaContext.INSTANCE.setAreaElement(areaElement, getApplicationContext());
-                adh = new AreaDBHelper(getApplicationContext(), new DataInsertServerCallback(areaElement));
-                if (!adh.insertAreaToServer(areaElement)) {
-                    Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
-                    startActivity(intent);
-                }
+                AreaContext.INSTANCE.setAreaElement(area, getApplicationContext());
+                CreateAreaServerCallback createCallback = new CreateAreaServerCallback();
+                createCallback.setArea(area);
+
+                CreateAreaTask createAreaTask = new CreateAreaTask(getApplicationContext(), createCallback);
+                createAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, area);
             }
         });
 
@@ -126,7 +134,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 UserPersistableSelections selections = UserContext.getInstance().getUserElement().getSelections();
-                AreaElement selectedArea = selections.getArea();
+                Area selectedArea = selections.getArea();
                 if (selectedArea == null) {
                     showMessage("You need to select a Place first", "error");
                     return;
@@ -186,9 +194,9 @@ public class AreaDashboardActivity extends AppCompatActivity {
         });
 
         ImageView saveOfflineView = (ImageView) findViewById(R.id.action_save_offline);
-        final ArrayList<AreaElement> dirtyAreas = new AreaDBHelper(getApplicationContext()).getDirtyAreas();
-        final ArrayList<PositionElement> dirtyPositions = new PositionsDBHelper(getApplicationContext()).getDirtyPositions();
-        final ArrayList<DriveResource> dirtyResources = new DriveDBHelper(getApplicationContext()).getDirtyResources();
+        final ArrayList<Area> dirtyAreas = new AreaDBHelper(getApplicationContext()).getDirtyAreas();
+        final ArrayList<Position> dirtyPositions = new PositionsDBHelper(getApplicationContext()).getDirtyPositions();
+        final ArrayList<Resource> dirtyResources = new DriveDBHelper(getApplicationContext()).getDirtyResources();
 
         saveOfflineView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,12 +230,12 @@ public class AreaDashboardActivity extends AppCompatActivity {
                         = (FragmentHandler) adapter.getItem(AreaDashboardDisplayMetaStore.INSTANCE.getActiveTab());
                 AreaItemAdaptor viewAdaptor = (AreaItemAdaptor) fragment.getViewAdaptor();
                 List<String> areaIds = new ArrayList<>();
-                ArrayList<AreaElement> adaptorItems = viewAdaptor.getItems();
+                ArrayList<Area> adaptorItems = viewAdaptor.getItems();
                 if((adaptorItems == null) || (adaptorItems.size() == 0)){
                     showMessage("Nothing to plot..", "error");
                     return;
                 }
-                for (AreaElement eachItem: adaptorItems) {
+                for (Area eachItem: adaptorItems) {
                     areaIds.add(eachItem.getUniqueId());
                 }
                 Intent intent = new Intent(getApplicationContext(), CombinedAreasPlotterActivity.class);
@@ -237,16 +245,33 @@ public class AreaDashboardActivity extends AppCompatActivity {
         });
     }
 
+    private class CreateAreaServerCallback implements TaskFinishedListener {
 
+        private Area area = null;
+
+        public Area getArea() {
+            return this.area;
+        }
+
+        public void setArea(Area area) {
+            this.area = area;
+        }
+
+        @Override
+        public void onTaskFinished(String response) {
+            Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
+            startActivity(intent);
+        }
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
-        if(areaElement != null){
+        Area area = AreaContext.INSTANCE.getAreaElement();
+        if(area != null){
             TabLayout tabLayout = (TabLayout) findViewById(id.areas_display_tab_layout);
             AreaDashboardDisplayMetaStore store = AreaDashboardDisplayMetaStore.INSTANCE;
-            Integer position = store.getTabPositionByAreaType(areaElement.getType());
+            Integer position = store.getTabPositionByAreaType(area.getType());
             tabLayout.getTabAt(position).select();
         }
         showErrorsIfAny();
@@ -312,21 +337,6 @@ public class AreaDashboardActivity extends AppCompatActivity {
                 }).setNegativeButton("no", null).show();
     }
 
-    private class DataInsertServerCallback implements AsyncTaskCallback {
-
-        private AreaElement areaElement;
-
-        public DataInsertServerCallback(AreaElement areaElement){
-            this.areaElement = areaElement;
-        }
-        @Override
-        public void taskCompleted(Object result) {
-            Intent intent = new Intent(getApplicationContext(), CreateAreaFoldersActivity.class);
-            intent.putExtra("area_id", areaElement.getUniqueId());
-            startActivity(intent);
-        }
-    }
-
     private void showMessage(String message, String type) {
         final Snackbar snackbar = Snackbar.make(getWindow().getDecorView(),
                 message + ".", Snackbar.LENGTH_INDEFINITE);
@@ -360,16 +370,6 @@ public class AreaDashboardActivity extends AppCompatActivity {
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            online = !action.equalsIgnoreCase("INTERNET_LOST");
-            // notify fragments
-            final ViewPager viewPager = (ViewPager) findViewById(R.id.areas_display_tab_pager);
-            DisplayAreasPagerAdapter adapter = (DisplayAreasPagerAdapter) viewPager.getAdapter();
-            int fragmentCount = adapter.getCount();
-            for (int i = 0; i < fragmentCount; i++) {
-                FragmentHandler item = (FragmentHandler) adapter.getItem(i);
-                item.setOffline(online);
-            }
         }
     };
 

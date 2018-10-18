@@ -15,19 +15,19 @@ import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.util.ColorProvider;
 
 /**
  * Created by USER on 10/16/2017.
  */
-public class AreaAddResourceAdaptor extends ArrayAdapter<DriveResource> {
+public class AreaAddResourceAdaptor extends ArrayAdapter<Resource> {
 
-    private final ArrayList<DriveResource> items;
+    private final ArrayList<Resource> items;
     private final Context context;
 
-    public AreaAddResourceAdaptor(Context context, ArrayList<DriveResource> items) {
+    public AreaAddResourceAdaptor(Context context, ArrayList<Resource> items) {
         super(context, R.layout.upload_element_row, items);
         this.context = context;
         this.items = items;
@@ -42,13 +42,13 @@ public class AreaAddResourceAdaptor extends ArrayAdapter<DriveResource> {
         }
 
         final AreaContext areaContext = AreaContext.INSTANCE;
-        final DriveResource resource = items.get(position);
+        final Resource resource = items.get(position);
 
         TextView nameText = (TextView) v.findViewById(R.id.ar_file_name);
         nameText.setText(resource.getName());
 
         TextView filePathText = (TextView) v.findViewById(R.id.ar_file_path);
-        PositionElement resourcePosition = resource.getPosition();
+        Position resourcePosition = resource.getPosition();
         if(resourcePosition != null){
             String message = "Position: " + resourcePosition.getLat() + ", " + resourcePosition.getLon();
             filePathText.setText(message);

@@ -31,11 +31,11 @@ import com.pearnode.app.placero.R.drawable;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.DocumentChooserAdaptor;
 import com.pearnode.app.placero.area.res.disp.FileDisplayElement;
 import com.pearnode.app.placero.custom.PermittedFileArrayList;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.util.FileUtil;
 
@@ -75,7 +75,7 @@ public class AreaDocumentChooserFragment extends Fragment {
                     }
 
                     AreaContext areaContext = AreaContext.INSTANCE;
-                    AreaElement ae = areaContext.getAreaElement();
+                    Area ae = areaContext.getAreaElement();
 
                     File loadFile = new File(areaContext.getAreaLocalDocumentRoot(ae.getUniqueId())
                             .getAbsolutePath() + File.separatorChar + documentFile.getName());
@@ -85,7 +85,7 @@ public class AreaDocumentChooserFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    DriveResource resource = new DriveResource();
+                    Resource resource = new Resource();
                     resource.setName(loadFile.getName());
                     resource.setPath(loadFile.getAbsolutePath());
                     resource.setType("file");

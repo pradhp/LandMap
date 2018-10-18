@@ -38,13 +38,13 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.pearnode.app.placero.R;
-import com.pearnode.app.placero.area.model.AreaAddress;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Address;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.user.UserContext;
 
 /**
@@ -53,7 +53,7 @@ import com.pearnode.app.placero.user.UserContext;
 public class AreaReportingService extends IntentService {
 
     private ReportingContext reportingContext = ReportingContext.INSTANCE;
-    private AreaElement areaElement = reportingContext.getAreaElement();
+    private Area area = reportingContext.getAreaElement();
     private Map<String, String> reportContent = new HashMap<>();
     private String reportName = null;
     private File docFile = null;
@@ -67,24 +67,24 @@ public class AreaReportingService extends IntentService {
     public AreaReportingService(String name) {
         super(name);
         PDFBoxResourceLoader.init(reportingContext.getActivityContext());
-        reportName = "placero_lms_report_" + areaElement.getName() + ".pdf";
+        reportName = "placero_lms_report_" + area.getName() + ".pdf";
     }
 
     public AreaReportingService() {
         super("AreaReportingService");
         PDFBoxResourceLoader.init(reportingContext.getActivityContext());
-        reportName = "placero_lms_report_" + areaElement.getName() + ".pdf";
+        reportName = "placero_lms_report_" + area.getName() + ".pdf";
     }
 
     @Override
     protected void onHandleIntent(Intent workIntent) {
         reportingContext.setGeneratingReport(true);
         generateReport();
-        DriveResource driveResource = createDriveResource();
-        if (driveResource != null) {
+        Resource resource = createDriveResource();
+        if (resource != null) {
             DriveDBHelper ddh = new DriveDBHelper(reportingContext.getActivityContext());
-            ddh.deleteResourceLocally(driveResource);
-            ddh.insertResourceLocally(driveResource);
+            ddh.deleteResourceLocally(resource);
+            ddh.insertResourceLocally(resource);
         }
         reportingContext.setGeneratingReport(false);
         notifyCompletion();
@@ -92,7 +92,7 @@ public class AreaReportingService extends IntentService {
 
     private String docRoot = null;
     private void generateReport() {
-        String areaId = areaElement.getUniqueId();
+        String areaId = area.getUniqueId();
         docRoot = reportingContext.getAreaLocalDocumentRoot(areaId).getAbsolutePath();
         // Gets data from the incoming Intent
         prepareAreaTextContext();
@@ -124,8 +124,8 @@ public class AreaReportingService extends IntentService {
     }
 
     private void populateDocuments() {
-        List<DriveResource> mediaResources = areaElement.getMediaResources();
-        for (DriveResource resource : mediaResources) {
+        List<Resource> mediaResources = area.getMediaResources();
+        for (Resource resource : mediaResources) {
             if (resource.getType().equalsIgnoreCase("file")
                     && resource.getContentType().equalsIgnoreCase("Document")
                     && (!resource.getResourceId().startsWith("_doc_generated_"))) {
@@ -157,14 +157,14 @@ public class AreaReportingService extends IntentService {
 
     private void prepareAreaTextContext() {
         // Area Header attributes
-        reportContent.put("area_name", areaElement.getName());
-        reportContent.put("area_description", areaElement.getDescription());
+        reportContent.put("area_name", area.getName());
+        reportContent.put("area_description", area.getDescription());
 
         // Area Address attributes
-        AreaAddress areaAddress = areaElement.getAddress();
-        if(areaAddress != null){
+        Address address = area.getAddress();
+        if(address != null){
             String quote = Pattern.quote("@$");
-            String[] addressSplit = areaAddress.getStorableAddress().split(quote);
+            String[] addressSplit = address.getStorableAddress().split(quote);
             for (int i = 0; i < addressSplit.length; i++) {
                 String line = addressSplit[i];
                 reportContent.put("area_address_line" + i, line);
@@ -173,7 +173,7 @@ public class AreaReportingService extends IntentService {
 
         // Area Measurement attributes
         DecimalFormat areaFormat = new DecimalFormat("###.##");
-        AreaMeasure measure = areaElement.getMeasure();
+        AreaMeasure measure = area.getMeasure();
 
         reportContent.put("area_measurement_sq_ft", "Square Feet - " + areaFormat.format(measure.getSqFeet()));
         reportContent.put("area_measurement_sq_mt", "Square Meters - " + areaFormat.format(measure.getSqMeters()));
@@ -183,14 +183,14 @@ public class AreaReportingService extends IntentService {
 
         // Area Positions
         DecimalFormat locFormat = new DecimalFormat("##.####");
-        PositionElement centerPosition = areaElement.getCenterPosition();
+        Position centerPosition = area.getCenterPosition();
         String centerPosStr = "Center - Latitude: " + locFormat.format(centerPosition.getLat())
                 + ", Longitude: " + locFormat.format(centerPosition.getLon());
         reportContent.put("center_position", centerPosStr);
 
-        List<PositionElement> positions = areaElement.getPositions();
+        List<Position> positions = area.getPositions();
         int posCtr = 1;
-        for (PositionElement position : positions) {
+        for (Position position : positions) {
             String fieldName = "position_" + posCtr;
             String posStr = "Position_" + posCtr + " - Latitude: " + locFormat.format(position.getLat())
                     + ", Longitude: " + locFormat.format(position.getLon());
@@ -345,29 +345,29 @@ public class AreaReportingService extends IntentService {
         }
     }
 
-    private DriveResource createDriveResource() {
-        String docRoot = reportingContext.getAreaLocalDocumentRoot(areaElement.getUniqueId()).getAbsolutePath();
+    private Resource createDriveResource() {
+        String docRoot = reportingContext.getAreaLocalDocumentRoot(area.getUniqueId()).getAbsolutePath();
         String docFilePath = docRoot + File.separatorChar + reportName;
         File docFile = new File(docFilePath);
         if (!docFile.exists()) {
             return null;
         }
-        DriveResource resource = new DriveResource();
+        Resource resource = new Resource();
         resource.setUniqueId(UUID.randomUUID().toString());
         resource.setUserId(UserContext.getInstance().getUserElement().getEmail());
         resource.setContainerId(reportingContext.getDocumentRootDriveResource().getContainerId());
-        resource.setResourceId("_doc_generated_" + areaElement.getUniqueId());
+        resource.setResourceId("_doc_generated_" + area.getUniqueId());
         resource.setName(reportName);
         resource.setType("file");
         resource.setContentType("Document");
         resource.setMimeType("application/pdf");
-        resource.setAreaId(areaElement.getUniqueId());
+        resource.setAreaId(area.getUniqueId());
         resource.setSize(docFile.length() + "");
-        resource.setPosition(new PositionElement());
+        resource.setPosition(new Position());
         resource.setCreatedOnMillis(System.currentTimeMillis() + "");
 
         ThumbnailCreator creator = new ThumbnailCreator(reportingContext.getActivityContext());
-        creator.createDocumentThumbnail(docFile, areaElement.getUniqueId());
+        creator.createDocumentThumbnail(docFile, area.getUniqueId());
         return resource;
     }
 
@@ -397,7 +397,7 @@ public class AreaReportingService extends IntentService {
     }
 
     private File[] getPictureFiles() {
-        File pictureRoot = reportingContext.getAreaLocalImageRoot(areaElement.getUniqueId());
+        File pictureRoot = reportingContext.getAreaLocalImageRoot(area.getUniqueId());
         File[] pictureFiles = pictureRoot.listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {

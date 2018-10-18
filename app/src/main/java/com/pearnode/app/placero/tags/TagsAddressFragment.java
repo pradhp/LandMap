@@ -13,10 +13,6 @@ import android.widget.Toast;
 
 import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.TagAssignmentActivity;
 import com.pearnode.app.placero.custom.FragmentHandler;
@@ -24,6 +20,9 @@ import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 import com.pearnode.app.placero.util.ColorProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by USER on 11/4/2017.
@@ -132,11 +131,6 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
     @Override
     public String getFragmentTitle() {
         return "Address";
-    }
-
-    @Override
-    public void setOffline(boolean offline) {
-        this.offline = offline;
     }
 
     @Override

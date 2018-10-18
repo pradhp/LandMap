@@ -26,12 +26,12 @@ public class SplashActivity extends Activity {
         setContentView(layout.activity_splash);
 
         Bundle extras = getIntent().getExtras();
-        if(extras != null){
+        if (extras != null) {
             userExists = new Boolean(extras.getString("user_exists"));
         }
-        if(ConnectivityChangeReceiver.isConnected(this)){
+        if (ConnectivityChangeReceiver.isConnected(this)) {
             new LocalDataRefresher(getApplicationContext(), new DataReloadCallback()).refreshLocalData();
-        }else {
+        } else {
             Intent dashboardIntent = new Intent(this, AreaDashboardActivity.class);
             startActivity(dashboardIntent);
             finish();
@@ -43,13 +43,8 @@ public class SplashActivity extends Activity {
 
         @Override
         public void taskCompleted(Object result) {
-            if(userExists){
-                Intent dashboardIntent = new Intent(SplashActivity.this, AreaDashboardActivity.class);
-                startActivity(dashboardIntent);
-            }else {
-                Intent commonFoldersIntent = new Intent(SplashActivity.this, CreateCommonFolderStructureActivity.class);
-                startActivity(commonFoldersIntent);
-            }
+            Intent dashboardIntent = new Intent(SplashActivity.this, AreaDashboardActivity.class);
+            startActivity(dashboardIntent);
             finish();
         }
     }

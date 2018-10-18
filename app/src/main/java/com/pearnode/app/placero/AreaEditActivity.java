@@ -3,6 +3,7 @@ package com.pearnode.app.placero;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.R.id;
 import android.support.design.widget.Snackbar;
@@ -15,9 +16,9 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaAddress;
-import com.pearnode.app.placero.area.model.AreaElement;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.model.Address;
+import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
@@ -26,6 +27,7 @@ import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 import com.pearnode.app.placero.util.ColorProvider;
+import com.pearnode.common.TaskFinishedListener;
 
 public class AreaEditActivity extends AppCompatActivity {
 
@@ -38,7 +40,7 @@ public class AreaEditActivity extends AppCompatActivity {
         online = ConnectivityChangeReceiver.isConnected(this);
         setContentView(R.layout.activity_area_edit);
 
-        final AreaElement ae = AreaContext.INSTANCE.getAreaElement();
+        final Area ae = AreaContext.INSTANCE.getAreaElement();
         ActionBar ab = getSupportActionBar();
         ab.setHomeButtonEnabled(false);
         ab.setDisplayHomeAsUpEnabled(false);
@@ -65,7 +67,7 @@ public class AreaEditActivity extends AppCompatActivity {
         }
 
         final TextView addressText = (TextView) findViewById(R.id.area_address_edit);
-        AreaAddress address = ae.getAddress();
+        Address address = ae.getAddress();
         if(address != null){
             addressText.setText(address.getDisplaybleAddress());
         }else {
@@ -83,7 +85,6 @@ public class AreaEditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 findViewById(R.id.splash_panel).setVisibility(View.VISIBLE);
-
                 String areaName = nameText.getText().toString();
                 if (areaName.trim().equalsIgnoreCase("")) {
                     showErrorMessage("Area Name is required !!");
@@ -92,14 +93,8 @@ public class AreaEditActivity extends AppCompatActivity {
                 }
                 ae.setName(areaName);
                 ae.setDescription(descText.getText().toString());
-
-                AreaDBHelper adh = new AreaDBHelper(getApplicationContext(), new UpdateAreaToServerCallback());
-                adh.updateAreaLocally(ae);
-                if(!adh.updateAreaOnServer(ae)){
-                    if(makeAreaPublic()){
-                        navigateToDetailsView();
-                    }
-                }
+                UpdateAreaTask updateAreaTask = new UpdateAreaTask(getApplicationContext(), new UpdateAreaToServerCallback());
+                updateAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ae);
             }
         });
     }
@@ -111,11 +106,12 @@ public class AreaEditActivity extends AppCompatActivity {
         this.finish();
     }
 
-    private class UpdateAreaToServerCallback implements AsyncTaskCallback {
-
+    private class UpdateAreaToServerCallback implements TaskFinishedListener {
         @Override
-        public void taskCompleted(Object result) {
-            makeAreaPublic();
+        public void onTaskFinished(String response) {
+            if(makeAreaPublic()){
+                navigateToDetailsView();
+            }
         }
     }
 

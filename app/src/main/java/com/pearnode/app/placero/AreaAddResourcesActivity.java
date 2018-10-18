@@ -17,17 +17,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaAddResourceAdaptor;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 import com.pearnode.app.placero.util.ColorProvider;
 
 public class AreaAddResourcesActivity extends AppCompatActivity {
 
     private AreaAddResourceAdaptor adaptor;
-    private ArrayList<DriveResource> resourceList = new ArrayList<>();
+    private ArrayList<Resource> resourceList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +36,18 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_area_resource_main);
 
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getAreaElement();
         ActionBar ab = getSupportActionBar();
         ab.setHomeButtonEnabled(false);
         ab.setDisplayHomeAsUpEnabled(false);
-        ab.setBackgroundDrawable(new ColorDrawable(ColorProvider.getAreaToolBarColor(areaElement)));
+        ab.setBackgroundDrawable(new ColorDrawable(ColorProvider.getAreaToolBarColor(area)));
         ab.show();
 
         View includedView = findViewById(R.id.selected_area_include);
         AreaPopulationUtil.INSTANCE.populateAreaElement(includedView);
 
-        ArrayList<DriveResource> driveResources = AreaContext.INSTANCE.getUploadedQueue();
-        resourceList.addAll(driveResources);
+        ArrayList<Resource> resources = AreaContext.INSTANCE.getUploadedQueue();
+        resourceList.addAll(resources);
 
         ListView resListView = (ListView) findViewById(R.id.file_display_list);
         adaptor = new AreaAddResourceAdaptor(getApplicationContext(),resourceList);

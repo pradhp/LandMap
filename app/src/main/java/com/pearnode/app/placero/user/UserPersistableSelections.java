@@ -3,8 +3,8 @@ package com.pearnode.app.placero.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pearnode.app.placero.area.model.AreaElement;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.tags.TagElement;
 
 /**
@@ -16,8 +16,8 @@ public class UserPersistableSelections {
     private String dashboard = "0";
     private boolean filter = false;
     private List<TagElement> tags = new ArrayList<>();
-    private AreaElement area = null;
-    private PositionElement position = null;
+    private Area area = null;
+    private Position position = null;
 
     public String getSearch() {
         return this.search;
@@ -51,19 +51,19 @@ public class UserPersistableSelections {
         this.filter = filter;
     }
 
-    public AreaElement getArea() {
+    public Area getArea() {
         return this.area;
     }
 
-    public void setArea(AreaElement area) {
+    public void setArea(Area area) {
         this.area = area;
     }
 
-    public PositionElement getPosition() {
+    public Position getPosition() {
         return this.position;
     }
 
-    public void setPosition(PositionElement position) {
+    public void setPosition(Position position) {
         this.position = position;
     }
 }

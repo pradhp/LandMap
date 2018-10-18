@@ -7,19 +7,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 
 /**
  * Created by USER on 11/19/2017.
  */
 public class PositionSorter {
 
-    public static List<PositionElement> sortPositions(List<PositionElement> positions,
-                                                      final PositionElement center) {
+    public static List<Position> sortPositions(List<Position> positions,
+                                               final Position center) {
 
-        Comparator comp = new Comparator<PositionElement>() {
+        Comparator comp = new Comparator<Position>() {
             @Override
-            public int compare(PositionElement p1, PositionElement p2) {
+            public int compare(Position p1, Position p2) {
                 Double distance1 = SphericalUtil.computeDistanceBetween(new LatLng(p1.getLat(), p1.getLon()),
                         new LatLng(center.getLat(), center.getLon()));
 

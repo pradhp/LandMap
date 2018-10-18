@@ -13,11 +13,11 @@ import java.util.Locale;
 import java.util.UUID;
 
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
-import com.pearnode.app.placero.drive.DriveResource;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.util.FileUtil;
@@ -32,7 +32,7 @@ public class AreaCameraVideoActivity extends Activity implements LocationPositio
     public static final int MEDIA_TYPE_VIDEO = 2;
 
     private Uri fileUri; // file url to store image/video_map
-    private final DriveResource videoResource = new DriveResource();
+    private final Resource videoResource = new Resource();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +93,7 @@ public class AreaCameraVideoActivity extends Activity implements LocationPositio
             if (resultCode == Activity.RESULT_OK) {
                 File videoFile = new File(fileUri.getPath());
                 AreaContext areaContext = AreaContext.INSTANCE;
-                AreaElement ae = areaContext.getAreaElement();
+                Area ae = areaContext.getAreaElement();
 
                 videoResource.setName(videoFile.getName());
                 videoResource.setPath(videoFile.getAbsolutePath());
@@ -136,14 +136,14 @@ public class AreaCameraVideoActivity extends Activity implements LocationPositio
      * returning image / video_map
      */
     private static File getOutputMediaFile() {
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getAreaElement();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        File localRoot = AreaContext.INSTANCE.getAreaLocalVideoRoot(areaElement.getUniqueId());
+        File localRoot = AreaContext.INSTANCE.getAreaLocalVideoRoot(area.getUniqueId());
         return new File(localRoot + File.separator + "VID_" + timeStamp + ".mp4");
     }
 
     @Override
-    public void receivedLocationPostion(PositionElement pe) {
+    public void receivedLocationPostion(Position pe) {
         pe.setType("Media");
         pe.setDirty(1);
         pe.setDirtyAction("insert");

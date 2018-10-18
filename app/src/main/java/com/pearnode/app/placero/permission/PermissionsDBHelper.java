@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GlobalContext;
@@ -91,14 +91,14 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
 
     private JSONObject preparePostParams(String queryType, String targetUser, String functionCodes) {
         JSONObject postParams = new JSONObject();
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getAreaElement();
         UserElement userElement = UserContext.getInstance().getUserElement();
         try {
             postParams.put("requestType", "AreaShare");
             postParams.put("query_type", queryType);
             postParams.put("source_user", userElement.getEmail());
             postParams.put("target_user", targetUser);
-            postParams.put("area_id", areaElement.getUniqueId());
+            postParams.put("area_id", area.getUniqueId());
             postParams.put("function_codes", functionCodes);
         } catch (JSONException e) {
             e.printStackTrace();

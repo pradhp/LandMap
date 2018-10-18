@@ -39,7 +39,7 @@ import java.util.List;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
@@ -202,8 +202,8 @@ public class ShareDriveResourcesActivity extends Activity implements PermissionC
         protected List<String> doInBackground(Void... params) {
             try {
                 final List<String> shareStatusInfo = new ArrayList<String>();
-                List<DriveResource> drs = AreaContext.INSTANCE.getAreaElement().getMediaResources();
-                for (final DriveResource dr : drs) {
+                List<Resource> drs = AreaContext.INSTANCE.getAreaElement().getMediaResources();
+                for (final Resource dr : drs) {
                     if(!dr.getType().equalsIgnoreCase("file")){
                         continue;
                     }

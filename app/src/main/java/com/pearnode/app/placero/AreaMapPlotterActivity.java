@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.DateUtils;
@@ -51,29 +52,31 @@ import com.pearnode.app.placero.R.drawable;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.AreaMeasure;
+import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.MapWrapperLayout;
 import com.pearnode.app.placero.custom.OnInfoWindowElemTouchListener;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.app.placero.util.FileUtil;
+import com.pearnode.common.TaskFinishedListener;
 
 public class AreaMapPlotterActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
 
-    private LinkedHashMap<Marker, PositionElement> positionMarkers = new LinkedHashMap<>();
-    private LinkedHashMap<Marker, DriveResource> resourceMarkers = new LinkedHashMap<>();
+    private LinkedHashMap<Marker, Position> positionMarkers = new LinkedHashMap<>();
+    private LinkedHashMap<Marker, Resource> resourceMarkers = new LinkedHashMap<>();
     private LinkedHashMap<Polygon, Marker> polygonMarkers = new LinkedHashMap<>();
 
     private Polygon polygon;
@@ -89,7 +92,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
     private Button infoButton;
     private final AreaContext ac = AreaContext.INSTANCE;
-    private final AreaElement ae = ac.getAreaElement();
+    private final Area ae = ac.getAreaElement();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,8 +134,8 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
     }
 
     private void plotPolygonUsingPositions() {
-        List<PositionElement> positionElements = ae.getPositions();
-        int noOfPositions = positionElements.size();
+        List<Position> positions = ae.getPositions();
+        int noOfPositions = positions.size();
 
         Set<Marker> markers = positionMarkers.keySet();
         for (Marker m : markers) {
@@ -143,14 +146,14 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
             centerMarker.remove();
         }
         for (int i = 0; i < noOfPositions; i++) {
-            PositionElement pe = positionElements.get(i);
+            Position pe = positions.get(i);
             String positionType = pe.getType();
             if(!positionType.equalsIgnoreCase("media")){
                 positionMarkers.put(buildMarker(pe), pe);
             }
         }
 
-        PositionElement centerPosition = ae.getCenterPosition();
+        Position centerPosition = ae.getCenterPosition();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(centerPosition.getLat(), centerPosition.getLon()));
         centerMarker = googleMap.addMarker(markerOptions);
@@ -169,8 +172,8 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
         List<Marker> markerList = new ArrayList<>(markers);
         for (Marker m : markerList) {
-            PositionElement positionElement = positionMarkers.get(m);
-            if(positionElement.getType().equalsIgnoreCase("boundary")){
+            Position position = positionMarkers.get(m);
+            if(position.getType().equalsIgnoreCase("boundary")){
                 polyOptions.add(m.getPosition());
             }
         }
@@ -183,23 +186,30 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         ae.setMeasure(areaMeasure);
 
         if (PermissionManager.INSTANCE.hasAccess(PermissionConstants.UPDATE_AREA)) {
-            AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
-            adh.updateAreaLocally(ae);
-            adh.updateAreaOnServer(ae);
-            adh.insertAreaAddressTagsLocally(ae);
-            adh.insertAreaAddressTagsOnServer(ae);
+            UpdateAreaTask updateAreaTask = new UpdateAreaTask(getApplicationContext(), new UpdateAreaFinishListener());
+            updateAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ae);
         }
         polygonMarkers.put(polygon, centerMarker);
     }
 
+    private class UpdateAreaFinishListener implements TaskFinishedListener {
+
+        @Override
+        public void onTaskFinished(String response) {
+            AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
+            adh.insertAreaAddressTagsLocally(ae);
+            adh.insertAreaAddressTagsOnServer(ae);
+        }
+    }
+
     private void plotMediaPoints() {
-        List<DriveResource> driveResources = ae.getMediaResources();
+        List<Resource> resources = ae.getMediaResources();
         BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(drawable.video_map);
         BitmapDescriptor pictureBMap = BitmapDescriptorFactory.fromResource(drawable.camera_map);
-        for (int i = 0; i < driveResources.size(); i++) {
-            DriveResource resource = driveResources.get(i);
+        for (int i = 0; i < resources.size(); i++) {
+            Resource resource = resources.get(i);
             if (resource.getType().equals("file")) {
-                PositionElement resourcePosition = resource.getPosition();
+                Position resourcePosition = resource.getPosition();
                 if(resourcePosition != null){
                     if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
                         continue;
@@ -244,8 +254,8 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
             @Override
             public View getInfoContents(Marker marker) {
-                PositionElement position = positionMarkers.get(marker);
-                DriveResource resource = resourceMarkers.get(marker);
+                Position position = positionMarkers.get(marker);
+                Resource resource = resourceMarkers.get(marker);
                 String markerTag = (String) marker.getTag();
 
                 if (markerTag.equalsIgnoreCase("PositionMarker")) {
@@ -321,11 +331,11 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
 
-                PositionElement position = positionMarkers.get(marker);
+                Position position = positionMarkers.get(marker);
                 if (position != null) {
                     if(PermissionManager.INSTANCE.hasAccess(PermissionConstants.UPDATE_AREA)){
                         PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-                        PositionElement markedPosition = positionMarkers.get(marker);
+                        Position markedPosition = positionMarkers.get(marker);
                         pdh.deletePositionLocally(markedPosition);
                         pdh.deletePositionFromServer(markedPosition);
 
@@ -336,7 +346,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                         plotPolygonUsingPositions();
                     }
                 }else {
-                    DriveResource resource = resourceMarkers.get(marker);
+                    Resource resource = resourceMarkers.get(marker);
                     if(resource != null){
                         String contentType = resource.getContentType();
                         if(contentType.equalsIgnoreCase("Image")){
@@ -359,7 +369,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         infoButton.setOnTouchListener(infoButtonListener);
     }
 
-    public Marker buildMarker(PositionElement pe) {
+    public Marker buildMarker(Position pe) {
         LatLng position = new LatLng(pe.getLat(), pe.getLon());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
@@ -380,7 +390,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 public void onMarkerDragEnd(Marker marker) {
                     zoomCameraToPosition(marker);
 
-                    PositionElement newPosition = positionMarkers.get(marker);
+                    Position newPosition = positionMarkers.get(marker);
                     newPosition.setLat(marker.getPosition().latitude);
                     newPosition.setLon(marker.getPosition().longitude);
                     newPosition.setCreatedOnMillis(System.currentTimeMillis() + "");
@@ -477,24 +487,24 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 backBitmap.recycle();
                 bmOverlay.recycle();
 
-                List<DriveResource> driveResources = ae.getMediaResources();
+                List<Resource> resources = ae.getMediaResources();
                 DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
-                for (int i = 0; i < driveResources.size(); i++) {
-                    DriveResource resource = driveResources.get(i);
+                for (int i = 0; i < resources.size(); i++) {
+                    Resource resource = resources.get(i);
                     if (resource.getType().equalsIgnoreCase("file")) {
                         String resourceName = resource.getName();
                         if (resourceName.equalsIgnoreCase(screenshotFileName)) {
                             ddh.deleteResourceLocally(resource);
                             ddh.deleteResourceFromServer(resource);
-                            driveResources.remove(resource);
+                            resources.remove(resource);
                             break;
                         }
                     }
                 }
 
-                DriveResource imagesRootResource = ac.getImagesRootDriveResource();
+                Resource imagesRootResource = ac.getImagesRootDriveResource();
 
-                DriveResource resource = new DriveResource();
+                Resource resource = new Resource();
                 resource.setUniqueId(UUID.randomUUID().toString());
                 resource.setContainerId(imagesRootResource.getResourceId());
                 resource.setContentType("Image");
@@ -505,7 +515,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 resource.setName(screenshotFileName);
                 resource.setSize(screenShotFile.length() + "");
 
-                PositionElement position = new PositionElement();
+                Position position = new Position();
                 position.setLat(ae.getCenterPosition().getLat());
                 position.setLon(ae.getCenterPosition().getLon());
                 position.setName("Position_" + ae.getPositions().size());
@@ -517,7 +527,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
                 ddh.insertResourceLocally(resource);
                 ddh.insertResourceToServer(resource);
-                driveResources.add(resource);
+                resources.add(resource);
 
                 ThumbnailCreator creator = new ThumbnailCreator(getApplicationContext());
                 creator.createImageThumbnail(screenShotFile, ae.getUniqueId());

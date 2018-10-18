@@ -35,10 +35,10 @@ import java.util.List;
 
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks;
@@ -216,13 +216,13 @@ public class RemoveDriveResourcesActivity extends Activity implements Permission
         protected Boolean doInBackground(Void... params) {
             try {
                 AreaContext ac = AreaContext.INSTANCE;
-                AreaElement ae = ac.getAreaElement();
+                Area ae = ac.getAreaElement();
                 DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
                 if (this.resourceIds != null) {
                     String[] resourceArr = this.resourceIds.split(",");
                     for (int i = 0; i < resourceArr.length; i++) {
                         String resourceID = resourceArr[i];
-                        DriveResource fetchedResource = ddh.getDriveResourceByResourceId(resourceID);
+                        Resource fetchedResource = ddh.getDriveResourceByResourceId(resourceID);
                         ddh.deleteResourceByGlobally(fetchedResource);
                         ddh.deleteResourceFromServer(fetchedResource);
                         ae.getMediaResources().remove(fetchedResource);
@@ -257,9 +257,9 @@ public class RemoveDriveResourcesActivity extends Activity implements Permission
                         }
                     }
                 } else {
-                    List<DriveResource> resources = ae.getMediaResources();
+                    List<Resource> resources = ae.getMediaResources();
                     for (int j = 0; j < resources.size(); j++) {
-                        DriveResource resource = resources.get(j);
+                        Resource resource = resources.get(j);
                         if (resource.getType().equalsIgnoreCase("File")) {
                             File storeRoot = ac.getLocalStoreLocationForDriveResource(resource);
                             if (storeRoot != null) {

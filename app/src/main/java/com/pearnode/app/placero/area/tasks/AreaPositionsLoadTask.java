@@ -13,9 +13,9 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.util.GeneralUtil;
+import com.pearnode.constants.APIRegistry;
 
 /**
  * Created by Rinky on 21-10-2017.
@@ -36,7 +36,7 @@ public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = "http://"+ GeneralUtil.dbHost+"/lm/PositionsSearch.php";
+            String urlString = APIRegistry.POSITIONS_SEARCH_GENERIC;
 
             JSONObject postDataParam = postDataParams[0];
             String searchField = postDataParam.getString("sf_alt");
@@ -80,7 +80,7 @@ public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
             for (int i = 0; i < responseArr.length(); i++) {
                 JSONObject responseObj = (JSONObject) responseArr.get(i);
 
-                PositionElement pe = new PositionElement();
+                Position pe = new Position();
                 pe.setUniqueId((String) responseObj.get("unique_id"));
                 pe.setUniqueAreaId((String) responseObj.get("unique_area_id"));
                 pe.setName((String) responseObj.get("name"));

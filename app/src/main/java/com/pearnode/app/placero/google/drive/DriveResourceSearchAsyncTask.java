@@ -2,6 +2,9 @@ package com.pearnode.app.placero.google.drive;
 
 import android.os.AsyncTask;
 
+import com.pearnode.app.placero.custom.AsyncTaskCallback;
+import com.pearnode.constants.APIRegistry;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -10,9 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.util.GeneralUtil;
 
 /**
  * Created by Rinky on 21-10-2017.
@@ -27,10 +27,10 @@ public class DriveResourceSearchAsyncTask extends AsyncTask<JSONObject, Void, St
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = "http://"+ GeneralUtil.dbHost+"/lm/DriveSearch.php?";
+            String urlString = APIRegistry.DRIVE_SEARCH_GENERIC;
             JSONObject postDataParam = postDataParams[0];
             String searchStr = postDataParam.getString("ss");
-            String sStrURL = "ss=" + searchStr;
+            String sStrURL = "?ss=" + searchStr;
             String searchField = postDataParam.getString("sf");
             String sfURL = "&sf=" + searchField;
             URL url = new URL(urlString + sStrURL + sfURL);

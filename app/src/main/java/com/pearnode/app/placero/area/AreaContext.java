@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
 
@@ -26,21 +26,21 @@ public class AreaContext {
     private AreaContext() {
     }
 
-    private AreaElement currentArea;
+    private Area currentArea;
     private Context context;
     private Bitmap displayBMap;
     private List<Bitmap> viewBitmaps = new ArrayList<>();
-    private final ArrayList<DriveResource> uploadQueue = new ArrayList<>();
+    private final ArrayList<Resource> uploadQueue = new ArrayList<>();
 
-    public AreaElement getAreaElement() {
+    public Area getAreaElement() {
         return this.currentArea;
     }
 
-    public void setAreaElement(AreaElement areaElement, Context context) {
+    public void setAreaElement(Area area, Context context) {
         clearContext();
 
         this.context = context;
-        currentArea = areaElement;
+        currentArea = area;
         uploadQueue.clear();
 
         PositionsDBHelper pdb = new PositionsDBHelper(context);
@@ -81,7 +81,7 @@ public class AreaContext {
         }
     }
 
-    public AreaElement centerize(AreaElement areaElement) {
+    public Area centerize(Area area) {
         double latSum = 0.0;
         double longSum = 0.0;
         String positionId = null;
@@ -89,12 +89,12 @@ public class AreaContext {
         double latAvg = 0.0;
         double lonAvg = 0.0;
 
-        List<PositionElement> positions = areaElement.getPositions();
+        List<Position> positions = area.getPositions();
         int noOfPositions = positions.size();
         int boundaryCtr = 0;
         if (noOfPositions != 0) {
             for (int i = 0; i < noOfPositions; i++) {
-                PositionElement pe = positions.get(i);
+                Position pe = positions.get(i);
                 if(!pe.getType().equalsIgnoreCase("boundary")){
                     continue;
                 }else {
@@ -110,33 +110,33 @@ public class AreaContext {
                 latAvg = latSum / boundaryCtr;
                 lonAvg = longSum / boundaryCtr;
 
-                PositionElement centerPosition = new PositionElement();
+                Position centerPosition = new Position();
             }
         }
 
-        PositionElement centerPosition = areaElement.getCenterPosition();
+        Position centerPosition = area.getCenterPosition();
         centerPosition.setLat(latAvg);
         centerPosition.setLon(lonAvg);
         centerPosition.setUniqueId(positionId);
 
-        return areaElement;
+        return area;
     }
 
     // Drive specific resources.
-    public void addResourceToQueue(DriveResource dr) {
+    public void addResourceToQueue(Resource dr) {
         this.uploadQueue.add(dr);
     }
 
-    public void removeResourceFromQueue(DriveResource dr) {
+    public void removeResourceFromQueue(Resource dr) {
         this.uploadQueue.remove(dr);
     }
 
-    public ArrayList<DriveResource> getUploadedQueue() {
+    public ArrayList<Resource> getUploadedQueue() {
         return this.uploadQueue;
     }
 
-    private DriveResource imagesResourceRoot = null;
-    public DriveResource getImagesRootDriveResource() {
+    private Resource imagesResourceRoot = null;
+    public Resource getImagesRootDriveResource() {
         if(imagesResourceRoot == null){
             DriveDBHelper ddh = new DriveDBHelper(context);
             imagesResourceRoot
@@ -145,8 +145,8 @@ public class AreaContext {
         return imagesResourceRoot;
     }
 
-    private DriveResource videosResourceRoot = null;
-    public DriveResource getVideosRootDriveResource() {
+    private Resource videosResourceRoot = null;
+    public Resource getVideosRootDriveResource() {
         if(videosResourceRoot == null){
             DriveDBHelper ddh = new DriveDBHelper(context);
             videosResourceRoot
@@ -155,8 +155,8 @@ public class AreaContext {
         return videosResourceRoot;
     }
 
-    private DriveResource documentsResourceRoot = null;
-    public DriveResource getDocumentRootDriveResource() {
+    private Resource documentsResourceRoot = null;
+    public Resource getDocumentRootDriveResource() {
         if(documentsResourceRoot == null){
             DriveDBHelper ddh = new DriveDBHelper(context);
             documentsResourceRoot
@@ -237,7 +237,7 @@ public class AreaContext {
         return documentThumbnailFolder;
     }
 
-    public File getLocalStoreLocationForDriveResource(DriveResource resource) {
+    public File getLocalStoreLocationForDriveResource(Resource resource) {
         // Assuming that folders will not be passed.
         File dumpRoot = null;
         String contentType = resource.getContentType();

@@ -12,9 +12,6 @@ import android.widget.Button;
 
 import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
-
-import java.util.List;
-
 import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.TagAssignmentActivity;
@@ -22,6 +19,8 @@ import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
+
+import java.util.List;
 
 /**
  * Created by USER on 11/4/2017.
@@ -117,11 +116,6 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
     @Override
     public String getFragmentTitle() {
         return "User";
-    }
-
-    @Override
-    public void setOffline(boolean offline) {
-        this.offline = offline;
     }
 
     @Override

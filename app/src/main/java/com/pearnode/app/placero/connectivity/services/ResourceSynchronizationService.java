@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 
 public class ResourceSynchronizationService extends IntentService {
@@ -24,8 +24,8 @@ public class ResourceSynchronizationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
-        final ArrayList<DriveResource> dirtyResources = ddh.getDirtyResources();
-        for (DriveResource resource : dirtyResources) {
+        final ArrayList<Resource> dirtyResources = ddh.getDirtyResources();
+        for (Resource resource : dirtyResources) {
             String dirtyAction = resource.getDirtyAction();
             if (dirtyAction.equalsIgnoreCase("insert")) {
                 if (ddh.insertResourceToServer(resource)) {

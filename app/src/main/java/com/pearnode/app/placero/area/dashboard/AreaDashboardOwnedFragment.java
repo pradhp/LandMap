@@ -2,6 +2,7 @@ package com.pearnode.app.placero.area.dashboard;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -16,20 +17,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.pearnode.app.placero.AreaDashboardActivity;
-import com.pearnode.app.placero.CreateAreaFoldersActivity;
+import com.pearnode.app.placero.AreaDetailsActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
-import com.pearnode.app.placero.area.model.AreaElement;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
-import com.pearnode.app.placero.custom.AsyncTaskCallback;
+import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
@@ -39,16 +36,19 @@ import com.pearnode.app.placero.tags.TagElement;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
+import com.pearnode.common.TaskFinishedListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by USER on 11/4/2017.
  */
-public class AreaDashboardOwnedFragment extends Fragment
-        implements FragmentHandler, FragmentFilterHandler{
+public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilterHandler, FragmentHandler{
 
-    private Activity mActivity = null;
+    private Activity activity = null;
     private View mView = null;
-    private boolean offline = false;
     private AreaItemAdaptor viewAdapter = null;
 
     @Override
@@ -65,17 +65,16 @@ public class AreaDashboardOwnedFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mView = view;
-        mActivity = getActivity();
+        activity = getActivity();
         if(getUserVisibleHint()){
             loadFragment();
         }
-        offline = ((AreaDashboardActivity)mActivity).isOffline();
     }
 
     @Override
     public void setUserVisibleHint(boolean visible) {
         super.setUserVisibleHint(visible);
-        if (visible && (mView != null) && (mActivity != null)) {
+        if (visible && (mView != null) && (activity != null)) {
             AreaDashboardDisplayMetaStore.INSTANCE.setActiveTab(AreaDashboardDisplayMetaStore.TAB_OWNED_SEQ);
             loadFragment();
         }
@@ -85,30 +84,37 @@ public class AreaDashboardOwnedFragment extends Fragment
         AreaContext.INSTANCE.clearContext();
         mView.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
 
-        ArrayList<AreaElement> areas = new AreaDBHelper(mActivity).getAreas("self");
+        ArrayList<Area> areas = new AreaDBHelper(activity).getAreas("self");
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
 
         ImageView createAreaView = (ImageView) mView.findViewById(id.owned_area_empty_layout_action);
         createAreaView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
-                AreaDBHelper adh = new AreaDBHelper(mActivity);
-                AreaElement areaElement = adh.insertAreaLocally(offline);
+                activity.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
+
+                Area area = new Area();
+                String uniqueId = UUID.randomUUID().toString();
+                area.setUniqueId(uniqueId);
+                area.setName("PL_" + uniqueId);
+                area.setCreatedBy(UserContext.getInstance().getUserElement().getEmail());
 
                 PermissionElement pe = new PermissionElement();
                 pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                pe.setAreaId(areaElement.getUniqueId());
+                pe.setAreaId(area.getUniqueId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
 
-                PermissionsDBHelper pdh = new PermissionsDBHelper(mActivity);
+                PermissionsDBHelper pdh = new PermissionsDBHelper(activity);
                 pdh.insertPermissionLocally(pe);
-                areaElement.getUserPermissions().put(PermissionConstants.FULL_CONTROL, pe);
+                area.getUserPermissions().put(PermissionConstants.FULL_CONTROL, pe);
 
                 // Resetting the context for new Area
-                AreaContext.INSTANCE.setAreaElement(areaElement, mActivity);
-                adh = new AreaDBHelper(mActivity, new DataInsertServerCallback(areaElement));
-                adh.insertAreaToServer(areaElement);
+                AreaContext.INSTANCE.setAreaElement(area, activity);
+                CreateAreaServerCallback createCallback = new CreateAreaServerCallback();
+                createCallback.setArea(area);
+
+                CreateAreaTask createAreaTask = new CreateAreaTask(activity, createCallback);
+                createAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, area);
             }
         });
 
@@ -116,7 +122,7 @@ public class AreaDashboardOwnedFragment extends Fragment
             mView.findViewById(R.id.owned_area_empty_layout).setVisibility(View.GONE);
             areaListView.setVisibility(View.VISIBLE);
 
-            viewAdapter = new AreaItemAdaptor(mActivity, layout.area_element_row, areas);
+            viewAdapter = new AreaItemAdaptor(activity, layout.area_element_row, areas);
             areaListView.setAdapter(viewAdapter);
             areaListView.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
         } else {
@@ -124,24 +130,24 @@ public class AreaDashboardOwnedFragment extends Fragment
             mView.findViewById(id.owned_area_empty_layout).setVisibility(View.VISIBLE);
         }
 
-        EditText inputSearch = (EditText) mActivity.findViewById(id.dashboard_search_box);
+        EditText inputSearch = (EditText) activity.findViewById(id.dashboard_search_box);
         if(AreaDashboardDisplayMetaStore.INSTANCE.getActiveTab() == AreaDashboardDisplayMetaStore.TAB_OWNED_SEQ){
             inputSearch.addTextChangedListener(new UserInputWatcher());
         }
 
-        Button seachClearButton = (Button) mActivity.findViewById(id.dashboard_search_clear);
+        Button seachClearButton = (Button) activity.findViewById(id.dashboard_search_clear);
         if(AreaDashboardDisplayMetaStore.INSTANCE.getActiveTab() == AreaDashboardDisplayMetaStore.TAB_OWNED_SEQ){
                 seachClearButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EditText inputSearch = (EditText) mActivity.findViewById(id.dashboard_search_box);
+                        EditText inputSearch = (EditText) activity.findViewById(id.dashboard_search_box);
                         inputSearch.setText("");
                     }
                 });
         }
         mView.findViewById(id.splash_panel).setVisibility(View.GONE);
 
-        final ImageView filterUTView = (ImageView) mActivity.findViewById(id.action_filter_ut);
+        final ImageView filterUTView = (ImageView) activity.findViewById(id.action_filter_ut);
         UserElement userElement = UserContext.getInstance().getUserElement();
         UserPersistableSelections userPersistableSelections = userElement.getSelections();
         if(userPersistableSelections.isFilter()){
@@ -162,6 +168,25 @@ public class AreaDashboardOwnedFragment extends Fragment
         }
     }
 
+    private class CreateAreaServerCallback implements TaskFinishedListener {
+
+        private Area area = null;
+
+        public Area getArea() {
+            return this.area;
+        }
+
+        public void setArea(Area area) {
+            this.area = area;
+        }
+
+        @Override
+        public void onTaskFinished(String response) {
+            Intent intent = new Intent(activity, AreaDetailsActivity.class);
+            startActivity(intent);
+        }
+    }
+
     @Override
     public String getFragmentTitle() {
         return "Owned";
@@ -174,7 +199,7 @@ public class AreaDashboardOwnedFragment extends Fragment
         if(adapter.getCount() == 0){
             return;
         }
-        EditText inputSearch = (EditText) mActivity.findViewById(id.dashboard_search_box);
+        EditText inputSearch = (EditText) activity.findViewById(id.dashboard_search_box);
         Editable inputSearchText = inputSearch.getText();
         adapter.getFilterChain(filterables, executables).filter(inputSearchText.toString());
     }
@@ -187,6 +212,11 @@ public class AreaDashboardOwnedFragment extends Fragment
             return;
         }
         adapter.resetFilter().filter(null);
+    }
+
+    @Override
+    public Object getViewAdaptor() {
+        return viewAdapter;
     }
 
     private class UserInputWatcher implements TextWatcher {
@@ -207,8 +237,8 @@ public class AreaDashboardOwnedFragment extends Fragment
                     mView.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
 
                     ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-                    ArrayAdapter<AreaElement> adapter = (ArrayAdapter<AreaElement>) areaListView.getAdapter();
-                    final ImageView filterUTView = (ImageView) mActivity.findViewById(id.action_filter_ut);
+                    ArrayAdapter<Area> adapter = (ArrayAdapter<Area>) areaListView.getAdapter();
+                    final ImageView filterUTView = (ImageView) activity.findViewById(id.action_filter_ut);
                     UserElement userElement = UserContext.getInstance().getUserElement();
                     if(filterUTView.getBackground() != null){
                         List<TagElement> tags = userElement.getSelections().getTags();
@@ -231,27 +261,4 @@ public class AreaDashboardOwnedFragment extends Fragment
         }
     }
 
-    private class DataInsertServerCallback implements AsyncTaskCallback {
-
-        private AreaElement areaElement;
-
-        public DataInsertServerCallback(AreaElement areaElement){
-            this.areaElement = areaElement;
-        }
-        @Override
-        public void taskCompleted(Object result) {
-            Intent intent = new Intent(mActivity, CreateAreaFoldersActivity.class);
-            intent.putExtra("area_id", areaElement.getUniqueId());
-            startActivity(intent);
-        }
-    }
-
-    public void setOffline(boolean offline) {
-        this.offline = offline;
-    }
-
-    @Override
-    public Object getViewAdaptor() {
-        return viewAdapter;
-    }
 }

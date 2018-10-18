@@ -91,21 +91,6 @@ public class TagAssignmentActivity extends AppCompatActivity{
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(action.equalsIgnoreCase("INTERNET_LOST")){
-                offline = true;
-            }else {
-                offline = false;
-            }
-
-            // notify fragments
-            final ViewPager viewPager = (ViewPager) findViewById(R.id.areas_display_tab_pager);
-            DisplayTagsPagerAdapter adapter = (DisplayTagsPagerAdapter) viewPager.getAdapter();
-            int fragmentCount = adapter.getCount();
-            for (int i = 0; i < fragmentCount; i++) {
-                FragmentHandler item = (FragmentHandler) adapter.getItem(i);
-                item.setOffline(offline);
-            }
         }
     };
 

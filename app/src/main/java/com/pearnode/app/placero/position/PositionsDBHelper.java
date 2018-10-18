@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.sync.LMSRestAsyncTask;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
@@ -64,7 +64,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public PositionElement insertPositionLocally(PositionElement pe) {
+    public Position insertPositionLocally(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(POSITION_COLUMN_UNIQUE_ID, pe.getUniqueId());
@@ -84,7 +84,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pe;
     }
 
-    public PositionElement updatePositionLocally(PositionElement pe) {
+    public Position updatePositionLocally(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(POSITION_COLUMN_UNIQUE_ID, pe.getUniqueId());
@@ -105,7 +105,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pe;
     }
 
-    public PositionElement insertPositionFromServer(PositionElement pe) {
+    public Position insertPositionFromServer(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(POSITION_COLUMN_UNIQUE_ID, pe.getUniqueId());
@@ -127,7 +127,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pe;
     }
 
-    public boolean insertPositionToServer(PositionElement pe) {
+    public boolean insertPositionToServer(Position pe) {
         boolean networkAvailable = ConnectivityChangeReceiver.isConnected(context);
         if (networkAvailable) {
             new LMSRestAsyncTask().execute(preparePostParams("insert", pe));
@@ -139,7 +139,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return networkAvailable;
     }
 
-    public boolean updatePositionToServer(PositionElement pe) {
+    public boolean updatePositionToServer(Position pe) {
         boolean networkAvailable = ConnectivityChangeReceiver.isConnected(context);
         if (networkAvailable) {
             new LMSRestAsyncTask().execute(preparePostParams("update", pe));
@@ -151,14 +151,14 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return networkAvailable;
     }
 
-    public void deletePositionLocally(PositionElement pe) {
+    public void deletePositionLocally(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(POSITION_TABLE_NAME, POSITION_COLUMN_UNIQUE_ID + "=?", new String[]{pe.getUniqueId()});
         db.close();
         return;
     }
 
-    public boolean deletePositionFromServer(PositionElement pe) {
+    public boolean deletePositionFromServer(Position pe) {
         boolean networkAvailable = ConnectivityChangeReceiver.isConnected(context);
         if (networkAvailable) {
             new LMSRestAsyncTask().execute(preparePostParams("delete", pe));
@@ -178,8 +178,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<PositionElement> getPositionsForArea(AreaElement ae) {
-        ArrayList<PositionElement> pes = new ArrayList<>();
+    public ArrayList<Position> getPositionsForArea(Area ae) {
+        ArrayList<Position> pes = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + POSITION_TABLE_NAME
                         + " WHERE " + POSITION_COLUMN_UNIQUE_AREA_ID + "=? AND "
@@ -188,7 +188,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         if((cursor != null) && (cursor.getCount() > 0)){
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
-                PositionElement pe = new PositionElement();
+                Position pe = new Position();
 
                 pe.setUniqueId(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_UNIQUE_ID)));
                 pe.setUniqueAreaId(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_UNIQUE_AREA_ID)));
@@ -223,15 +223,15 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pes;
     }
 
-    public ArrayList<PositionElement> getDirtyPositions() {
-        ArrayList<PositionElement> pes = new ArrayList<PositionElement>();
+    public ArrayList<Position> getDirtyPositions() {
+        ArrayList<Position> pes = new ArrayList<Position>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + POSITION_TABLE_NAME
                 + " WHERE " + POSITION_COLUMN_DIRTY_FLAG + " = 1", null);
         if((cursor != null) && (cursor.getCount() > 0)){
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
-                PositionElement pe = new PositionElement();
+                Position pe = new Position();
 
                 pe.setUniqueId(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_UNIQUE_ID)));
                 pe.setUniqueAreaId(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_UNIQUE_AREA_ID)));
@@ -262,15 +262,15 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pes;
     }
 
-    public PositionElement getPositionById(String positionId) {
+    public Position getPositionById(String positionId) {
         SQLiteDatabase db = getReadableDatabase();
-        PositionElement pe = null;
+        Position pe = null;
         Cursor cursor = db.rawQuery("select * from " + POSITION_TABLE_NAME
                         + " WHERE " + POSITION_COLUMN_UNIQUE_ID + "=?",
                 new String[]{positionId});
         if((cursor != null) && (cursor.getCount() > 0)){
             cursor.moveToFirst();
-            pe = new PositionElement();
+            pe = new Position();
 
             pe.setUniqueId(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_UNIQUE_ID)));
             pe.setUniqueAreaId(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_UNIQUE_AREA_ID)));
@@ -295,7 +295,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pe;
     }
 
-    private JSONObject preparePostParams(String queryType, PositionElement pe) {
+    private JSONObject preparePostParams(String queryType, Position pe) {
         JSONObject postParams = new JSONObject();
         try {
             postParams.put("requestType", "PositionMaster");

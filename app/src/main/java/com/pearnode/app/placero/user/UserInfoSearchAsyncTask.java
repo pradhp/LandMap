@@ -12,7 +12,7 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.util.GeneralUtil;
+import com.pearnode.constants.APIRegistry;
 
 /**
  * Created by Rinky on 21-10-2017.
@@ -27,10 +27,10 @@ public class UserInfoSearchAsyncTask extends AsyncTask<JSONObject, Void, String>
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = "http://"+ GeneralUtil.dbHost+"/lm/UserSearch.php?";
+            String urlString = APIRegistry.USER_SEARCH_GENERIC;
             JSONObject postDataParam = postDataParams[0];
             String searchStr = postDataParam.getString("ss");
-            String sStrURL = "ss=" + searchStr;
+            String sStrURL = "?ss=" + searchStr;
             String searchField = postDataParam.getString("sf");
             String sfURL = "&sf=" + searchField;
             URL url = new URL(urlString + sStrURL + sfURL);

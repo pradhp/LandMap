@@ -28,13 +28,13 @@ import java.util.Stack;
 
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.ApiClientAsyncTask;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.util.FileUtil;
 
@@ -45,7 +45,7 @@ import com.pearnode.app.placero.util.FileUtil;
 public class UploadResourcesActivity extends BaseDriveActivity {
 
     private boolean online = true;
-    private final Stack<DriveResource> processStack = new Stack<>();
+    private final Stack<Resource> processStack = new Stack<>();
     private List<String> uploadedResources = new ArrayList<>();
 
     @Override
@@ -58,7 +58,7 @@ public class UploadResourcesActivity extends BaseDriveActivity {
     @Override
     public void onConnected(Bundle connectionHint) {
         super.onConnected(connectionHint);
-        ArrayList<DriveResource> resources = AreaContext.INSTANCE.getUploadedQueue();
+        ArrayList<Resource> resources = AreaContext.INSTANCE.getUploadedQueue();
         for (int i = 0; i < resources.size(); i++) {
             processStack.push(resources.get(i));
         }
@@ -67,7 +67,7 @@ public class UploadResourcesActivity extends BaseDriveActivity {
 
     @Override
     protected void handleConnectionIssues() {
-        ArrayList<DriveResource> resources = AreaContext.INSTANCE.getUploadedQueue();
+        ArrayList<Resource> resources = AreaContext.INSTANCE.getUploadedQueue();
         for (int i = 0; i < resources.size(); i++) {
             processStack.push(resources.get(i));
         }
@@ -94,7 +94,7 @@ public class UploadResourcesActivity extends BaseDriveActivity {
         }
     }
 
-    private void processResource(DriveResource res) {
+    private void processResource(Resource res) {
         DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
         PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
         if(online){
@@ -102,7 +102,7 @@ public class UploadResourcesActivity extends BaseDriveActivity {
         }else {
             ddh.deleteResourceLocally(res);
             ddh.insertResourceLocally(res);
-            PositionElement position = res.getPosition();
+            Position position = res.getPosition();
             if(position != null){
                 pdh.deletePositionLocally(position);
                 pdh.insertPositionLocally(position);
@@ -114,9 +114,9 @@ public class UploadResourcesActivity extends BaseDriveActivity {
 
     private class FileProcessingTask extends AsyncTask {
 
-        private DriveResource resource;
+        private Resource resource;
 
-        public FileProcessingTask(DriveResource dr) {
+        public FileProcessingTask(Resource dr) {
             this.resource = dr;
         }
 
@@ -154,10 +154,10 @@ public class UploadResourcesActivity extends BaseDriveActivity {
 
     private class FileMetaChangeListener implements ChangeListener {
 
-        private DriveResource resource;
+        private Resource resource;
         private DriveFile driveFile;
 
-        public FileMetaChangeListener(DriveResource res, DriveFile dFile) {
+        public FileMetaChangeListener(Resource res, DriveFile dFile) {
             this.resource = res;
             this.driveFile = dFile;
         }
@@ -179,7 +179,7 @@ public class UploadResourcesActivity extends BaseDriveActivity {
                 ddh.insertResourceToServer(resource);
 
                 PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-                PositionElement position = resource.getPosition();
+                Position position = resource.getPosition();
                 if(position != null){
                     position.setUniqueAreaId(resource.getAreaId());
                     // Handling offline insertion
@@ -198,9 +198,9 @@ public class UploadResourcesActivity extends BaseDriveActivity {
     }
 
     public class CopyContentsAsyncTask extends ApiClientAsyncTask<DriveFile, Void, Boolean> {
-        private DriveResource resource;
+        private Resource resource;
 
-        public CopyContentsAsyncTask(Context context, DriveResource resource) {
+        public CopyContentsAsyncTask(Context context, Resource resource) {
             super(context);
             this.resource = resource;
         }
@@ -231,7 +231,7 @@ public class UploadResourcesActivity extends BaseDriveActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             AreaContext areaContext = AreaContext.INSTANCE;
-            AreaElement areaElement = areaContext.getAreaElement();
+            Area area = areaContext.getAreaElement();
 
             areaContext.removeResourceFromQueue(resource);
 
@@ -241,11 +241,11 @@ public class UploadResourcesActivity extends BaseDriveActivity {
 
             ThumbnailCreator tCreator = new ThumbnailCreator(getApplicationContext());
             if(FileUtil.isImageFile(resourceFile)){
-                tCreator.createImageThumbnail(resourceFile, areaElement.getUniqueId());
+                tCreator.createImageThumbnail(resourceFile, area.getUniqueId());
             }else if(FileUtil.isVideoFile(resourceFile)){
-                tCreator.createVideoThumbnail(resourceFile, areaElement.getUniqueId());
+                tCreator.createVideoThumbnail(resourceFile, area.getUniqueId());
             }else {
-                tCreator.createDocumentThumbnail(resourceFile, areaElement.getUniqueId());
+                tCreator.createDocumentThumbnail(resourceFile, area.getUniqueId());
             }
             uploadedResources.add(resource.getResourceId());
             processResources();

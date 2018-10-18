@@ -2,12 +2,12 @@ package com.pearnode.app.placero.drive;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 
 /**
  * Created by USER on 10/31/2017.
  */
-public class DriveResource {
+public class Resource {
 
     private String uniqueId = "";
     private String userId = "";
@@ -24,7 +24,7 @@ public class DriveResource {
     private String dirtyAction = "";
     private String createdOnMillis = System.currentTimeMillis() + "";
 
-    private PositionElement position = null;
+    private Position position = null;
 
     public String getUserId() {
         return this.userId;
@@ -117,7 +117,7 @@ public class DriveResource {
     @Override
     public boolean equals(Object o) {
         String sourceResId = getResourceId();
-        DriveResource targetRes = (DriveResource) o;
+        Resource targetRes = (Resource) o;
         String targetResId = targetRes.getResourceId();
 
         EqualsBuilder builder = null;
@@ -157,11 +157,11 @@ public class DriveResource {
         this.dirtyAction = dirtyAction;
     }
 
-    public PositionElement getPosition() {
+    public Position getPosition() {
         return this.position;
     }
 
-    public void setPosition(PositionElement position) {
+    public void setPosition(Position position) {
         this.position = position;
     }
 }

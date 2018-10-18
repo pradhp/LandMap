@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.weather.db.WeatherDBHelper;
 import com.pearnode.app.placero.weather.model.WeatherElement;
 
@@ -19,7 +19,7 @@ public class WeatherManager implements AsyncTaskCallback {
 
     private AsyncTaskCallback callback;
     private Context context;
-    private PositionElement position;
+    private Position position;
 
     public WeatherManager(Context context, AsyncTaskCallback callback) {
         this.callback = callback;
@@ -30,7 +30,7 @@ public class WeatherManager implements AsyncTaskCallback {
         this.context = context;
     }
 
-    public void loadWeatherInfoForPosition(PositionElement pe) {
+    public void loadWeatherInfoForPosition(Position pe) {
         if (pe.getUniqueId() == null) {
             return;
         }

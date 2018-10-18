@@ -16,11 +16,11 @@ import java.util.List;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaAddress;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Address;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 
 /**
  * Created by USER on 11/2/2017.
@@ -33,11 +33,11 @@ public class AreaPopulationUtil {
     }
 
     public void populateAreaElement(View view) {
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
-        this.populateAreaElement(view, areaElement);
+        Area area = AreaContext.INSTANCE.getAreaElement();
+        this.populateAreaElement(view, area);
     }
 
-    public void populateAreaElement(View view, AreaElement ae) {
+    public void populateAreaElement(View view, Area ae) {
         TextView areaNameView = (TextView) view.findViewById(id.area_name_text);
         String areaName = ae.getName();
         if (areaName.length() > 25) {
@@ -52,7 +52,7 @@ public class AreaPopulationUtil {
         descText.setText(Html.fromHtml(desc));
 
         TextView addressTextView = (TextView) view.findViewById(id.area_tags_text);
-        AreaAddress address = ae.getAddress();
+        Address address = ae.getAddress();
         String areaAddressText = "";
         if (address != null) {
             areaAddressText = address.getDisplaybleAddress();
@@ -75,13 +75,13 @@ public class AreaPopulationUtil {
         ImageView areaImgView = (ImageView) view.findViewById(id.area_default_img);
         String thumbRootPath = AreaContext.INSTANCE
                 .getAreaLocalPictureThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
-        List<DriveResource> imageResources = ddh.fetchImageResources(ae);
+        List<Resource> imageResources = ddh.fetchImageResources(ae);
         if (imageResources.size() > 0) {
             Bitmap displayBMap = AreaContext.INSTANCE.getDisplayBMap();
             if (displayBMap != null) {
                 areaImgView.setImageBitmap(displayBMap);
             } else {
-                DriveResource imageResource = imageResources.get(0);
+                Resource imageResource = imageResources.get(0);
                 String imageName = imageResource.getName();
                 String thumbnailPath = thumbRootPath + File.separatorChar + imageName;
                 File thumbFile = new File(thumbnailPath);

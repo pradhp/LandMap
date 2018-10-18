@@ -40,34 +40,7 @@ public class GenericActivityExceptionHandler implements UncaughtExceptionHandler
             content.append("\n");
         }
 
-        if (ex instanceof UserUnavailableException) {
-            // Check why the user went off. ?? Do something here.
-            restartApplication("user_absent", ex.getMessage());
-        }
-
-        restartApplication("crash", content.toString());
-    }
-
-
-    private void restartApplication(String cause, String reason) {
-        Intent intent = new Intent(this.activity, SignInActivity.class);
-        intent.putExtra("cause", cause);
-        intent.putExtra("reason", reason);
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK
-                | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                PlaceroApplication.getInstance().getBaseContext(), 0,
-                intent, PendingIntent.FLAG_ONE_SHOT);
-
-        AlarmManager mgr = (AlarmManager) PlaceroApplication.getInstance().getBaseContext()
-                .getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
-
-        this.activity.finish();
-        System.exit(2);
+        ex.printStackTrace();
     }
 
 }

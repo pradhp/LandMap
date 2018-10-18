@@ -9,7 +9,7 @@ import com.pearnode.app.placero.tags.TagElement;
 /**
  * Created by USER on 11/27/2017.
  */
-public class AreaAddress {
+public class Address {
 
     private String premises;
     private String subThoroughFare;
@@ -107,12 +107,12 @@ public class AreaAddress {
         return addressText;
     }
 
-    public static final AreaAddress fromStoredAddress(String addressText){
+    public static final Address fromStoredAddress(String addressText){
         String[] splittedAddress = addressText.split(Pattern.quote("@$"));
         if(splittedAddress.length != 10){
             return null;
         }
-        AreaAddress address = new AreaAddress();
+        Address address = new Address();
         address.setPremises(splittedAddress[0]);
         address.setFeatureName(splittedAddress[1]);
         address.setSubThoroughFare(splittedAddress[2]);

@@ -41,7 +41,7 @@ import java.util.List;
 
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
@@ -80,9 +80,9 @@ public class ShareUploadedResourcesActivity extends Activity implements Permissi
                 resourceIdsToShare.add(uploaded_resource_ids[i].toString());
             }
         }
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getAreaElement();
         AreaDBHelper adh = new AreaDBHelper(getApplicationContext(), new ShareHistoryCallback());
-        adh.fetchShareHistory(areaElement);
+        adh.fetchShareHistory(area);
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Sharing Area ...");

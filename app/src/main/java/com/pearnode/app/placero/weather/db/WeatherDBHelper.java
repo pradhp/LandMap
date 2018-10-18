@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.weather.model.WeatherElement;
 
 public class WeatherDBHelper extends SQLiteOpenHelper {
@@ -84,14 +84,14 @@ public class WeatherDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteWeatherByPosition(PositionElement pe) {
+    public void deleteWeatherByPosition(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + WeatherDBHelper.TABLE_NAME + " WHERE "
                 + WeatherDBHelper.WEATHER_POSITION_COLUMN_ID + " = '" + pe.getUniqueId() + "'");
         db.close();
     }
 
-    public WeatherElement getWeatherByPosition(PositionElement pe) {
+    public WeatherElement getWeatherByPosition(Position pe) {
         WeatherElement we = null;
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + WeatherDBHelper.TABLE_NAME + " WHERE " + WeatherDBHelper.WEATHER_POSITION_COLUMN_ID + "=?",

@@ -22,10 +22,10 @@ import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.RemoveDriveResourcesActivity;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.util.FileUtil;
 
 import static android.widget.ImageView.ScaleType.FIT_XY;
@@ -68,13 +68,13 @@ final class AreaDocumentDisplayAdaptor extends BaseAdapter {
         final File documentFile = dataSet.get(position).getDocumentFile();
 
         Bitmap bMap = null;
-        final AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        final Area area = AreaContext.INSTANCE.getAreaElement();
         if (thumbFile.exists()) {
             bMap = BitmapFactory.decodeFile(thumbFile.getAbsolutePath());
         } else {
             if(documentFile.exists()){
                 ThumbnailCreator creator = new ThumbnailCreator(context);
-                creator.createDocumentThumbnail(documentFile, areaElement.getUniqueId());
+                creator.createDocumentThumbnail(documentFile, area.getUniqueId());
                 bMap = BitmapFactory.decodeFile(thumbFile.getAbsolutePath());
             }else {
                 bMap = BitmapFactory.decodeResource(context.getResources(), R.drawable.error);
@@ -115,11 +115,11 @@ final class AreaDocumentDisplayAdaptor extends BaseAdapter {
                         intent.putExtra("tab_position", tabPosition);
 
                         DriveDBHelper ddh = new DriveDBHelper(fragment.getContext());
-                        DriveResource driveResource = ddh.getDriveResourceByResourceId(resourceId);
+                        Resource resource = ddh.getDriveResourceByResourceId(resourceId);
 
-                        AreaContext.INSTANCE.getAreaElement().getMediaResources().remove(driveResource);
-                        ddh.deleteResourceLocally(driveResource);
-                        ddh.deleteResourceFromServer(driveResource);
+                        AreaContext.INSTANCE.getAreaElement().getMediaResources().remove(resource);
+                        ddh.deleteResourceLocally(resource);
+                        ddh.deleteResourceFromServer(resource);
 
                         dataSet.remove(documentDisplayElement);
                         notifyDataSetChanged();
@@ -134,8 +134,8 @@ final class AreaDocumentDisplayAdaptor extends BaseAdapter {
                     public void onClick(View v) {
                         File reportFile = documentDisplayElement.getDocumentFile();
                         Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "Document shared using [Placero LMS] for place - " + areaElement.getName());
-                        intent.putExtra(Intent.EXTRA_TEXT, "Hi, \nCheck out document for " + areaElement.getName());
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Document shared using [Placero LMS] for place - " + area.getName());
+                        intent.putExtra(Intent.EXTRA_TEXT, "Hi, \nCheck out document for " + area.getName());
                         intent.setType(FileUtil.getMimeType(reportFile));
                         Uri uri = Uri.fromFile(reportFile);
                         intent.putExtra(Intent.EXTRA_STREAM, uri);

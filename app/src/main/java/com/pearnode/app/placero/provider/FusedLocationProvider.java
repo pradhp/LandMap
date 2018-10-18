@@ -9,7 +9,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 
 /**
  * Created by USER on 10/17/2017.
@@ -32,7 +32,7 @@ public class FusedLocationProvider {
         criteria.setCostAllowed(true);
 
         LocationManager manager = (LocationManager) this.mContext.getSystemService(Context.LOCATION_SERVICE);
-        final PositionElement pe = new PositionElement();
+        final Position pe = new Position();
 
         LocationListener listener = new LocationListener() {
             @Override

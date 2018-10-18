@@ -20,9 +20,9 @@ import com.pearnode.app.placero.AreaDetailsActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.user.UserContext;
@@ -32,14 +32,14 @@ import com.pearnode.app.placero.util.ColorProvider;
 /**
  * Created by USER on 10/16/2017.
  */
-public class PositionListAdaptor extends ArrayAdapter<PositionElement> {
+public class PositionListAdaptor extends ArrayAdapter<Position> {
 
-    private final ArrayList<PositionElement> items;
+    private final ArrayList<Position> items;
     private final Context context;
     private PositionsDBHelper pdh;
     private DriveDBHelper ddh;
 
-    public PositionListAdaptor(Context context, int textViewResourceId, ArrayList<PositionElement> items) {
+    public PositionListAdaptor(Context context, int textViewResourceId, ArrayList<Position> items) {
         super(context, textViewResourceId, items);
         this.context = context;
         this.items = items;
@@ -55,7 +55,7 @@ public class PositionListAdaptor extends ArrayAdapter<PositionElement> {
             v = vi.inflate(R.layout.position_element_row, null);
         }
 
-        final PositionElement pe = items.get(position);
+        final Position pe = items.get(position);
         String posType = pe.getType();
 
         TextView nameText = (TextView) v.findViewById(R.id.pos_name);
@@ -69,13 +69,13 @@ public class PositionListAdaptor extends ArrayAdapter<PositionElement> {
         }
 
         final AreaContext areaContext = AreaContext.INSTANCE;
-        final AreaElement areaElement = areaContext.getAreaElement();
-        final String uniqueId = areaElement.getUniqueId();
+        final Area area = areaContext.getAreaElement();
+        final String uniqueId = area.getUniqueId();
 
         ImageView posImgView = (ImageView) v.findViewById(id.position_default_img);
         if(posType.equalsIgnoreCase("media")){
             String rootPath = null;
-            DriveResource resource = ddh.getDriveResourceByPositionId(pe.getUniqueId());
+            Resource resource = ddh.getDriveResourceByPositionId(pe.getUniqueId());
             if(resource.getContentType().equalsIgnoreCase("Image")){
                 rootPath = areaContext.getAreaLocalPictureThumbnailRoot(uniqueId).getAbsolutePath();
             }else {
@@ -114,16 +114,16 @@ public class PositionListAdaptor extends ArrayAdapter<PositionElement> {
             public void onClick(View v) {
                 if(PermissionManager.INSTANCE.hasAccess(PermissionConstants.UPDATE_AREA)){
                     items.remove(position);
-                    areaElement.getPositions().remove(pe);
+                    area.getPositions().remove(pe);
                     pdh.deletePositionLocally(pe);
                     pdh.deletePositionFromServer(pe);
                     if(pe.getType().equalsIgnoreCase("Media")){
-                        DriveResource resource = ddh.getDriveResourceByPositionId(pe.getUniqueId());
+                        Resource resource = ddh.getDriveResourceByPositionId(pe.getUniqueId());
                         resource.setPosition(null);
                         ddh.updateResourceLocally(resource);
                         ddh.updateResourceToServer(resource);
-                        areaElement.getMediaResources().remove(resource);
-                        areaElement.getMediaResources().add(resource);
+                        area.getMediaResources().remove(resource);
+                        area.getMediaResources().add(resource);
                     }
                     notifyDataSetChanged();
                 }

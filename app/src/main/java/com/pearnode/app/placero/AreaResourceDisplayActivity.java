@@ -12,7 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaDocumentDisplayFragment;
 import com.pearnode.app.placero.area.res.disp.AreaPictureDisplayFragment;
 import com.pearnode.app.placero.area.res.disp.AreaVideoDisplayFragment;
@@ -37,7 +37,7 @@ public class AreaResourceDisplayActivity extends AppCompatActivity {
             selectedTab = extras.getInt("tab_position");
         }
 
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getAreaElement();
 
         ViewPager viewPager = (ViewPager) this.findViewById(id.area_tab_pager);
         // Assign created adapter to viewPager
@@ -46,7 +46,7 @@ public class AreaResourceDisplayActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) this.findViewById(id.tab_layout);
         // This method setup all required method for TabLayout with Viewpager
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setBackgroundColor(ColorProvider.getAreaToolBarColor(areaElement));
+        tabLayout.setBackgroundColor(ColorProvider.getAreaToolBarColor(area));
         tabLayout.getTabAt(selectedTab).select();
     }
 

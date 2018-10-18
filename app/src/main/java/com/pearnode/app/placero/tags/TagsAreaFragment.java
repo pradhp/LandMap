@@ -132,11 +132,6 @@ public class TagsAreaFragment extends Fragment implements FragmentHandler {
     }
 
     @Override
-    public void setOffline(boolean offline) {
-        this.offline = offline;
-    }
-
-    @Override
     public Object getViewAdaptor() {
         return null;
     }

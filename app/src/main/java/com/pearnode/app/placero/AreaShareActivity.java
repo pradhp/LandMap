@@ -31,7 +31,7 @@ import java.util.List;
 
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
@@ -55,11 +55,11 @@ public class AreaShareActivity extends AppCompatActivity {
 
         this.setContentView(R.layout.activity_area_share);
 
-        AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getAreaElement();
         ActionBar ab = this.getSupportActionBar();
         ab.setHomeButtonEnabled(false);
         ab.setDisplayHomeAsUpEnabled(false);
-        ab.setBackgroundDrawable(new ColorDrawable(ColorProvider.getAreaToolBarColor(areaElement)));
+        ab.setBackgroundDrawable(new ColorDrawable(ColorProvider.getAreaToolBarColor(area)));
         ab.show();
 
         View includedView = this.findViewById(R.id.selected_area_include);

@@ -5,12 +5,12 @@ import android.content.Context;
 import java.io.File;
 import java.util.List;
 
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.FileStorageConstants;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
 
@@ -24,16 +24,16 @@ public class ReportingContext {
     private ReportingContext() {
     }
 
-    private AreaElement currentArea;
+    private Area currentArea;
     private Context context;
     private Boolean generatingReport = false;
 
-    public AreaElement getAreaElement() {
+    public Area getAreaElement() {
         return this.currentArea;
     }
 
-    public void setAreaElement(AreaElement areaElement, Context context) {
-        this.currentArea = areaElement;
+    public void setAreaElement(Area area, Context context) {
+        this.currentArea = area;
         this.context = context;
 
         PositionsDBHelper pdb = new PositionsDBHelper(context);
@@ -47,7 +47,7 @@ public class ReportingContext {
         currentArea.setUserPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
     }
 
-    public void reCenter(AreaElement areaElement) {
+    public void reCenter(Area area) {
         double latSum = 0.0;
         double longSum = 0.0;
         String positionId = null;
@@ -55,11 +55,11 @@ public class ReportingContext {
         double latAvg = 0.0;
         double lonAvg = 0.0;
 
-        List<PositionElement> positions = areaElement.getPositions();
+        List<Position> positions = area.getPositions();
         int noOfPositions = positions.size();
         if (noOfPositions != 0) {
             for (int i = 0; i < noOfPositions; i++) {
-                PositionElement pe = positions.get(i);
+                Position pe = positions.get(i);
                 if (positionId == null) {
                     positionId = pe.getUniqueId();
                 }
@@ -70,14 +70,14 @@ public class ReportingContext {
             lonAvg = longSum / noOfPositions;
         }
 
-        PositionElement centerPosition = areaElement.getCenterPosition();
+        Position centerPosition = area.getCenterPosition();
         centerPosition.setLat(latAvg);
         centerPosition.setLon(lonAvg);
         centerPosition.setUniqueId(positionId);
     }
 
-    private DriveResource documentsResourceRoot = null;
-    public DriveResource getDocumentRootDriveResource() {
+    private Resource documentsResourceRoot = null;
+    public Resource getDocumentRootDriveResource() {
         if(documentsResourceRoot == null){
             DriveDBHelper ddh = new DriveDBHelper(context);
             documentsResourceRoot

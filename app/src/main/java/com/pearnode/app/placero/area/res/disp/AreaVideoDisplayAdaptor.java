@@ -22,10 +22,10 @@ import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.RemoveDriveResourcesActivity;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.AreaElement;
+import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.ThumbnailCreator;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.DriveResource;
+import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.util.FileUtil;
 
 import static android.widget.ImageView.ScaleType.FIT_XY;
@@ -69,13 +69,13 @@ final class AreaVideoDisplayAdaptor extends BaseAdapter {
         final File videoFile = dataSet.get(position).getVideoFile();
 
         Bitmap bMap = null;
-        final AreaElement areaElement = AreaContext.INSTANCE.getAreaElement();
+        final Area area = AreaContext.INSTANCE.getAreaElement();
         if (thumbFile.exists()) {
             bMap = BitmapFactory.decodeFile(thumbFile.getAbsolutePath());
         }else {
             if(videoFile.exists()){
                 ThumbnailCreator creator = new ThumbnailCreator(context);
-                creator.createVideoThumbnail(videoFile, areaElement.getUniqueId());
+                creator.createVideoThumbnail(videoFile, area.getUniqueId());
                 bMap = BitmapFactory.decodeFile(thumbFile.getAbsolutePath());
             }else {
                 bMap = BitmapFactory.decodeResource(context.getResources(), R.drawable.error);
@@ -117,11 +117,11 @@ final class AreaVideoDisplayAdaptor extends BaseAdapter {
                         intent.putExtra("tab_position", tabPosition);
 
                         DriveDBHelper ddh = new DriveDBHelper(fragment.getContext());
-                        DriveResource driveResource = ddh.getDriveResourceByResourceId(resourceId);
+                        Resource resource = ddh.getDriveResourceByResourceId(resourceId);
 
-                        areaElement.getMediaResources().remove(driveResource);
-                        ddh.deleteResourceLocally(driveResource);
-                        ddh.deleteResourceFromServer(driveResource);
+                        area.getMediaResources().remove(resource);
+                        ddh.deleteResourceLocally(resource);
+                        ddh.deleteResourceFromServer(resource);
 
                         dataSet.remove(videoDisplayElement);
                         notifyDataSetChanged();
@@ -135,8 +135,8 @@ final class AreaVideoDisplayAdaptor extends BaseAdapter {
                     public void onClick(View v) {
                         File videoFile = videoDisplayElement.getVideoFile();
                         Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "Video shared using [Placero LMS] for place - " + areaElement.getName());
-                        intent.putExtra(Intent.EXTRA_TEXT, "Hi, \nCheck out video_map for " + areaElement.getName());
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Video shared using [Placero LMS] for place - " + area.getName());
+                        intent.putExtra(Intent.EXTRA_TEXT, "Hi, \nCheck out video_map for " + area.getName());
                         intent.setType(FileUtil.getMimeType(videoFile));
                         Uri uri = Uri.fromFile(videoFile);
                         intent.putExtra(Intent.EXTRA_STREAM, uri);

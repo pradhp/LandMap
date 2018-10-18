@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 
 public class PositionSynchronizationService extends IntentService {
@@ -24,8 +24,8 @@ public class PositionSynchronizationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-        final ArrayList<PositionElement> dirtyPositions = pdh.getDirtyPositions();
-        for (PositionElement position : dirtyPositions) {
+        final ArrayList<Position> dirtyPositions = pdh.getDirtyPositions();
+        for (Position position : dirtyPositions) {
             String dirtyAction = position.getDirtyAction();
             if (dirtyAction.equalsIgnoreCase("insert")) {
                 if (pdh.insertPositionToServer(position)) {

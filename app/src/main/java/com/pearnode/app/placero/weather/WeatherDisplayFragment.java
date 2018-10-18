@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.weather.model.WeatherElement;
 import com.pearnode.app.placero.weather.util.WindInterpreter;
 
@@ -51,7 +51,7 @@ public class WeatherDisplayFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_weather, container, false);
-        PositionElement centerPosition = AreaContext.INSTANCE.getAreaElement().getCenterPosition();
+        Position centerPosition = AreaContext.INSTANCE.getAreaElement().getCenterPosition();
         WeatherElement weather = centerPosition.getWeather();
 
         TextView addressText = (TextView) rootView.findViewById(R.id.w_address);

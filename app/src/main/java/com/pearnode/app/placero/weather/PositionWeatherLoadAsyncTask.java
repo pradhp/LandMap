@@ -14,7 +14,7 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.position.PositionElement;
+import com.pearnode.app.placero.position.Position;
 
 /**
  * Created by USER on 11/19/2017.
@@ -22,10 +22,10 @@ import com.pearnode.app.placero.position.PositionElement;
 public class PositionWeatherLoadAsyncTask extends AsyncTask<JSONObject, Void, String> {
 
     private AsyncTaskCallback callback;
-    private PositionElement position;
+    private Position position;
     private Context context;
 
-    public PositionWeatherLoadAsyncTask(Context context, PositionElement position, AsyncTaskCallback callback) {
+    public PositionWeatherLoadAsyncTask(Context context, Position position, AsyncTaskCallback callback) {
         this.position = position;
         this.callback = callback;
         this.context = context;
