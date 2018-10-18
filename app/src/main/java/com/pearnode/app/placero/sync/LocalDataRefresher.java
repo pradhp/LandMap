@@ -2,8 +2,6 @@ package com.pearnode.app.placero.sync;
 
 import android.content.Context;
 
-import org.json.JSONObject;
-
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.tasks.PublicAreasLoadTask;
 import com.pearnode.app.placero.area.tasks.UserAreaDetailsLoadTask;
@@ -13,7 +11,8 @@ import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.weather.db.WeatherDBHelper;
+
+import org.json.JSONObject;
 
 /**
  * Created by USER on 11/4/2017.
@@ -35,9 +34,6 @@ public class LocalDataRefresher implements AsyncTaskCallback {
 
         PositionsDBHelper pdh = new PositionsDBHelper(this.context);
         pdh.deletePositionsLocally();
-
-        WeatherDBHelper wdh = new WeatherDBHelper(this.context);
-        wdh.deleteWeatherElementsLocally();
 
         DriveDBHelper ddh = new DriveDBHelper(this.context);
         ddh.cleanLocalDriveResources();

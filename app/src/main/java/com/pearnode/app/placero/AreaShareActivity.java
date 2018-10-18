@@ -122,7 +122,7 @@ public class AreaShareActivity extends AppCompatActivity {
                     }
                 } else {
                     if (checkedId == R.id.share_restricted_radio) {
-                        stub.setLayoutResource(layout.area_share_restricted);
+                        stub.setLayoutResource(R.layout.area_share_restricted);
                         stub.inflate();
                     }
                 }
@@ -215,7 +215,7 @@ public class AreaShareActivity extends AppCompatActivity {
 
         @Override
         public void taskCompleted(Object result) {
-            Intent shareResourcesIntent = new Intent(getApplicationContext(), ShareDriveResourcesActivity.class);
+            Intent shareResourcesIntent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
             shareResourcesIntent.putExtra("share_to_user", targetUser);
             startActivity(shareResourcesIntent);
             finish();

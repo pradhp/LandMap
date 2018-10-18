@@ -4,8 +4,6 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 
-import com.pearnode.app.placero.weather.model.WeatherElement;
-
 /**
  * Created by USER on 10/16/2017.
  */
@@ -22,7 +20,6 @@ public class Position implements Serializable {
     private String type = "boundary";
     private Integer dirty = 0;
     private String dirtyAction = "";
-    private WeatherElement weather;
 
     public String getName() {
         return this.name;
@@ -90,14 +87,6 @@ public class Position implements Serializable {
 
     public void setCreatedOnMillis(String createdOnMillis) {
         this.createdOnMillis = createdOnMillis;
-    }
-
-    public WeatherElement getWeather() {
-        return weather;
-    }
-
-    public void setWeather(WeatherElement weather) {
-        this.weather = weather;
     }
 
     public String getType() {

@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -32,18 +31,11 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.tasks.RemoveAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
-import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
 import com.pearnode.app.placero.permission.PermissionConstants;
@@ -55,10 +47,13 @@ import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.util.ColorProvider;
-import com.pearnode.app.placero.weather.WeatherDisplayFragment;
-import com.pearnode.app.placero.weather.WeatherManager;
-import com.pearnode.app.placero.weather.model.WeatherElement;
 import com.pearnode.common.TaskFinishedListener;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class AreaDetailsActivity extends AppCompatActivity implements LocationPositionReceiver {
 
@@ -256,20 +251,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
             }
         });
 
-        ImageView weatherItem = (ImageView) findViewById(R.id.action_area_weather);
-        weatherItem.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(online){
-                    WeatherManager weatherManager = new WeatherManager(getApplicationContext(),
-                            new WeatherDataCallback());
-                    weatherManager.loadWeatherInfoForPosition(area.getCenterPosition());
-                }else {
-                    showMessage("Internet unavailable", "error");
-                }
-            }
-        });
-
         showErrorsIfAny();
     }
 
@@ -305,10 +286,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
             showMessage("Position already exists. Ignoring.", "info");
         }
 
-        if (positions.size() > 0) {
-            WeatherManager weatherManager = new WeatherManager(getApplicationContext(), new WeatherDataCallback());
-            weatherManager.loadWeatherInfoForPosition(ae.getCenterPosition());
-        }
         findViewById(R.id.positions_view_master).setVisibility(View.VISIBLE);
         findViewById(R.id.position_list_empty_img).setVisibility(View.GONE);
         findViewById(R.id.splash_panel).setVisibility(View.GONE);
@@ -504,20 +481,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
             }
         });
         snackbar.show();
-    }
-
-    private class WeatherDataCallback implements AsyncTaskCallback {
-        @Override
-        public void taskCompleted(Object result) {
-            if (result instanceof WeatherElement) {
-                showWeather();
-            }
-        }
-    }
-
-    public void showWeather(){
-        DialogFragment dFragment = new WeatherDisplayFragment();
-        dFragment.show(getSupportFragmentManager(), "Weather Now");
     }
 
 }

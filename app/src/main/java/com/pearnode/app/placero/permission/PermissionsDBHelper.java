@@ -25,12 +25,12 @@ import com.pearnode.app.placero.user.UserElement;
 public class PermissionsDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
-    public static final String ACCESS_TABLE_NAME = "area_access";
-    public static final String ACCESS_COLUMN_AREA_ID = "area_id";
-    public static final String ACCESS_COLUMN_USER_ID = "user_id";
-    public static final String ACCESS_COLUMN_FUNCTION_CODE = "function_code";
-    private static final String ACCESS_COLUMN_DIRTY_FLAG = "dirty";
-    private static final String ACCESS_COLUMN_DIRTY_ACTION = "d_action";
+    public static final String TABLE_NAME = "area_access";
+    public static final String AREA_ID = "area_id";
+    public static final String USER_ID = "user_id";
+    public static final String FUNCTION_CODE = "function_code";
+    private static final String DIRTY_FLAG = "dirty";
+    private static final String DIRTY_ACTION = "d_action";
 
     private AsyncTaskCallback callback;
     private Context localContext;
@@ -49,18 +49,18 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "create table " +
-                        ACCESS_TABLE_NAME + "(" +
-                        ACCESS_COLUMN_AREA_ID + " text," +
-                        ACCESS_COLUMN_USER_ID + " text, " +
-                        ACCESS_COLUMN_DIRTY_FLAG + " integer DEFAULT 0," +
-                        ACCESS_COLUMN_DIRTY_ACTION + " text," +
-                        ACCESS_COLUMN_FUNCTION_CODE + " text)"
+                        TABLE_NAME + "(" +
+                        AREA_ID + " text," +
+                        USER_ID + " text, " +
+                        DIRTY_FLAG + " integer DEFAULT 0," +
+                        DIRTY_ACTION + " text," +
+                        FUNCTION_CODE + " text)"
         );
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + ACCESS_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         this.onCreate(db);
     }
 
@@ -68,13 +68,13 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ACCESS_COLUMN_AREA_ID, pe.getAreaId());
-        contentValues.put(ACCESS_COLUMN_FUNCTION_CODE, pe.getFunctionCode());
-        contentValues.put(ACCESS_COLUMN_USER_ID, pe.getUserId());
-        contentValues.put(ACCESS_COLUMN_DIRTY_ACTION, pe.getDirtyAction());
-        contentValues.put(ACCESS_COLUMN_DIRTY_ACTION, pe.getDirtyAction());
+        contentValues.put(AREA_ID, pe.getAreaId());
+        contentValues.put(FUNCTION_CODE, pe.getFunctionCode());
+        contentValues.put(USER_ID, pe.getUserId());
+        contentValues.put(DIRTY_ACTION, pe.getDirtyAction());
+        contentValues.put(DIRTY_ACTION, pe.getDirtyAction());
 
-        db.insertOrThrow(ACCESS_TABLE_NAME, null, contentValues);
+        db.insertOrThrow(TABLE_NAME, null, contentValues);
         db.close();
         return pe;
     }
@@ -108,23 +108,23 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
 
     public void deletePermissionsByAreaId(String areaId) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + ACCESS_TABLE_NAME + " WHERE " + ACCESS_COLUMN_AREA_ID + " = '" + areaId + "'");
+        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + AREA_ID + " = '" + areaId + "'");
         db.close();
     }
 
     public Map<String, PermissionElement> fetchPermissionsByAreaId(String areaId) {
         SQLiteDatabase db = getWritableDatabase();
         Map<String, PermissionElement> perMap = new HashMap<>();
-        Cursor cursor = db.rawQuery("select * from " + ACCESS_TABLE_NAME + " WHERE " + ACCESS_COLUMN_AREA_ID + "=?", new String[]{areaId});
+        Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE " + AREA_ID + "=?", new String[]{areaId});
         if (cursor != null) {
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
                 PermissionElement pe = new PermissionElement();
 
-                pe.setUserId(cursor.getString(cursor.getColumnIndex(ACCESS_COLUMN_USER_ID)));
+                pe.setUserId(cursor.getString(cursor.getColumnIndex(USER_ID)));
                 pe.setAreaId(areaId);
 
-                String functionCode = cursor.getString(cursor.getColumnIndex(ACCESS_COLUMN_FUNCTION_CODE));
+                String functionCode = cursor.getString(cursor.getColumnIndex(FUNCTION_CODE));
                 pe.setFunctionCode(functionCode);
                 perMap.put(functionCode, pe);
 
@@ -138,7 +138,7 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
 
     public void deletePermissionsLocally() {
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(ACCESS_TABLE_NAME, ACCESS_COLUMN_DIRTY_FLAG + " = 0 ", null);
+        db.delete(TABLE_NAME, DIRTY_FLAG + " = 0 ", null);
         db.close();
     }
 

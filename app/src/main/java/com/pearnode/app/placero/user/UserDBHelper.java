@@ -5,9 +5,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.drive.DriveDBHelper;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
@@ -15,7 +12,9 @@ import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.sync.LMSRestAsyncTask;
 import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
-import com.pearnode.app.placero.weather.db.WeatherDBHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class UserDBHelper extends SQLiteOpenHelper {
 
@@ -51,7 +50,6 @@ public class UserDBHelper extends SQLiteOpenHelper {
         new PositionsDBHelper(localContext).onCreate(db);
         new DriveDBHelper(localContext).onCreate(db);
         new PermissionsDBHelper(localContext).onCreate(db);
-        new WeatherDBHelper(localContext).onCreate(db);
         new TagsDBHelper(localContext).onCreate(db);
     }
 

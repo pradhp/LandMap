@@ -140,7 +140,7 @@ public class AreaEditActivity extends AppCompatActivity {
         @Override
         public void taskCompleted(Object result) {
             if(online){
-                Intent areaDetailsIntent = new Intent(AreaEditActivity.this, ShareDriveResourcesActivity.class);
+                Intent areaDetailsIntent = new Intent(AreaEditActivity.this, AreaDetailsActivity.class);
                 areaDetailsIntent.putExtra("share_to_user", "any");
                 startActivity(areaDetailsIntent);
                 finish();
