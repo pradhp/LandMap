@@ -155,7 +155,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
 
         Position centerPosition = area.getCenterPosition();
         MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(new LatLng(centerPosition.getLat(), centerPosition.getLon()));
+        markerOptions.position(new LatLng(centerPosition.getLat(), centerPosition.getLng()));
 
         Marker centerMarker = googleMap.addMarker(markerOptions);
         centerMarker.setTag("AreaCenter");
@@ -199,7 +199,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
             areaMediaPositions.put(areaId, mediaPositions);
         }
 
-        List<Resource> resources = area.getMediaResources();
+        List<Resource> resources = area.getResources();
         BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(R.drawable.video_map);
         BitmapDescriptor pictureBMap = BitmapDescriptorFactory.fromResource(R.drawable.camera_map);
         for (int i = 0; i < resources.size(); i++) {
@@ -210,7 +210,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                     if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
                         continue;
                     }
-                    LatLng position = new LatLng(resourcePosition.getLat(), resourcePosition.getLon());
+                    LatLng position = new LatLng(resourcePosition.getLat(), resourcePosition.getLng());
 
                     MarkerOptions markerOptions = new MarkerOptions();
                     if (resource.getContentType().equalsIgnoreCase("Video")) {
@@ -367,7 +367,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     }
 
     public Marker buildMarker(Position pe) {
-        LatLng position = new LatLng(pe.getLat(), pe.getLon());
+        LatLng position = new LatLng(pe.getLat(), pe.getLng());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
         marker.setTitle(pe.getUniqueId());

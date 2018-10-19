@@ -27,7 +27,6 @@ import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.TagsDBHelper;
-import com.pearnode.app.placero.util.GeneralUtil;
 import com.pearnode.constants.APIRegistry;
 
 /**
@@ -111,7 +110,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                 area.setCreatedBy(areaObj.getString("created_by"));
                 area.setDescription(areaObj.getString("description"));
                 area.getCenterPosition().setLat(areaObj.getDouble("center_lat"));
-                area.getCenterPosition().setLon(areaObj.getDouble("center_lon"));
+                area.getCenterPosition().setLng(areaObj.getDouble("center_lon"));
                 area.setUniqueId(areaObj.getString("unique_id"));
                 area.setDirty(0);
                 area.setDirtyAction("none");
@@ -138,7 +137,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     pe.setName((String) positionObj.get("name"));
                     pe.setDescription((String) positionObj.get("description"));
                     pe.setLat(positionObj.getDouble("lat"));
-                    pe.setLon(positionObj.getDouble("lon"));
+                    pe.setLng(positionObj.getDouble("lon"));
                     pe.setTags((String) positionObj.get("tags"));
                     pe.setCreatedOnMillis(positionObj.getString("created_on"));
 
@@ -164,7 +163,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     Position position = new Position();
                     try{
                         position.setLat(driveObj.getDouble("latitude"));
-                        position.setLon(driveObj.getDouble("longitude"));
+                        position.setLng(driveObj.getDouble("longitude"));
                         position.setUniqueId(UUID.randomUUID().toString());
                     }catch (Exception e){
                     }

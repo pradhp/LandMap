@@ -20,11 +20,11 @@ public class PositionSorter {
         Comparator comp = new Comparator<Position>() {
             @Override
             public int compare(Position p1, Position p2) {
-                Double distance1 = SphericalUtil.computeDistanceBetween(new LatLng(p1.getLat(), p1.getLon()),
-                        new LatLng(center.getLat(), center.getLon()));
+                Double distance1 = SphericalUtil.computeDistanceBetween(new LatLng(p1.getLat(), p1.getLng()),
+                        new LatLng(center.getLat(), center.getLng()));
 
-                Double distance2 = SphericalUtil.computeDistanceBetween(new LatLng(p2.getLat(), p2.getLon()),
-                        new LatLng(center.getLat(), center.getLon()));
+                Double distance2 = SphericalUtil.computeDistanceBetween(new LatLng(p2.getLat(), p2.getLng()),
+                        new LatLng(center.getLat(), center.getLng()));
                 return distance1.compareTo(distance2);
             }
         };

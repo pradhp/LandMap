@@ -155,7 +155,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
         Position centerPosition = ae.getCenterPosition();
         MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(new LatLng(centerPosition.getLat(), centerPosition.getLon()));
+        markerOptions.position(new LatLng(centerPosition.getLat(), centerPosition.getLng()));
         centerMarker = googleMap.addMarker(markerOptions);
         centerMarker.setTag("AreaCenter");
         centerMarker.setVisible(true);
@@ -203,7 +203,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
     }
 
     private void plotMediaPoints() {
-        List<Resource> resources = ae.getMediaResources();
+        List<Resource> resources = ae.getResources();
         BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(drawable.video_map);
         BitmapDescriptor pictureBMap = BitmapDescriptorFactory.fromResource(drawable.camera_map);
         for (int i = 0; i < resources.size(); i++) {
@@ -214,7 +214,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                     if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
                         continue;
                     }
-                    LatLng position = new LatLng(resourcePosition.getLat(), resourcePosition.getLon());
+                    LatLng position = new LatLng(resourcePosition.getLat(), resourcePosition.getLng());
 
                     MarkerOptions markerOptions = new MarkerOptions();
                     if(resource.getContentType().equalsIgnoreCase("Video")){
@@ -370,7 +370,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
     }
 
     public Marker buildMarker(Position pe) {
-        LatLng position = new LatLng(pe.getLat(), pe.getLon());
+        LatLng position = new LatLng(pe.getLat(), pe.getLng());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
         marker.setTitle(pe.getUniqueId());
@@ -392,7 +392,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
                     Position newPosition = positionMarkers.get(marker);
                     newPosition.setLat(marker.getPosition().latitude);
-                    newPosition.setLon(marker.getPosition().longitude);
+                    newPosition.setLng(marker.getPosition().longitude);
                     newPosition.setCreatedOnMillis(System.currentTimeMillis() + "");
 
                     PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
@@ -487,7 +487,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 backBitmap.recycle();
                 bmOverlay.recycle();
 
-                List<Resource> resources = ae.getMediaResources();
+                List<Resource> resources = ae.getResources();
                 DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
                 for (int i = 0; i < resources.size(); i++) {
                     Resource resource = resources.get(i);
@@ -517,7 +517,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
                 Position position = new Position();
                 position.setLat(ae.getCenterPosition().getLat());
-                position.setLon(ae.getCenterPosition().getLon());
+                position.setLng(ae.getCenterPosition().getLng());
                 position.setName("Position_" + ae.getPositions().size());
                 position.setUniqueId(UUID.randomUUID().toString());
                 resource.setPosition(position);

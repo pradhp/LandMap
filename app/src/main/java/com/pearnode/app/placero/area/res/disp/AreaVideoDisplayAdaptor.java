@@ -114,7 +114,7 @@ final class AreaVideoDisplayAdaptor extends BaseAdapter {
                         DriveDBHelper ddh = new DriveDBHelper(fragment.getContext());
                         Resource resource = ddh.getDriveResourceByResourceId(resourceId);
 
-                        area.getMediaResources().remove(resource);
+                        area.getResources().remove(resource);
                         ddh.deleteResourceLocally(resource);
                         ddh.deleteResourceFromServer(resource);
 

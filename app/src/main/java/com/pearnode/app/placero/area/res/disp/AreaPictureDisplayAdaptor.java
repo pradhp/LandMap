@@ -120,7 +120,7 @@ final class AreaPictureDisplayAdaptor extends BaseAdapter {
                             DriveDBHelper ddh = new DriveDBHelper(fragment.getContext());
                             Resource resource = ddh.getDriveResourceByResourceId(resourceId);
 
-                            AreaContext.INSTANCE.getAreaElement().getMediaResources().remove(resource);
+                            AreaContext.INSTANCE.getAreaElement().getResources().remove(resource);
                             ddh.deleteResourceLocally(resource);
                             ddh.deleteResourceFromServer(resource);
 

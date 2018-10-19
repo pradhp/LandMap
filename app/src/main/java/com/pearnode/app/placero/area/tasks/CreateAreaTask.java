@@ -51,17 +51,6 @@ public class CreateAreaTask extends AsyncTask<Object, Void, String> {
             conn.setDoOutput(true);
             conn.setUseCaches(false);
 
-            Address address = area.getAddress();
-            if (address == null) {
-                CommonGeoHelper geoHelper = CommonGeoHelper.INSTANCE;
-                Position centerPosition = area.getCenterPosition();
-                if(centerPosition != null){
-                    Address areaAddress = geoHelper.getAddressByGeoLocation(context,
-                            centerPosition.getLat(), centerPosition.getLon());
-                    area.setAddress(areaAddress);
-                }
-            }
-
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("area", area);
 

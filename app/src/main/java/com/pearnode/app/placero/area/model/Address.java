@@ -11,16 +11,22 @@ import com.pearnode.app.placero.tags.TagElement;
  */
 public class Address {
 
-    private String premises;
-    private String subThoroughFare;
-    private String thoroughFare;
-    private String locality;
-    private String subLocality;
-    private String adminArea;
-    private String subAdminArea;
-    private String featureName;
-    private String postalCode;
-    private String country;
+    private String premises = "";
+    private String subThoroughFare = "";
+    private String thoroughFare = "";
+    private String locality = "";
+    private String subLocality = "";
+    private String adminArea = "";
+    private String subAdminArea = "";
+    private String featureName = "";
+    private String postalCode = "";
+    private String country = "";
+
+    private String storable = "";
+    private String displayable = "";
+
+    public Address(){
+    }
 
     public String getStorableAddress() {
         StringBuffer buf = new StringBuffer();
@@ -93,18 +99,19 @@ public class Address {
             buf.append(country);
         }
         buf.append("@$");
-
-        return buf.toString();
+        storable = buf.toString();
+        return storable;
     }
 
     public String getDisplaybleAddress(){
-        String addressText = getStorableAddress();
-        addressText = addressText.replaceAll(Pattern.quote("@$"), ",");
-        addressText = addressText.replaceAll(",{2,}", ",");
-        addressText = addressText.trim();
-        addressText = addressText.replaceAll(",$", "");
-        addressText = addressText.replaceFirst("^,", "");
-        return addressText;
+        String storableAddress = getStorableAddress();
+        storableAddress = storableAddress.replaceAll(Pattern.quote("@$"), ",");
+        storableAddress = storableAddress.replaceAll(",{2,}", ",");
+        storableAddress = storableAddress.trim();
+        storableAddress = storableAddress.replaceAll(",$", "");
+        storableAddress = storableAddress.replaceFirst("^,", "");
+        displayable = storableAddress;
+        return displayable;
     }
 
     public static final Address fromStoredAddress(String addressText){
@@ -247,6 +254,22 @@ public class Address {
 
     public void setThoroughFare(String thoroughFare) {
         this.thoroughFare = thoroughFare;
+    }
+
+    public String getStorable() {
+        return this.storable;
+    }
+
+    public void setStorable(String storable) {
+        this.storable = storable;
+    }
+
+    public String getDisplayable() {
+        return this.displayable;
+    }
+
+    public void setDisplayable(String displayable) {
+        this.displayable = displayable;
     }
 
     @Override

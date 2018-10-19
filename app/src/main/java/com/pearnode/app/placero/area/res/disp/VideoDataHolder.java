@@ -21,7 +21,7 @@ final class VideoDataHolder {
         AreaContext ac = AreaContext.INSTANCE;
 
         Area ae = ac.getAreaElement();
-        List<Resource> resources = ae.getMediaResources();
+        List<Resource> resources = ae.getResources();
         String videoRootPath = ac.getAreaLocalVideoRoot(ae.getUniqueId()).getAbsolutePath() + File.separatorChar;
         String thumbnailRoot = ac.getAreaLocalVideoThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
 

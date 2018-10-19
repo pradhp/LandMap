@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.AreaDetailsActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
@@ -39,7 +40,9 @@ import com.pearnode.app.placero.user.UserPersistableSelections;
 import com.pearnode.common.TaskFinishedListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -103,17 +106,11 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
                 pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
                 pe.setAreaId(area.getUniqueId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
+                area.getPermissions().put(PermissionConstants.FULL_CONTROL, pe);
 
-                PermissionsDBHelper pdh = new PermissionsDBHelper(activity);
-                pdh.insertPermissionLocally(pe);
-                area.getUserPermissions().put(PermissionConstants.FULL_CONTROL, pe);
-
-                // Resetting the context for new Area
-                AreaContext.INSTANCE.setAreaElement(area, activity);
-                CreateAreaServerCallback createCallback = new CreateAreaServerCallback();
+                CreateAreaCallback createCallback = new CreateAreaCallback();
                 createCallback.setArea(area);
-
-                CreateAreaTask createAreaTask = new CreateAreaTask(activity, createCallback);
+                CreateAreaTask createAreaTask = new CreateAreaTask(getContext(), createCallback);
                 createAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, area);
             }
         });
@@ -168,7 +165,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
         }
     }
 
-    private class CreateAreaServerCallback implements TaskFinishedListener {
+    private class CreateAreaCallback implements TaskFinishedListener {
 
         private Area area = null;
 
@@ -182,7 +179,16 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
 
         @Override
         public void onTaskFinished(String response) {
-            Intent intent = new Intent(activity, AreaDetailsActivity.class);
+            AreaContext.INSTANCE.setAreaElement(area, getContext());
+
+            PermissionsDBHelper pdh = new PermissionsDBHelper(getContext());
+            Map<String, PermissionElement> permissions = area.getPermissions();
+            Collection<PermissionElement> permissionElements = permissions.values();
+            for(PermissionElement permission : permissionElements){
+                pdh.insertPermissionLocally(permission);
+            }
+
+            Intent intent = new Intent(getContext(), AreaDetailsActivity.class);
             startActivity(intent);
         }
     }

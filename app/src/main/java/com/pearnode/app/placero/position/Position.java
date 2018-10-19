@@ -12,7 +12,7 @@ public class Position implements Serializable {
     private String name = "";
     private String description = "No Description";
     private double lat = 0.0;
-    private double lon = 0.0;
+    private double lng = 0.0;
     private String tags = "";
     private String uniqueAreaId = "";
     private String uniqueId = "";
@@ -45,12 +45,12 @@ public class Position implements Serializable {
         this.lat = lat;
     }
 
-    public double getLon() {
-        return this.lon;
+    public double getLng() {
+        return this.lng;
     }
 
-    public void setLon(double lon) {
-        this.lon = lon;
+    public void setLng(double lng) {
+        this.lng = lng;
     }
 
     public String getTags() {

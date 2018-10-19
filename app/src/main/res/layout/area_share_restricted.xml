@@ -147,7 +147,7 @@
             android:id="@+id/share_area_rw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share place with your userPermissions."
+            android:text="Share place with your permissions."
             android:checked="false"
             android:layout_marginTop="5dp"
             android:tag="share_rw" />

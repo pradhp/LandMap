@@ -8,14 +8,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -54,6 +51,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class AreaDetailsActivity extends AppCompatActivity implements LocationPositionReceiver {
 
@@ -128,10 +127,10 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         deleteAreaItem.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (PermissionManager.INSTANCE.hasAccess(PermissionConstants.REMOVE_AREA)) {
-                    showAreaDeleteConfirmation();
-                } else {
+                if (!PermissionManager.INSTANCE.hasAccess(PermissionConstants.REMOVE_AREA)) {
                     showMessage("You do not have removal rights !!", "error");
+                }else {
+                    showAreaDeleteConfirmation();
                 }
             }
         });
@@ -202,7 +201,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                         position = positions.get(0);
                     }
                     Uri gmmIntentUri = Uri.parse("google.navigation:q="
-                            + position.getLat() + "," + position.getLon()+"&daddr=" + area.getName());
+                            + position.getLat() + "," + position.getLng()+"&daddr=" + area.getName());
                     Intent navigationIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                     navigationIntent.setPackage("com.google.android.apps.maps");
                     startActivity(navigationIntent);
@@ -456,31 +455,22 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
     }
 
     private void showMessage(String message, String type) {
-        final Snackbar snackbar = Snackbar.make(getWindow().getDecorView(),
-                message + ".", Snackbar.LENGTH_INDEFINITE);
-
-        View sbView = snackbar.getView();
-        snackbar.getView().setBackgroundColor(Color.parseColor("#FAF7F6"));
-
-        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
         if (type.equalsIgnoreCase("info")) {
-            textView.setTextColor(Color.parseColor("#30601F"));
+            new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
+                    .setTitleText(type)
+                    .setContentText(message)
+                    .show();
         } else if (type.equalsIgnoreCase("error")) {
-            textView.setTextColor(Color.RED);
+            new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText(type)
+                    .setContentText(message)
+                    .show();
         } else {
-            textView.setTextColor(Color.DKGRAY);
+            new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(type)
+                    .setContentText(message)
+                    .show();
         }
-        textView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        textView.setTextSize(15);
-        textView.setMaxLines(3);
-
-        snackbar.setAction("Dismiss", new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
-            }
-        });
-        snackbar.show();
     }
 
 }

@@ -58,7 +58,7 @@ public class UpdateAreaTask extends AsyncTask<Object, Void, String> {
                 Position centerPosition = area.getCenterPosition();
                 if(centerPosition != null){
                     Address areaAddress = geoHelper.getAddressByGeoLocation(context,
-                            centerPosition.getLat(), centerPosition.getLon());
+                            centerPosition.getLat(), centerPosition.getLng());
                     area.setAddress(areaAddress);
                 }
             }

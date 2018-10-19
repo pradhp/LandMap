@@ -50,7 +50,7 @@ public class AreaAddResourceAdaptor extends ArrayAdapter<Resource> {
         TextView filePathText = (TextView) v.findViewById(R.id.ar_file_path);
         Position resourcePosition = resource.getPosition();
         if(resourcePosition != null){
-            String message = "Position: " + resourcePosition.getLat() + ", " + resourcePosition.getLon();
+            String message = "Position: " + resourcePosition.getLat() + ", " + resourcePosition.getLng();
             filePathText.setText(message);
         }else {
             filePathText.setText(resource.getSize() + " bytes");

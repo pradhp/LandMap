@@ -3,6 +3,7 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.google.gson.JsonObject;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
@@ -95,101 +96,79 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 return;
             }
             JSONObject responseObj = new JSONObject(s);
-            JSONArray areaResponse = responseObj.getJSONArray("area_response");
-            for (int i = 0; i < areaResponse.length(); i++) {
-                JSONObject areaResponseObj = (JSONObject) areaResponse.get(i);
-                JSONObject areaObj = (JSONObject) areaResponseObj.get("area");
+            JSONArray dataArr = responseObj.getJSONArray("data");
+            for (int i = 0; i < dataArr.length(); i++) {
+                JSONObject dataObj = (JSONObject) dataArr.get(i);
+                JSONObject detailObj = dataObj.getJSONObject("detail");
 
                 Area ae = new Area();
-                ae.setName(areaObj.getString("name"));
-                ae.setCreatedBy(areaObj.getString("created_by"));
-                ae.setDescription(areaObj.getString("description"));
-                ae.getCenterPosition().setLat(areaObj.getDouble("center_lat"));
-                ae.getCenterPosition().setLon(areaObj.getDouble("center_lon"));
-                ae.setUniqueId(areaObj.getString("unique_id"));
+                ae.setName(detailObj.getString("name"));
+                ae.setCreatedBy(detailObj.getString("createdBy"));
+                ae.setDescription(detailObj.getString("description"));
+                ae.getCenterPosition().setLat(detailObj.getDouble("center_lat"));
+                ae.getCenterPosition().setLng(detailObj.getDouble("center_lon"));
+                ae.setUniqueId(detailObj.getString("uniqueId"));
 
-                double msqFt = areaObj.getDouble("measure_sqft");
+                double msqFt = detailObj.getDouble("msqft");
                 AreaMeasure measure = new AreaMeasure(msqFt);
                 ae.setMeasure(measure);
 
-                String addressText = areaObj.getString("address");
+                String addressText = detailObj.getString("address");
                 Address address = Address.fromStoredAddress(addressText);
                 if (address != null) {
                     ae.setAddress(address);
                     tdh.insertTagsLocally(address.getTags(), "area", ae.getUniqueId());
                 }
-                ae.setType(areaObj.getString("type"));
+                ae.setType(detailObj.getString("type"));
                 ae.setDirty(0);
                 ae.setDirtyAction("none");
                 adh.insertArea(ae);
 
-                JSONArray positionsArr = (JSONArray) areaResponseObj.get("positions");
-                for (int p = 0; p < positionsArr.length(); p++) {
-                    JSONObject positionObj = (JSONObject) positionsArr.get(p);
-                    Position pe = new Position();
-                    pe.setUniqueId(positionObj.getString("unique_id"));
-                    pe.setUniqueAreaId(positionObj.getString("unique_area_id"));
-                    pe.setName(positionObj.getString("name"));
-                    pe.setDescription(positionObj.getString("description"));
-                    pe.setLat(positionObj.getDouble("lat"));
-                    pe.setLon(positionObj.getDouble("lon"));
-                    pe.setTags(positionObj.getString("tags"));
-                    pe.setType(positionObj.getString("type"));
-                    pe.setCreatedOnMillis(positionObj.getString("created_on"));
+                JSONObject permissionObj = dataObj.getJSONObject("permission");
+                PermissionElement permissionElement = new PermissionElement();
+                permissionElement.setUserId(permissionObj.getString("user_id"));
+                permissionElement.setAreaId(permissionObj.getString("area_id"));
+                permissionElement.setFunctionCode(permissionObj.getString("function_code"));
+                pmh.insertPermissionLocally(permissionElement);
 
-                    pdh.insertPositionFromServer(pe);
+                JSONArray positions = dataObj.getJSONArray("positions");
+                for (int p = 0; p < positions.length(); p++) {
+                    JSONObject positionObj = (JSONObject) positions.get(p);
+                    Position position = new Position();
+                    position.setUniqueId(positionObj.getString("unique_id"));
+                    position.setUniqueAreaId(positionObj.getString("unique_area_id"));
+                    position.setName(positionObj.getString("name"));
+                    position.setDescription(positionObj.getString("description"));
+                    position.setLat(positionObj.getDouble("lat"));
+                    position.setLng(positionObj.getDouble("lon"));
+                    position.setTags(positionObj.getString("tags"));
+                    position.setType(positionObj.getString("type"));
+                    position.setCreatedOnMillis(positionObj.getString("created_on"));
+
+                    pdh.insertPositionFromServer(position);
                 }
 
-                JSONArray driveArr = (JSONArray) areaResponseObj.get("drs");
-                for (int d = 0; d < driveArr.length(); d++) {
-                    JSONObject driveObj = (JSONObject) driveArr.get(d);
+                JSONArray resources = dataObj.getJSONArray("resources");
+                for (int d = 0; d < resources.length(); d++) {
+                    JSONObject resourceObj = (JSONObject) resources.get(d);
                     Resource resource = new Resource();
-                    resource.setUniqueId(driveObj.getString("unique_id"));
-                    resource.setAreaId(driveObj.getString("area_id"));
-                    resource.setUserId(driveObj.getString("user_id"));
-                    resource.setContainerId(driveObj.getString("container_id"));
-                    resource.setResourceId(driveObj.getString("resource_id"));
-                    resource.setName(driveObj.getString("name"));
-                    resource.setType(driveObj.getString("type"));
-                    resource.setSize(driveObj.getString("size"));
-                    resource.setMimeType(driveObj.getString("mime_type"));
-                    resource.setContentType(driveObj.getString("content_type"));
-                    String positionId = driveObj.getString("position_id");
+                    resource.setUniqueId(resourceObj.getString("unique_id"));
+                    resource.setAreaId(resourceObj.getString("area_id"));
+                    resource.setUserId(resourceObj.getString("user_id"));
+                    resource.setContainerId(resourceObj.getString("container_id"));
+                    resource.setResourceId(resourceObj.getString("resource_id"));
+                    resource.setName(resourceObj.getString("name"));
+                    resource.setType(resourceObj.getString("type"));
+                    resource.setSize(resourceObj.getString("size"));
+                    resource.setMimeType(resourceObj.getString("mime_type"));
+                    resource.setContentType(resourceObj.getString("content_type"));
+                    String positionId = resourceObj.getString("position_id");
                     if (!positionId.equalsIgnoreCase("null")) {
                         resource.setPosition(pdh.getPositionById(positionId));
                     }
-                    resource.setCreatedOnMillis(driveObj.getString("created_on"));
+                    resource.setCreatedOnMillis(resourceObj.getString("created_on"));
                     ddh.insertResourceFromServer(resource);
                 }
-
-                JSONArray permissionsArr = (JSONArray) areaResponseObj.get("permissions");
-                for (int e = 0; e < permissionsArr.length(); e++) {
-                    JSONObject permissionObj = (JSONObject) permissionsArr.get(e);
-                    PermissionElement pe = new PermissionElement();
-                    pe.setUserId(permissionObj.getString("user_id"));
-                    pe.setAreaId(permissionObj.getString("area_id"));
-                    pe.setFunctionCode(permissionObj.getString("function_code"));
-                    pmh.insertPermissionLocally(pe);
-                }
-            }
-
-            JSONArray commonResponse = responseObj.getJSONArray("common_response");
-            for (int i = 0; i < commonResponse.length(); i++) {
-                JSONObject driveObj = commonResponse.getJSONObject(i);
-                Resource resource = new Resource();
-                resource.setUniqueId(driveObj.getString("unique_id"));
-                resource.setAreaId(driveObj.getString("area_id"));
-                resource.setUserId(driveObj.getString("user_id"));
-                resource.setContainerId(driveObj.getString("container_id"));
-                resource.setResourceId(driveObj.getString("resource_id"));
-                resource.setName(driveObj.getString("name"));
-                resource.setType(driveObj.getString("type"));
-                resource.setSize(driveObj.getString("size"));
-                resource.setMimeType(driveObj.getString("mime_type"));
-                resource.setContentType(driveObj.getString("content_type"));
-                resource.setCreatedOnMillis(driveObj.getString("created_on"));
-
-                ddh.insertResourceFromServer(resource);
             }
 
             UserElement userElement = UserContext.getInstance().getUserElement();

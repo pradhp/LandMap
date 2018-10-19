@@ -73,7 +73,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(POSITION_COLUMN_TYPE, pe.getType());
         contentValues.put(POSITION_COLUMN_DESCRIPTION, pe.getDescription());
         contentValues.put(POSITION_COLUMN_LAT, pe.getLat());
-        contentValues.put(POSITION_COLUMN_LON, pe.getLon());
+        contentValues.put(POSITION_COLUMN_LON, pe.getLng());
         contentValues.put(POSITION_COLUMN_TAGS, pe.getTags());
         contentValues.put(POSITION_COLUMN_DIRTY_FLAG, pe.getDirty());
         contentValues.put(POSITION_COLUMN_DIRTY_ACTION, pe.getDirtyAction());
@@ -93,7 +93,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(POSITION_COLUMN_TYPE, pe.getType());
         contentValues.put(POSITION_COLUMN_DESCRIPTION, pe.getDescription());
         contentValues.put(POSITION_COLUMN_LAT, pe.getLat());
-        contentValues.put(POSITION_COLUMN_LON, pe.getLon());
+        contentValues.put(POSITION_COLUMN_LON, pe.getLng());
         contentValues.put(POSITION_COLUMN_TAGS, pe.getTags());
         contentValues.put(POSITION_COLUMN_DIRTY_FLAG, pe.getDirty());
         contentValues.put(POSITION_COLUMN_DIRTY_ACTION, pe.getDirtyAction());
@@ -114,7 +114,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(POSITION_COLUMN_TYPE, pe.getType());
         contentValues.put(POSITION_COLUMN_DESCRIPTION, pe.getDescription());
         contentValues.put(POSITION_COLUMN_LAT, pe.getLat());
-        contentValues.put(POSITION_COLUMN_LON, pe.getLon());
+        contentValues.put(POSITION_COLUMN_LON, pe.getLng());
         contentValues.put(POSITION_COLUMN_TAGS, pe.getTags());
         contentValues.put(POSITION_COLUMN_DIRTY_FLAG, pe.getDirty());
         contentValues.put(POSITION_COLUMN_DIRTY_ACTION, pe.getDirtyAction());
@@ -204,7 +204,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                 pe.setLat(Double.parseDouble(latStr));
 
                 String lonStr = cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_LON));
-                pe.setLon(Double.parseDouble(lonStr));
+                pe.setLng(Double.parseDouble(lonStr));
 
                 pe.setTags(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_TAGS)));
                 pe.setCreatedOnMillis(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_CREATED_ON)));
@@ -244,7 +244,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                 String latStr = cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_LAT));
                 pe.setLat(Double.parseDouble(latStr));
                 String lonStr = cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_LON));
-                pe.setLon(Double.parseDouble(lonStr));
+                pe.setLng(Double.parseDouble(lonStr));
                 pe.setTags(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_TAGS)));
                 pe.setCreatedOnMillis(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_CREATED_ON)));
 
@@ -282,7 +282,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             pe.setLat(Double.parseDouble(latStr));
 
             String lonStr = cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_LON));
-            pe.setLon(Double.parseDouble(lonStr));
+            pe.setLng(Double.parseDouble(lonStr));
 
             pe.setTags(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_TAGS)));
             pe.setCreatedOnMillis(cursor.getString(cursor.getColumnIndex(POSITION_COLUMN_CREATED_ON)));
@@ -301,7 +301,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             postParams.put("requestType", "PositionMaster");
             postParams.put("queryType", queryType);
             postParams.put("deviceID", AndroidSystemUtil.getDeviceId(context));
-            postParams.put("lon", pe.getLon() + "");
+            postParams.put("lon", pe.getLng() + "");
             postParams.put("lat", pe.getLat() + "");
             postParams.put("desc", pe.getDescription());
             postParams.put("tags", pe.getTags());

@@ -62,7 +62,7 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                 mediaP.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/pictures/" + compressedFile.getName());
                 mediaP.setType("picture");
                 mediaP.setLat(pe.getLat() + "");
-                mediaP.setLng(pe.getLon() + "");
+                mediaP.setLng(pe.getLng() + "");
                 mediaP.setCreatedOn(System.currentTimeMillis());
                 mediaP.setFetchedOn(System.currentTimeMillis());
 
@@ -97,7 +97,7 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                     mediaV.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/videos/" + compressedFile.getName());
                     mediaV.setType("video");
                     mediaV.setLat(pe.getLat() + "");
-                    mediaV.setLng(pe.getLon() + "");
+                    mediaV.setLng(pe.getLng() + "");
                     mediaV.setCreatedOn(System.currentTimeMillis());
                     mediaV.setFetchedOn(System.currentTimeMillis());
 

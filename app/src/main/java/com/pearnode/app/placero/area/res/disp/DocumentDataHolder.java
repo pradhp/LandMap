@@ -21,7 +21,7 @@ final class DocumentDataHolder {
         AreaContext ac = AreaContext.INSTANCE;
 
         Area ae = ac.getAreaElement();
-        List<Resource> resources = ae.getMediaResources();
+        List<Resource> resources = ae.getResources();
         String documentRootPath = ac.getAreaLocalDocumentRoot(ae.getUniqueId()).getAbsolutePath() + File.separatorChar;
         String thumbnailRoot = ac.getAreaLocalDocumentThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
 

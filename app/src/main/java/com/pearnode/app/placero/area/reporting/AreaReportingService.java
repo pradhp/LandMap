@@ -124,7 +124,7 @@ public class AreaReportingService extends IntentService {
     }
 
     private void populateDocuments() {
-        List<Resource> mediaResources = area.getMediaResources();
+        List<Resource> mediaResources = area.getResources();
         for (Resource resource : mediaResources) {
             if (resource.getType().equalsIgnoreCase("file")
                     && resource.getContentType().equalsIgnoreCase("Document")
@@ -185,7 +185,7 @@ public class AreaReportingService extends IntentService {
         DecimalFormat locFormat = new DecimalFormat("##.####");
         Position centerPosition = area.getCenterPosition();
         String centerPosStr = "Center - Latitude: " + locFormat.format(centerPosition.getLat())
-                + ", Longitude: " + locFormat.format(centerPosition.getLon());
+                + ", Longitude: " + locFormat.format(centerPosition.getLng());
         reportContent.put("center_position", centerPosStr);
 
         List<Position> positions = area.getPositions();
@@ -193,7 +193,7 @@ public class AreaReportingService extends IntentService {
         for (Position position : positions) {
             String fieldName = "position_" + posCtr;
             String posStr = "Position_" + posCtr + " - Latitude: " + locFormat.format(position.getLat())
-                    + ", Longitude: " + locFormat.format(position.getLon());
+                    + ", Longitude: " + locFormat.format(position.getLng());
             reportContent.put(fieldName, posStr);
             posCtr++;
             if (posCtr == 12) {

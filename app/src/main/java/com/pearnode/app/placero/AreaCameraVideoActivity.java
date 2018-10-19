@@ -109,7 +109,7 @@ public class AreaCameraVideoActivity extends Activity implements LocationPositio
                 videoResource.setDirty(1);
                 videoResource.setDirtyAction("upload");
 
-                ae.getMediaResources().add(videoResource);
+                ae.getResources().add(videoResource);
                 areaContext.addResourceToQueue(videoResource);
 
                 Intent i = new Intent(this, AreaAddResourcesActivity.class);

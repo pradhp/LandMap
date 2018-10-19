@@ -41,10 +41,10 @@ public class ReportingContext {
         this.reCenter(this.currentArea);
 
         DriveDBHelper ddh = new DriveDBHelper(context);
-        this.currentArea.setMediaResources(ddh.getDriveResourcesByAreaId(this.currentArea.getUniqueId()));
+        this.currentArea.setResources(ddh.getDriveResourcesByAreaId(this.currentArea.getUniqueId()));
 
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
-        currentArea.setUserPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
+        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
     }
 
     public void reCenter(Area area) {
@@ -64,7 +64,7 @@ public class ReportingContext {
                     positionId = pe.getUniqueId();
                 }
                 latSum += pe.getLat();
-                longSum += pe.getLon();
+                longSum += pe.getLng();
             }
             latAvg = latSum / noOfPositions;
             lonAvg = longSum / noOfPositions;
@@ -72,7 +72,7 @@ public class ReportingContext {
 
         Position centerPosition = area.getCenterPosition();
         centerPosition.setLat(latAvg);
-        centerPosition.setLon(lonAvg);
+        centerPosition.setLng(lonAvg);
         centerPosition.setUniqueId(positionId);
     }
 

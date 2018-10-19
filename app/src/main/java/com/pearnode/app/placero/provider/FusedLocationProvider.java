@@ -37,7 +37,7 @@ public class FusedLocationProvider {
         LocationListener listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                pe.setLon(location.getLongitude());
+                pe.setLng(location.getLongitude());
                 pe.setLat(location.getLatitude());
                 ((LocationPositionReceiver) FusedLocationProvider.this.mContext).receivedLocationPostion(pe);
             }

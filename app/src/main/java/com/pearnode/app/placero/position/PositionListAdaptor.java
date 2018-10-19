@@ -96,7 +96,7 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
         DecimalFormat locFormat = new DecimalFormat("##.####");
         TextView latLongText = (TextView) v.findViewById(R.id.pos_latlng);
         latLongText.setText("Lat: " + locFormat.format(pe.getLat()) + ", "
-                + "Lng: " + locFormat.format(pe.getLon()));
+                + "Lng: " + locFormat.format(pe.getLng()));
 
         ImageView editButton = (ImageView) v.findViewById(R.id.edit_row);
         editButton.setOnClickListener(new OnClickListener() {
@@ -122,8 +122,8 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
                         resource.setPosition(null);
                         ddh.updateResourceLocally(resource);
                         ddh.updateResourceToServer(resource);
-                        area.getMediaResources().remove(resource);
-                        area.getMediaResources().add(resource);
+                        area.getResources().remove(resource);
+                        area.getResources().add(resource);
                     }
                     notifyDataSetChanged();
                 }

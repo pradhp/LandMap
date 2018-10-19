@@ -16,22 +16,23 @@ import com.pearnode.app.placero.position.Position;
  */
 public class Area implements Serializable {
 
-    private String name = null;
+    private String name = "";
     private String description = "No Description";
     private String createdBy = null;
     private String type = "self";
-    private String uniqueId = null;
+    private String uniqueId = "";
     private Integer dirty = 0;
     private String dirtyAction = "none";
-    private Address address = null;
-    private AreaMeasure measure = new AreaMeasure(0.0);
-    private Position centerPosition = new Position();
     private Long createdOn = -1L;
     private Long updatedOn = -1L;
 
+    private Address address = new Address();
+    private AreaMeasure measure = new AreaMeasure(0.0);
+    private Position centerPosition = new Position();
+
     private List<Position> positions = new ArrayList<>();
-    private List<Resource> mediaResources = new ArrayList<>();
-    private Map<String, PermissionElement> userPermissions = new HashMap<>();
+    private List<Resource> resources = new ArrayList<>();
+    private Map<String, PermissionElement> permissions = new HashMap<>();
 
     public String getCreatedBy() {
         return this.createdBy;
@@ -97,12 +98,12 @@ public class Area implements Serializable {
         this.uniqueId = uniqueId;
     }
 
-    public List<Resource> getMediaResources() {
-        return this.mediaResources;
+    public List<Resource> getResources() {
+        return this.resources;
     }
 
-    public void setMediaResources(List<Resource> mediaResources) {
-        this.mediaResources = mediaResources;
+    public void setResources(List<Resource> resources) {
+        this.resources = resources;
     }
 
     public String getType() {
@@ -113,12 +114,12 @@ public class Area implements Serializable {
         this.type = type;
     }
 
-    public Map<String, PermissionElement> getUserPermissions() {
-        return userPermissions;
+    public Map<String, PermissionElement> getPermissions() {
+        return permissions;
     }
 
-    public void setUserPermissions(Map<String, PermissionElement> userPermissions) {
-        this.userPermissions = userPermissions;
+    public void setPermissions(Map<String, PermissionElement> permissions) {
+        this.permissions = permissions;
     }
 
     public Position getCenterPosition() {

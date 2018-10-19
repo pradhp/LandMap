@@ -48,19 +48,19 @@ public class AreaContext {
         centerize(currentArea);
 
         DriveDBHelper ddh = new DriveDBHelper(context);
-        currentArea.setMediaResources(ddh.getDriveResourcesByAreaId(currentArea.getUniqueId()));
+        currentArea.setResources(ddh.getDriveResourcesByAreaId(currentArea.getUniqueId()));
         uploadQueue.addAll(ddh.getUploadableDirtyResources(currentArea.getUniqueId()));
 
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
-        currentArea.setUserPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
+        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
     }
 
 
     public void clearContext(){
         if(currentArea != null){
             currentArea.getPositions().clear();
-            currentArea.getMediaResources().clear();
-            currentArea.getUserPermissions().clear();
+            currentArea.getResources().clear();
+            currentArea.getPermissions().clear();
 
             currentArea = null;
             context = null;
@@ -104,7 +104,7 @@ public class AreaContext {
                     }
                 }
                 latSum += pe.getLat();
-                longSum += pe.getLon();
+                longSum += pe.getLng();
             }
             if(boundaryCtr > 0){
                 latAvg = latSum / boundaryCtr;
@@ -116,7 +116,7 @@ public class AreaContext {
 
         Position centerPosition = area.getCenterPosition();
         centerPosition.setLat(latAvg);
-        centerPosition.setLon(lonAvg);
+        centerPosition.setLng(lonAvg);
         centerPosition.setUniqueId(positionId);
 
         return area;

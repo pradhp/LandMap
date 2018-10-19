@@ -8,11 +8,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,9 +19,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +43,6 @@ import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.connectivity.services.AreaSynchronizationService;
 import com.pearnode.app.placero.connectivity.services.PositionSynchronizationService;
 import com.pearnode.app.placero.connectivity.services.ResourceSynchronizationService;
-import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
@@ -64,6 +60,8 @@ import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class AreaDashboardActivity extends AppCompatActivity {
 
@@ -114,16 +112,10 @@ public class AreaDashboardActivity extends AppCompatActivity {
                 pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
                 pe.setAreaId(area.getUniqueId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
+                area.getPermissions().put(PermissionConstants.FULL_CONTROL, pe);
 
-                PermissionsDBHelper pdh = new PermissionsDBHelper(getApplicationContext());
-                pdh.insertPermissionLocally(pe);
-                area.getUserPermissions().put(PermissionConstants.FULL_CONTROL, pe);
-
-                // Resetting the context for new Area
-                AreaContext.INSTANCE.setAreaElement(area, getApplicationContext());
-                CreateAreaServerCallback createCallback = new CreateAreaServerCallback();
+                CreateAreaCallback createCallback = new CreateAreaCallback();
                 createCallback.setArea(area);
-
                 CreateAreaTask createAreaTask = new CreateAreaTask(getApplicationContext(), createCallback);
                 createAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, area);
             }
@@ -245,7 +237,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
         });
     }
 
-    private class CreateAreaServerCallback implements TaskFinishedListener {
+    private class CreateAreaCallback implements TaskFinishedListener {
 
         private Area area = null;
 
@@ -259,6 +251,15 @@ public class AreaDashboardActivity extends AppCompatActivity {
 
         @Override
         public void onTaskFinished(String response) {
+            AreaContext.INSTANCE.setAreaElement(area, getApplicationContext());
+
+            PermissionsDBHelper pdh = new PermissionsDBHelper(getApplicationContext());
+            Map<String, PermissionElement> permissions = area.getPermissions();
+            Collection<PermissionElement> permissionElements = permissions.values();
+            for(PermissionElement permission : permissionElements){
+                pdh.insertPermissionLocally(permission);
+            }
+
             Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
             startActivity(intent);
         }
@@ -338,33 +339,22 @@ public class AreaDashboardActivity extends AppCompatActivity {
     }
 
     private void showMessage(String message, String type) {
-        final Snackbar snackbar = Snackbar.make(getWindow().getDecorView(),
-                message + ".", Snackbar.LENGTH_INDEFINITE);
-
-        View sbView = snackbar.getView();
-        snackbar.getView().setBackgroundColor(Color.parseColor("#FAF7F6"));
-
-        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
         if (type.equalsIgnoreCase("info")) {
-            textView.setTextColor(Color.parseColor("#30601F"));
+            new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
+                    .setTitleText(type)
+                    .setContentText(message)
+                    .show();
         } else if (type.equalsIgnoreCase("error")) {
-            textView.setTextColor(Color.RED);
+            new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText(type)
+                    .setContentText(message)
+                    .show();
         } else {
-            textView.setTextColor(Color.DKGRAY);
+            new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(type)
+                    .setContentText(message)
+                    .show();
         }
-        textView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        textView.setTextSize(15);
-        textView.setMaxLines(3);
-
-        snackbar.setAction("Dismiss", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setBackgroundColor(ColorProvider.DEFAULT_TOOLBAR_COLOR);
-                snackbar.dismiss();
-            }
-        });
-        snackbar.setActionTextColor(ColorProvider.DEFAULT_TOOLBAR_COLOR);
-        snackbar.show();
     }
 
     public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

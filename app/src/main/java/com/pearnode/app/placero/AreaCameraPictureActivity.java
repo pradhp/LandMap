@@ -109,7 +109,7 @@ public class AreaCameraPictureActivity extends Activity implements LocationPosit
                 pictureResource.setDirty(1);
                 pictureResource.setDirtyAction("upload");
 
-                ae.getMediaResources().add(pictureResource);
+                ae.getResources().add(pictureResource);
                 areaContext.addResourceToQueue(pictureResource);
 
                 Intent i = new Intent(this, AreaAddResourcesActivity.class);

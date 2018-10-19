@@ -21,7 +21,7 @@ final class PictureDataHolder {
         AreaContext ac = AreaContext.INSTANCE;
         Area ae = ac.getAreaElement();
 
-        List<Resource> resources = ae.getMediaResources();
+        List<Resource> resources = ae.getResources();
         String imgRootPath = ac.getAreaLocalImageRoot(ae.getUniqueId()).getAbsolutePath() + File.separatorChar;
         String thumbnailRoot = ac.getAreaLocalPictureThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
 
