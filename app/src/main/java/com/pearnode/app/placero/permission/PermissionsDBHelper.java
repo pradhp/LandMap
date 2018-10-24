@@ -48,7 +48,7 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
-                "create table " +
+                "CREATE TABLE IF NOT EXISTS " +
                         TABLE_NAME + "(" +
                         AREA_ID + " text," +
                         USER_ID + " text, " +
@@ -56,6 +56,12 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
                         DIRTY_ACTION + " text," +
                         FUNCTION_CODE + " text)"
         );
+    }
+
+    public void dryRun() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        onCreate(db);
+        db.close();
     }
 
     @Override

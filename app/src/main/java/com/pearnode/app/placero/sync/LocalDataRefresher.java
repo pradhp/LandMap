@@ -30,18 +30,23 @@ public class LocalDataRefresher implements AsyncTaskCallback {
     public void refreshLocalData() {
 
         AreaDBHelper adh = new AreaDBHelper(this.context);
+        adh.dryRun();
         adh.deleteAreasLocally();
 
         PositionsDBHelper pdh = new PositionsDBHelper(this.context);
+        pdh.dryRun();
         pdh.deletePositionsLocally();
 
         DriveDBHelper ddh = new DriveDBHelper(this.context);
+        ddh.dryRun();
         ddh.cleanLocalDriveResources();
 
         PermissionsDBHelper pmh = new PermissionsDBHelper(this.context);
+        pmh.dryRun();
         pmh.deletePermissionsLocally();
 
         TagsDBHelper tdh = new TagsDBHelper(this.context);
+        tdh.dryRun();
         tdh.deleteAllTagsLocally();
 
         UserAreaDetailsLoadTask loadTask = new UserAreaDetailsLoadTask(this.context);

@@ -78,6 +78,12 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         );
     }
 
+    public void dryRun() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        onCreate(db);
+        db.close();
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
