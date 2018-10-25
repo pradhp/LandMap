@@ -47,8 +47,8 @@ import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.GlobalContext;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
@@ -103,14 +103,12 @@ public class AreaDashboardActivity extends AppCompatActivity {
                 findViewById(id.splash_panel).setVisibility(View.VISIBLE);
 
                 Area area = new Area();
-                String uniqueId = UUID.randomUUID().toString();
-                area.setUniqueId(uniqueId);
-                area.setName("PL_" + uniqueId);
+                area.setName("PL_" + area.getId());
                 area.setCreatedBy(UserContext.getInstance().getUserElement().getEmail());
 
                 PermissionElement pe = new PermissionElement();
                 pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                pe.setAreaId(area.getUniqueId());
+                pe.setAreaId(area.getId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
                 area.getPermissions().put(PermissionConstants.FULL_CONTROL, pe);
 
@@ -188,14 +186,14 @@ public class AreaDashboardActivity extends AppCompatActivity {
         ImageView saveOfflineView = (ImageView) findViewById(R.id.action_save_offline);
         final ArrayList<Area> dirtyAreas = new AreaDBHelper(getApplicationContext()).getDirtyAreas();
         final ArrayList<Position> dirtyPositions = new PositionsDBHelper(getApplicationContext()).getDirtyPositions();
-        final ArrayList<Resource> dirtyResources = new DriveDBHelper(getApplicationContext()).getDirtyResources();
+        final List<Media> dirtyMedia = new MediaDataBaseHandler(getApplicationContext()).getDirtyMedia();
 
         saveOfflineView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Boolean offlineSync = new Boolean(GlobalContext.INSTANCE.get(GlobalContext.SYNCHRONIZING_OFFLINE));
                 if(!offlineSync){
-                    if(dirtyAreas.size() == 0 && dirtyPositions.size() == 0 && dirtyResources.size() == 0){
+                    if(dirtyAreas.size() == 0 && dirtyPositions.size() == 0 && dirtyMedia.size() == 0){
                         showMessage("All caught up !!", "info");
                         return;
                     }
@@ -209,7 +207,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
             }
         });
 
-        if(dirtyAreas.size() > 0 || dirtyPositions.size() > 0 || dirtyResources.size() > 0){
+        if(dirtyAreas.size() > 0 || dirtyPositions.size() > 0 || dirtyMedia.size() > 0){
             saveOfflineView.setBackgroundResource(R.drawable.rounded_corner);
         }
 
@@ -228,7 +226,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
                     return;
                 }
                 for (Area eachItem: adaptorItems) {
-                    areaIds.add(eachItem.getUniqueId());
+                    areaIds.add(eachItem.getId());
                 }
                 Intent intent = new Intent(getApplicationContext(), CombinedAreasPlotterActivity.class);
                 intent.putExtra("area_ids", areaIds.toArray());

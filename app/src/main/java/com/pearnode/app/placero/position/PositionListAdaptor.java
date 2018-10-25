@@ -1,7 +1,6 @@
 package com.pearnode.app.placero.position;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -21,8 +19,6 @@ import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.user.UserContext;
@@ -37,14 +33,12 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
     private final ArrayList<Position> items;
     private final Context context;
     private PositionsDBHelper pdh;
-    private DriveDBHelper ddh;
 
     public PositionListAdaptor(Context context, int textViewResourceId, ArrayList<Position> items) {
         super(context, textViewResourceId, items);
         this.context = context;
         this.items = items;
         pdh = new PositionsDBHelper(context);
-        ddh = new DriveDBHelper(context);
     }
 
     @Override
@@ -70,27 +64,10 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
 
         final AreaContext areaContext = AreaContext.INSTANCE;
         final Area area = areaContext.getAreaElement();
-        final String uniqueId = area.getUniqueId();
+        final String uniqueId = area.getId();
 
-        ImageView posImgView = (ImageView) v.findViewById(id.position_default_img);
-        if(posType.equalsIgnoreCase("media")){
-            String rootPath = null;
-            Resource resource = ddh.getDriveResourceByPositionId(pe.getUniqueId());
-            if(resource.getContentType().equalsIgnoreCase("Image")){
-                rootPath = areaContext.getAreaLocalPictureThumbnailRoot(uniqueId).getAbsolutePath();
-            }else {
-                rootPath = areaContext.getAreaLocalVideoThumbnailRoot(uniqueId).getAbsolutePath();
-            }
-            String thumbnailPath = rootPath + File.separatorChar + resource.getName();
-            File thumbFile = new File(thumbnailPath);
-            if (thumbFile.exists()) {
-                posImgView.setImageBitmap(BitmapFactory.decodeFile(thumbnailPath));
-            }else {
-                posImgView.setImageResource(R.drawable.position);
-            }
-        }else {
-            posImgView.setImageResource(R.drawable.position);
-        }
+        ImageView posImgView = v.findViewById(id.position_default_img);
+        posImgView.setImageResource(R.drawable.position);
 
         // Area Positions
         DecimalFormat locFormat = new DecimalFormat("##.####");
@@ -117,14 +94,6 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
                     area.getPositions().remove(pe);
                     pdh.deletePositionLocally(pe);
                     pdh.deletePositionFromServer(pe);
-                    if(pe.getType().equalsIgnoreCase("Media")){
-                        Resource resource = ddh.getDriveResourceByPositionId(pe.getUniqueId());
-                        resource.setPosition(null);
-                        ddh.updateResourceLocally(resource);
-                        ddh.updateResourceToServer(resource);
-                        area.getResources().remove(resource);
-                        area.getResources().add(resource);
-                    }
                     notifyDataSetChanged();
                 }
             }

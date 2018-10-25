@@ -6,9 +6,7 @@ import java.io.File;
 import java.util.List;
 
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.FileStorageConstants;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
@@ -38,52 +36,14 @@ public class ReportingContext {
 
         PositionsDBHelper pdb = new PositionsDBHelper(context);
         this.currentArea.setPositions(pdb.getPositionsForArea(this.currentArea));
-        this.reCenter(this.currentArea);
 
-        DriveDBHelper ddh = new DriveDBHelper(context);
-        this.currentArea.setResources(ddh.getDriveResourcesByAreaId(this.currentArea.getUniqueId()));
+        MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
+        this.currentArea.setPictures(ddh.getPlacePictures(this.currentArea.getId()));
+        this.currentArea.setVideos(ddh.getPlaceVideos(this.currentArea.getId()));
+        this.currentArea.setDocuments(ddh.getPlaceDocuments(this.currentArea.getId()));
 
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
-        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
-    }
-
-    public void reCenter(Area area) {
-        double latSum = 0.0;
-        double longSum = 0.0;
-        String positionId = null;
-
-        double latAvg = 0.0;
-        double lonAvg = 0.0;
-
-        List<Position> positions = area.getPositions();
-        int noOfPositions = positions.size();
-        if (noOfPositions != 0) {
-            for (int i = 0; i < noOfPositions; i++) {
-                Position pe = positions.get(i);
-                if (positionId == null) {
-                    positionId = pe.getUniqueId();
-                }
-                latSum += pe.getLat();
-                longSum += pe.getLng();
-            }
-            latAvg = latSum / noOfPositions;
-            lonAvg = longSum / noOfPositions;
-        }
-
-        Position centerPosition = area.getCenterPosition();
-        centerPosition.setLat(latAvg);
-        centerPosition.setLng(lonAvg);
-        centerPosition.setUniqueId(positionId);
-    }
-
-    private Resource documentsResourceRoot = null;
-    public Resource getDocumentRootDriveResource() {
-        if(documentsResourceRoot == null){
-            DriveDBHelper ddh = new DriveDBHelper(context);
-            documentsResourceRoot
-                    = ddh.getDriveResourceRoot(FileStorageConstants.DOCUMENTS_CONTENT_TYPE, currentArea);
-        }
-        return documentsResourceRoot;
+        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getId()));
     }
 
     public File getAreaLocalImageRoot(String areaId) {
@@ -98,20 +58,8 @@ public class ReportingContext {
         return areaImageFolder;
     }
 
-    public File getAreaLocalVideoRoot(String areaId) {
-        String areaVideosRoot = LocalFolderStructureManager.getVideoStorageDir().getAbsolutePath()
-                + File.separatorChar + areaId;
-        File areaVideosFolder = new File(areaVideosRoot);
-        if (areaVideosFolder.exists()) {
-            return areaVideosFolder;
-        } else {
-            areaVideosFolder.mkdirs();
-        }
-        return areaVideosFolder;
-    }
-
     public File getAreaLocalDocumentRoot(String areaId) {
-        String areaDocumentsRoot = LocalFolderStructureManager.getDocsStorageDir().getAbsolutePath()
+        String areaDocumentsRoot = LocalFolderStructureManager.getDocumentsStorageDir().getAbsolutePath()
                 + File.separatorChar + areaId;
         File areaDocumentsFolder = new File(areaDocumentsRoot);
         if (areaDocumentsFolder.exists()) {

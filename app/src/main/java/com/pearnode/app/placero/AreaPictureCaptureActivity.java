@@ -2,49 +2,67 @@ package com.pearnode.app.placero;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-
-import com.iceteck.silicompressorr.SiliCompressor;
-
-import org.apache.commons.io.FileUtils;
+import android.support.v4.app.ActivityCompat;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
 
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
-import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.util.FileUtil;
 
 /**
  * Created by USER on 11/1/2017.
  */
-public class AreaCameraPictureActivity extends Activity implements LocationPositionReceiver {
+public class AreaPictureCaptureActivity extends Activity implements LocationPositionReceiver {
 
 
     // Camera activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
 
     private Uri fileUri; // file url to store image/video_map
-    private final Resource pictureResource = new Resource();
+    private final Media media = new Media();
+    private static final int TAG_CODE_PERMISSION_LOCATION = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
-        startPositioning();
+    }
+
+    private void askPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                TAG_CODE_PERMISSION_LOCATION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
         captureImage();
+        switch (requestCode) {
+            case TAG_CODE_PERMISSION_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startPositioning();
+                } else {
+                    // Permission denied cannot get location.
+                }
+                return;
+            }
+        }
     }
 
     private void startPositioning() {
@@ -82,35 +100,14 @@ public class AreaCameraPictureActivity extends Activity implements LocationPosit
                 AreaContext areaContext = AreaContext.INSTANCE;
                 Area ae = areaContext.getAreaElement();
 
-                SiliCompressor compressor = SiliCompressor.with(getApplicationContext());
-                String compressedFilePath = compressor.compress(imageFile.getAbsolutePath(),
-                        areaContext.getAreaLocalPictureThumbnailRoot(ae.getUniqueId()), true);
+                media.setName(imageFile.getName());
+                media.setRfPath(imageFile.getAbsolutePath());
+                media.setType("picture");
+                media.setDirty(1);
+                media.setDirtyAction("upload");
 
-                File compressedFile = new File(compressedFilePath);
-                File loadableFile = getOutputMediaFile();
-                try {
-                    FileUtils.copyFile(compressedFile, loadableFile);
-                    compressedFile.delete();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                pictureResource.setName(loadableFile.getName());
-                pictureResource.setPath(loadableFile.getAbsolutePath());
-                pictureResource.setType("file");
-                pictureResource.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                pictureResource.setSize(loadableFile.length() + "");
-                pictureResource.setUniqueId(UUID.randomUUID().toString());
-                pictureResource.setAreaId(ae.getUniqueId());
-                pictureResource.setMimeType(FileUtil.getMimeType(loadableFile));
-                pictureResource.setContentType("Image");
-                pictureResource.setContainerId(areaContext.getImagesRootDriveResource().getResourceId());
-                pictureResource.setCreatedOnMillis(System.currentTimeMillis() + "");
-                pictureResource.setDirty(1);
-                pictureResource.setDirtyAction("upload");
-
-                ae.getResources().add(pictureResource);
-                areaContext.addResourceToQueue(pictureResource);
+                ae.getPictures().add(media);
+                areaContext.addMediaToQueue(media);
 
                 Intent i = new Intent(this, AreaAddResourcesActivity.class);
                 startActivity(i);
@@ -135,7 +132,7 @@ public class AreaCameraPictureActivity extends Activity implements LocationPosit
     private static File getOutputMediaFile() {
         Area area = AreaContext.INSTANCE.getAreaElement();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        File localRoot = AreaContext.INSTANCE.getAreaLocalImageRoot(area.getUniqueId());
+        File localRoot = AreaContext.INSTANCE.getAreaLocalImageRoot(area.getId());
         return new File(localRoot.getAbsolutePath() + File.separator + "IMG_" + timeStamp + ".jpg");
     }
 
@@ -144,7 +141,8 @@ public class AreaCameraPictureActivity extends Activity implements LocationPosit
         pe.setType("Media");
         pe.setDirty(1);
         pe.setDirtyAction("insert");
-        pictureResource.setPosition(pe);
+        media.setLat(pe.getLat() + "");
+        media.setLng(pe.getLng() + "");
     }
 
     @Override

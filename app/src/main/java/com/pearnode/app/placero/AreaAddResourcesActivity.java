@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -15,19 +16,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaAddResourceAdaptor;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.MediaHandlerTask;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 import com.pearnode.app.placero.util.ColorProvider;
 
 public class AreaAddResourcesActivity extends AppCompatActivity {
 
     private AreaAddResourceAdaptor adaptor;
-    private ArrayList<Resource> resourceList = new ArrayList<>();
+    private List<Media> resourceList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
         View includedView = findViewById(R.id.selected_area_include);
         AreaPopulationUtil.INSTANCE.populateAreaElement(includedView);
 
-        ArrayList<Resource> resources = AreaContext.INSTANCE.getUploadedQueue();
+        List<Media> resources = AreaContext.INSTANCE.getUploadedQueue();
         resourceList.addAll(resources);
 
         ListView resListView = (ListView) findViewById(R.id.file_display_list);
@@ -58,7 +61,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
         takeSnapButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(AreaAddResourcesActivity.this, AreaCameraPictureActivity.class);
+                Intent i = new Intent(AreaAddResourcesActivity.this, AreaPictureCaptureActivity.class);
                 startActivity(i);
             }
         });
@@ -67,7 +70,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
         captureVideoButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(AreaAddResourcesActivity.this, AreaCameraVideoActivity.class);
+                Intent i = new Intent(AreaAddResourcesActivity.this, AreaVideoCaptureActivity.class);
                 startActivity(i);
             }
         });
@@ -81,18 +84,24 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
             }
         });
 
-        Button driveUploadButton = (Button) findViewById(R.id.upload_to_drive_button);
-        driveUploadButton.setOnClickListener(new OnClickListener() {
+        Button uploadButton = (Button) findViewById(R.id.upload_button);
+        uploadButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(adaptor.getCount() == 0){
+                int itemCnt = adaptor.getCount();
+                if(itemCnt == 0){
                     showMessage("Nothing to upload.", "error");
                     return;
+                }else {
+                    for (int i = 0; i < itemCnt; i++) {
+                        Media media = adaptor.getItem(i);
+                        AsyncTask mediaHandlerTask = new MediaHandlerTask(getApplicationContext(), null);
+                        mediaHandlerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, media);
+                    }
                 }
-                // TODO: Start a task to upload the resources.
+
             }
         });
-
         showErrorsIfAny();
     }
 

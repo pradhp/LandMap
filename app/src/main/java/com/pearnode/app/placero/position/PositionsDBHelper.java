@@ -28,8 +28,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public static final String LAT = "lat";
     public static final String LON = "lon";
     public static final String TAGS = "tags";
-    private static final String UNIQUE_AREA_ID = "uniqueAreaId";
-    private static final String UNIQUE_ID = "uniqueId";
+    private static final String AREA_REF = "ar";
+    private static final String UNIQUE_ID = "uid";
     private static final String DIRTY = "dirty";
     private static final String D_ACTION = "d_action";
     private static final String CREATED_ON = "created_on";
@@ -49,7 +49,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                         DESCRIPTION + " text," +
                         LAT + " text, " +
                         LON + " text," +
-                        UNIQUE_AREA_ID + " text," +
+                        AREA_REF + " text," +
                         UNIQUE_ID + " text," +
                         CREATED_ON + " text," +
                         DIRTY + " integer DEFAULT 0," +
@@ -73,8 +73,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public Position insertPositionLocally(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(UNIQUE_ID, pe.getUniqueId());
-        contentValues.put(UNIQUE_AREA_ID, pe.getUniqueAreaId());
+        contentValues.put(UNIQUE_ID, pe.getId());
         contentValues.put(NAME, pe.getName());
         contentValues.put(TYPE, pe.getType());
         contentValues.put(DESCRIPTION, pe.getDescription());
@@ -93,8 +92,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public Position updatePositionLocally(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(UNIQUE_ID, pe.getUniqueId());
-        contentValues.put(UNIQUE_AREA_ID, pe.getUniqueAreaId());
+        contentValues.put(UNIQUE_ID, pe.getId());
+        contentValues.put(AREA_REF, pe.getAreaRef());
         contentValues.put(NAME, pe.getName());
         contentValues.put(TYPE, pe.getType());
         contentValues.put(DESCRIPTION, pe.getDescription());
@@ -106,7 +105,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(CREATED_ON, pe.getCreatedOnMillis());
 
         db.update(TABLE_NAME, contentValues, UNIQUE_ID + "=?",
-                new String[]{pe.getUniqueId()});
+                new String[]{pe.getId()});
         db.close();
         return pe;
     }
@@ -114,8 +113,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public Position insertPositionFromServer(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(UNIQUE_ID, pe.getUniqueId());
-        contentValues.put(UNIQUE_AREA_ID, pe.getUniqueAreaId());
+        contentValues.put(UNIQUE_ID, pe.getId());
+        contentValues.put(AREA_REF, pe.getAreaRef());
         contentValues.put(NAME, pe.getName());
         contentValues.put(TYPE, pe.getType());
         contentValues.put(DESCRIPTION, pe.getDescription());
@@ -159,7 +158,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
 
     public void deletePositionLocally(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_NAME, UNIQUE_ID + "=?", new String[]{pe.getUniqueId()});
+        db.delete(TABLE_NAME, UNIQUE_ID + "=?", new String[]{pe.getId()});
         db.close();
         return;
     }
@@ -176,10 +175,10 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return networkAvailable;
     }
 
-    public void deletePositionByAreaId(String uniqueAreaId) {
+    public void deletePositionByAreaId(String areaRef) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
-                + UNIQUE_AREA_ID + " = '" + uniqueAreaId + "'");
+                + AREA_REF + " = '" + areaRef + "'");
 
         db.close();
     }
@@ -188,17 +187,15 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         ArrayList<Position> pes = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME
-                        + " WHERE " + UNIQUE_AREA_ID + "=? AND "
+                        + " WHERE " + AREA_REF + "=? AND "
                         + D_ACTION + "<> 'delete'",
-                new String[]{ae.getUniqueId()});
+                new String[]{ae.getId()});
         if((cursor != null) && (cursor.getCount() > 0)){
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
                 Position pe = new Position();
-
-                pe.setUniqueId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
-                pe.setUniqueAreaId(cursor.getString(cursor.getColumnIndex(UNIQUE_AREA_ID)));
-
+                pe.setId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
+                pe.setAreaRef(cursor.getString(cursor.getColumnIndex(AREA_REF)));
                 pe.setName(cursor.getString(cursor.getColumnIndex(NAME)));
                 pe.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
                 String posDesc = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
@@ -238,9 +235,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
                 Position pe = new Position();
-
-                pe.setUniqueId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
-                pe.setUniqueAreaId(cursor.getString(cursor.getColumnIndex(UNIQUE_AREA_ID)));
+                pe.setId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
+                pe.setAreaRef(cursor.getString(cursor.getColumnIndex(AREA_REF)));
                 pe.setName(cursor.getString(cursor.getColumnIndex(NAME)));
                 pe.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
                 String posDesc = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
@@ -277,9 +273,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         if((cursor != null) && (cursor.getCount() > 0)){
             cursor.moveToFirst();
             pe = new Position();
-
-            pe.setUniqueId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
-            pe.setUniqueAreaId(cursor.getString(cursor.getColumnIndex(UNIQUE_AREA_ID)));
+            pe.setId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
+            pe.setAreaRef(cursor.getString(cursor.getColumnIndex(AREA_REF)));
             pe.setName(cursor.getString(cursor.getColumnIndex(NAME)));
             pe.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
             pe.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
@@ -313,8 +308,8 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             postParams.put("tags", pe.getTags());
             postParams.put("name", pe.getName());
             postParams.put("type", pe.getType());
-            postParams.put("uniqueAreaId", pe.getUniqueAreaId());
-            postParams.put("uniqueId", pe.getUniqueId());
+            postParams.put("area_ref", pe.getAreaRef());
+            postParams.put("id", pe.getId());
             postParams.put("created_on", pe.getCreatedOnMillis());
         } catch (JSONException e) {
             e.printStackTrace();

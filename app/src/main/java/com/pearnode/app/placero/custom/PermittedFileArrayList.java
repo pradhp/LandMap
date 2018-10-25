@@ -15,7 +15,7 @@ public class PermittedFileArrayList<E> extends ArrayList<E> {
         if (object instanceof FileDisplayElement) {
             FileDisplayElement item = (FileDisplayElement) object;
             String itemPath = item.getPath();
-            if (itemPath.contains(FileStorageConstants.DOCUMENT_ROOT_FOLDER_NAME)) {
+            if (itemPath.contains(FileStorageConstants.DOCUMENTS_FOLDER_NAME)) {
                 return false;
             }
             String itemName = item.getName();

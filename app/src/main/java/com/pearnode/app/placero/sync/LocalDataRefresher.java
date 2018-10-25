@@ -6,7 +6,7 @@ import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.tasks.PublicAreasLoadTask;
 import com.pearnode.app.placero.area.tasks.UserAreaDetailsLoadTask;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.drive.DriveDBHelper;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.TagsDBHelper;
@@ -37,9 +37,9 @@ public class LocalDataRefresher implements AsyncTaskCallback {
         pdh.dryRun();
         pdh.deletePositionsLocally();
 
-        DriveDBHelper ddh = new DriveDBHelper(this.context);
+        MediaDataBaseHandler ddh = new MediaDataBaseHandler(this.context);
         ddh.dryRun();
-        ddh.cleanLocalDriveResources();
+        ddh.deleteAllMedia();
 
         PermissionsDBHelper pmh = new PermissionsDBHelper(this.context);
         pmh.dryRun();

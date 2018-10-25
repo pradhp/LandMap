@@ -81,8 +81,7 @@ public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
                 JSONObject responseObj = (JSONObject) responseArr.get(i);
 
                 Position pe = new Position();
-                pe.setUniqueId((String) responseObj.get("unique_id"));
-                pe.setUniqueAreaId((String) responseObj.get("unique_area_id"));
+                pe.setId((String) responseObj.get("unique_id"));
                 pe.setName((String) responseObj.get("name"));
                 pe.setDescription((String) responseObj.get("description"));
                 pe.setLat(new Double((String) responseObj.get("lat")));

@@ -1,5 +1,6 @@
 package com.pearnode.app.placero;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,6 +34,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.SphericalUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +54,7 @@ import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.MapWrapperLayout;
 import com.pearnode.app.placero.custom.OnInfoWindowElemTouchListener;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.util.ColorProvider;
 
@@ -69,7 +72,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     private List<String> areaIds = new ArrayList<>();
 
     private Map<String, LinkedHashMap<Marker, Position>> areaBoundaryMarkers = new HashMap<>();
-    private Map<String, LinkedHashMap<Marker, Resource>> areaMediaMarkers = new HashMap<>();
+    private Map<String, LinkedHashMap<Marker, Media>> areaMediaMarkers = new HashMap<>();
     private Map<String, LinkedHashMap<Marker, Position>> areaMediaPositions = new HashMap<>();
     private Map<Marker, Area> markerAreaMap = new LinkedHashMap<>();
 
@@ -94,6 +97,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(final GoogleMap gmap) {
         googleMap = gmap;
@@ -128,7 +132,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     private void plotPolygonUsingPositions(Area area) {
         AreaContext.INSTANCE.centerize(area);
 
-        String areaId = area.getUniqueId();
+        String areaId = area.getId();
         areaCenterPositions.put(areaId, area.getCenterPosition());
 
         List<Position> positions = area.getPositions();
@@ -185,10 +189,10 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     }
 
     private void plotMediaPoints(Area area) {
-        String areaId = area.getUniqueId();
+        String areaId = area.getId();
         Marker centerMarker = areaCenterMarkers.get(areaId);
 
-        LinkedHashMap<Marker, Resource> mediaMarkers = areaMediaMarkers.get(areaId);
+        LinkedHashMap<Marker, Media> mediaMarkers = areaMediaMarkers.get(areaId);
         if (mediaMarkers == null) {
             mediaMarkers = new LinkedHashMap<>();
             areaMediaMarkers.put(areaId, mediaMarkers);
@@ -199,47 +203,75 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
             areaMediaPositions.put(areaId, mediaPositions);
         }
 
-        List<Resource> resources = area.getResources();
-        BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(R.drawable.video_map);
+        List<Media> pictures = area.getPictures();
         BitmapDescriptor pictureBMap = BitmapDescriptorFactory.fromResource(R.drawable.camera_map);
-        for (int i = 0; i < resources.size(); i++) {
-            Resource resource = resources.get(i);
-            if (resource.getType().equals("file")) {
-                Position resourcePosition = resource.getPosition();
-                if (resourcePosition != null) {
-                    if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
-                        continue;
-                    }
-                    LatLng position = new LatLng(resourcePosition.getLat(), resourcePosition.getLng());
-
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    if (resource.getContentType().equalsIgnoreCase("Video")) {
-                        markerOptions.icon(videoBMap);
-                    } else {
-                        markerOptions.icon(pictureBMap);
-                    }
-                    markerOptions.position(position);
-
-                    Marker marker = googleMap.addMarker(markerOptions);
-                    marker.setTag("MediaMarker");
-                    marker.setTitle(resource.getName());
-                    marker.setDraggable(false);
-                    marker.setVisible(true);
-
-                    PolylineOptions polylineOptions = new PolylineOptions()
-                            .add(marker.getPosition(), centerMarker.getPosition())
-                            .width(5)
-                            .color(ColorProvider.DEFAULT_POLYGON_MEDIA_LINK);
-                    Polyline line = googleMap.addPolyline(polylineOptions);
-                    line.setClickable(true);
-                    line.setVisible(true);
-                    line.setZIndex(1);
-
-                    mediaMarkers.put(marker, resource);
-                    mediaPositions.put(marker, resourcePosition);
-                    markerAreaMap.put(marker, area);
-                }
+        for (int i = 0; i < pictures.size(); i++) {
+            Media resource = pictures.get(i);
+            if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
+                continue;
             }
+            LatLng position = new LatLng(new Double(resource.getLat()), new Double(resource.getLng()));
+            MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.icon(pictureBMap);
+            markerOptions.position(position);
+
+            Marker marker = googleMap.addMarker(markerOptions);
+            marker.setTag("MediaMarker");
+            marker.setTitle(resource.getName());
+            marker.setDraggable(false);
+            marker.setVisible(true);
+
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .add(marker.getPosition(), centerMarker.getPosition())
+                    .width(5)
+                    .color(ColorProvider.DEFAULT_POLYGON_MEDIA_LINK);
+            Polyline line = googleMap.addPolyline(polylineOptions);
+            line.setClickable(true);
+            line.setVisible(true);
+            line.setZIndex(1);
+
+            Position pos = new Position();
+            pos.setLat(new Double(resource.getLat()));
+            pos.setLng(new Double(resource.getLng()));
+            pos.setName(resource.getName());
+
+            mediaMarkers.put(marker, resource);
+            mediaPositions.put(marker, pos);
+            markerAreaMap.put(marker, area);
+        }
+
+        List<Media> videos = area.getVideos();
+        BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(R.drawable.video_map);
+        for (int i = 0; i < videos.size(); i++) {
+            Media resource = videos.get(i);
+            LatLng position = new LatLng(new Double(resource.getLat()), new Double(resource.getLng()));
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.icon(videoBMap);
+            markerOptions.position(position);
+
+            Marker marker = googleMap.addMarker(markerOptions);
+            marker.setTag("MediaMarker");
+            marker.setTitle(resource.getName());
+            marker.setDraggable(false);
+            marker.setVisible(true);
+
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .add(marker.getPosition(), centerMarker.getPosition())
+                    .width(5)
+                    .color(ColorProvider.DEFAULT_POLYGON_MEDIA_LINK);
+            Polyline line = googleMap.addPolyline(polylineOptions);
+            line.setClickable(true);
+            line.setVisible(true);
+            line.setZIndex(1);
+
+            Position pos = new Position();
+            pos.setLat(new Double(resource.getLat()));
+            pos.setLng(new Double(resource.getLng()));
+            pos.setName(resource.getName());
+
+            mediaMarkers.put(marker, resource);
+            mediaPositions.put(marker, pos);
+            markerAreaMap.put(marker, area);
         }
     }
 
@@ -255,7 +287,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
             @Override
             public View getInfoContents(Marker marker) {
                 Area areaObj = markerAreaMap.get(marker);
-                String areaId = areaObj.getUniqueId();
+                String areaId = areaObj.getId();
 
                 Marker centerMarker = areaCenterMarkers.get(areaId);
                 String markerTag = (String) marker.getTag();
@@ -281,22 +313,17 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                 }
 
                 if (markerTag.equalsIgnoreCase("MediaMarker")) {
-                    LinkedHashMap<Marker, Resource> mediaMarkers = areaMediaMarkers.get(areaId);
-                    Resource resource = mediaMarkers.get(marker);
-                    String thumbRootPath = "";
-                    if (resource.getContentType().equalsIgnoreCase("Video")) {
-                        thumbRootPath = ac.getAreaLocalVideoThumbnailRoot(areaId).getAbsolutePath();
-                    } else {
-                        thumbRootPath = ac.getAreaLocalPictureThumbnailRoot(areaId).getAbsolutePath();
-                    }
-                    String thumbnailPath = thumbRootPath + File.separatorChar + resource.getName();
-                    File thumbFile = new File(thumbnailPath);
-                    if (thumbFile.exists()) {
-                        Bitmap bMap = BitmapFactory.decodeFile(thumbnailPath);
-                        infoImage.setImageBitmap(bMap);
+                    LinkedHashMap<Marker, Media> mediaMarkers = areaMediaMarkers.get(areaId);
+                    Media resource = mediaMarkers.get(marker);
+                    try {
+                        URL url = new URL(resource.getTfPath());
+                        Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        infoImage.setImageBitmap(image);
+                    } catch(IOException e) {
+                        System.out.println(e);
                     }
                     infoTitle.setText(resource.getName());
-                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(resource.getCreatedOnMillis()),
+                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(resource.getCreatedOn()),
                             System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);
                     DecimalFormat formatter = new DecimalFormat("##.##");
                     double distance = SphericalUtil.computeDistanceBetween(marker.getPosition(), centerMarker.getPosition());
@@ -328,7 +355,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
                 Area areaObj = markerAreaMap.get(marker);
-                String areaId = areaObj.getUniqueId();
+                String areaId = areaObj.getId();
 
                 File areaLocalImageRoot = ac.getAreaLocalImageRoot(areaId);
                 File areaLocalVideoRoot = ac.getAreaLocalVideoRoot(areaId);
@@ -339,16 +366,16 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                 intent.setAction(Intent.ACTION_VIEW);
                 String markerTag = (String) marker.getTag();
                 if (markerTag.equalsIgnoreCase("MediaMarker")) {
-                    LinkedHashMap<Marker, Resource> mediaMarkers = areaMediaMarkers.get(areaId);
-                    Resource resource = mediaMarkers.get(marker);
-                    String contentType = resource.getContentType();
-                    if (contentType.equalsIgnoreCase("Image")) {
+                    LinkedHashMap<Marker, Media> mediaMarkers = areaMediaMarkers.get(areaId);
+                    Media resource = mediaMarkers.get(marker);
+                    String type = resource.getType();
+                    if (type.equalsIgnoreCase("picture")) {
                         File file = new File(imageRootPath + File.separatorChar + resource.getName());
                         if (file.exists()) {
                             intent.setDataAndType(Uri.fromFile(file), "image/*");
                             startActivity(intent);
                         }
-                    } else {
+                    } else if (type.equalsIgnoreCase("video")) {
                         File file = new File(videoRootPath + File.separatorChar + resource.getName());
                         if (file.exists()) {
                             intent.setDataAndType(Uri.fromFile(file), "video/mp4");
@@ -370,7 +397,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
         LatLng position = new LatLng(pe.getLat(), pe.getLng());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
-        marker.setTitle(pe.getUniqueId());
+        marker.setTitle(pe.getId());
         marker.setAlpha((float) 0.1);
         marker.setDraggable(false);
         marker.setVisible(false);
@@ -385,31 +412,6 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
             googleMap.moveCamera(cameraUpdate);
         }
     }
-
-    /**
-     * private void zoomCameraToPosition(Marker marker) {
-     * AreaMeasure measure = ae.getMeasure();
-     * float zoomLevel = 21f;
-     * double decimals = measure.getDecimals();
-     * if(decimals > 20 && decimals < 100) {
-     * zoomLevel = 20f;
-     * }else if(decimals > 100 && decimals < 300){
-     * zoomLevel = 19f;
-     * }else if(decimals > 300 && decimals < 700){
-     * zoomLevel = 18f;
-     * }else if(decimals > 700 && decimals < 1300){
-     * zoomLevel = 17f;
-     * }else if(decimals > 1300 && decimals < 2200){
-     * zoomLevel = 16f;
-     * }else if(decimals > 2200){
-     * zoomLevel = 14f;
-     * }
-     * LatLng position = marker.getPosition();
-     * CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(position, zoomLevel);
-     * googleMap.animateCamera(cameraUpdate);
-     * googleMap.moveCamera(cameraUpdate);
-     * }
-     */
 
     public static int getPixelsFromDp(Context context, float dp) {
         float scale = context.getResources().getDisplayMetrics().density;

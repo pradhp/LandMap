@@ -1,7 +1,9 @@
 package com.pearnode.app.placero;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -11,12 +13,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -46,7 +50,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import com.pearnode.app.placero.R.drawable;
 import com.pearnode.app.placero.R.id;
@@ -59,24 +62,22 @@ import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.MapWrapperLayout;
 import com.pearnode.app.placero.custom.OnInfoWindowElemTouchListener;
-import com.pearnode.app.placero.custom.ThumbnailCreator;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.util.ColorProvider;
-import com.pearnode.app.placero.util.FileUtil;
 import com.pearnode.common.TaskFinishedListener;
+
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class AreaMapPlotterActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
 
     private LinkedHashMap<Marker, Position> positionMarkers = new LinkedHashMap<>();
-    private LinkedHashMap<Marker, Resource> resourceMarkers = new LinkedHashMap<>();
+    private LinkedHashMap<Marker, Media> resourceMarkers = new LinkedHashMap<>();
     private LinkedHashMap<Polygon, Marker> polygonMarkers = new LinkedHashMap<>();
 
     private Polygon polygon;
@@ -104,6 +105,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         mapFragment.getMapAsync(this);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(final GoogleMap gmap) {
         googleMap = gmap;
@@ -203,45 +205,63 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
     }
 
     private void plotMediaPoints() {
-        List<Resource> resources = ae.getResources();
-        BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(drawable.video_map);
+        List<Media> pictures = ae.getPictures();
         BitmapDescriptor pictureBMap = BitmapDescriptorFactory.fromResource(drawable.camera_map);
-        for (int i = 0; i < resources.size(); i++) {
-            Resource resource = resources.get(i);
-            if (resource.getType().equals("file")) {
-                Position resourcePosition = resource.getPosition();
-                if(resourcePosition != null){
-                    if (resource.getName().equalsIgnoreCase("plot_screenshot.png")) {
-                        continue;
-                    }
-                    LatLng position = new LatLng(resourcePosition.getLat(), resourcePosition.getLng());
-
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    if(resource.getContentType().equalsIgnoreCase("Video")){
-                        markerOptions.icon(videoBMap);
-                    }else {
-                        markerOptions.icon(pictureBMap);
-                    }
-                    markerOptions.position(position);
-
-                    Marker marker = googleMap.addMarker(markerOptions);
-                    marker.setTag("MediaMarker");
-                    marker.setTitle(resource.getName());
-                    marker.setDraggable(false);
-                    marker.setVisible(true);
-
-                    PolylineOptions polylineOptions = new PolylineOptions()
-                            .add(marker.getPosition(), centerMarker.getPosition())
-                            .width(5)
-                            .color(ColorProvider.DEFAULT_POLYGON_MEDIA_LINK);
-                    Polyline line = googleMap.addPolyline(polylineOptions);
-                    line.setClickable(true);
-                    line.setVisible(true);
-                    line.setZIndex(1);
-
-                    resourceMarkers.put(marker, resource);
-                }
+        for (int i = 0; i < pictures.size(); i++) {
+            Media picture = pictures.get(i);
+            if (picture.getName().equalsIgnoreCase("plot_screenshot.png")) {
+                continue;
             }
+            LatLng position = new LatLng(new Double(picture.getLat()), new Double(picture.getLng()));
+
+            MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.icon(pictureBMap);
+            markerOptions.position(position);
+
+            Marker marker = googleMap.addMarker(markerOptions);
+            marker.setTag("MediaMarker");
+            marker.setTitle(picture.getName());
+            marker.setDraggable(false);
+            marker.setVisible(true);
+
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .add(marker.getPosition(), centerMarker.getPosition())
+                    .width(5)
+                    .color(ColorProvider.DEFAULT_POLYGON_MEDIA_LINK);
+            Polyline line = googleMap.addPolyline(polylineOptions);
+            line.setClickable(true);
+            line.setVisible(true);
+            line.setZIndex(1);
+
+            resourceMarkers.put(marker, picture);
+        }
+
+        List<Media> videos = ae.getVideos();
+        BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(drawable.video_map);
+        for (int i = 0; i < videos.size(); i++) {
+            Media video = videos.get(i);
+            LatLng position = new LatLng(new Double(video.getLat()), new Double(video.getLng()));
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.icon(videoBMap);
+            markerOptions.position(position);
+
+            Marker marker = googleMap.addMarker(markerOptions);
+            marker.setTag("MediaMarker");
+            marker.setTitle(video.getName());
+            marker.setDraggable(false);
+            marker.setVisible(true);
+
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .add(marker.getPosition(), centerMarker.getPosition())
+                    .width(5)
+                    .color(ColorProvider.DEFAULT_POLYGON_MEDIA_LINK);
+            Polyline line = googleMap.addPolyline(polylineOptions);
+            line.setClickable(true);
+            line.setVisible(true);
+            line.setZIndex(1);
+
+            resourceMarkers.put(marker, video);
         }
     }
 
@@ -255,7 +275,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
             @Override
             public View getInfoContents(Marker marker) {
                 Position position = positionMarkers.get(marker);
-                Resource resource = resourceMarkers.get(marker);
+                Media resource = resourceMarkers.get(marker);
                 String markerTag = (String) marker.getTag();
 
                 if (markerTag.equalsIgnoreCase("PositionMarker")) {
@@ -282,10 +302,10 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
                 if (markerTag.equalsIgnoreCase("MediaMarker")) {
                     String thumbRootPath = "";
-                    if (resource.getContentType().equalsIgnoreCase("Video")) {
-                        thumbRootPath = ac.getAreaLocalVideoThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
+                    if (resource.getType().equalsIgnoreCase("Video")) {
+                        thumbRootPath = ac.getAreaLocalVideoThumbnailRoot(ae.getId()).getAbsolutePath();
                     } else {
-                        thumbRootPath = ac.getAreaLocalPictureThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
+                        thumbRootPath = ac.getAreaLocalPictureThumbnailRoot(ae.getId()).getAbsolutePath();
                     }
                     String thumbnailPath = thumbRootPath + File.separatorChar + resource.getName();
                     File thumbFile = new File(thumbnailPath);
@@ -294,7 +314,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                         infoImage.setImageBitmap(bMap);
                     }
                     infoTitle.setText(resource.getName());
-                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(resource.getCreatedOnMillis()),
+                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(resource.getCreatedOn()),
                             System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);
                     DecimalFormat formatter = new DecimalFormat("##.##");
                     double distance = SphericalUtil.computeDistanceBetween(marker.getPosition(), centerMarker.getPosition());
@@ -323,8 +343,8 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                File areaLocalImageRoot = ac.getAreaLocalImageRoot(ae.getUniqueId());
-                File areaLocalVideoRoot = ac.getAreaLocalVideoRoot(ae.getUniqueId());
+                File areaLocalImageRoot = ac.getAreaLocalImageRoot(ae.getId());
+                File areaLocalVideoRoot = ac.getAreaLocalVideoRoot(ae.getId());
                 String imageRootPath = areaLocalImageRoot.getAbsolutePath();
                 String videoRootPath = areaLocalVideoRoot.getAbsolutePath();
 
@@ -346,10 +366,10 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                         plotPolygonUsingPositions();
                     }
                 }else {
-                    Resource resource = resourceMarkers.get(marker);
+                    Media resource = resourceMarkers.get(marker);
                     if(resource != null){
-                        String contentType = resource.getContentType();
-                        if(contentType.equalsIgnoreCase("Image")){
+                        String type = resource.getType();
+                        if(type.equalsIgnoreCase("Image")){
                             File file = new File(imageRootPath + File.separatorChar + resource.getName());
                             if(file.exists()){
                                 intent.setDataAndType(Uri.fromFile(file), "image/*");
@@ -373,7 +393,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         LatLng position = new LatLng(pe.getLat(), pe.getLng());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
-        marker.setTitle(pe.getUniqueId());
+        marker.setTitle(pe.getId());
         marker.setAlpha((float) 0.5);
         marker.setDraggable(false);
         // First check for movement permission then check if the marker is a boundary marker.
@@ -458,7 +478,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         @Override
         public void onSnapshotReady(Bitmap snapshot) {
             try {
-                File imageStorageDir = ac.getAreaLocalImageRoot(ae.getUniqueId());
+                File imageStorageDir = ac.getAreaLocalImageRoot(ae.getId());
                 String dirPath = imageStorageDir.getAbsolutePath();
 
                 String screenshotFileName = "plot_screenshot.png";
@@ -486,51 +506,6 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
                 backBitmap.recycle();
                 bmOverlay.recycle();
-
-                List<Resource> resources = ae.getResources();
-                DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
-                for (int i = 0; i < resources.size(); i++) {
-                    Resource resource = resources.get(i);
-                    if (resource.getType().equalsIgnoreCase("file")) {
-                        String resourceName = resource.getName();
-                        if (resourceName.equalsIgnoreCase(screenshotFileName)) {
-                            ddh.deleteResourceLocally(resource);
-                            ddh.deleteResourceFromServer(resource);
-                            resources.remove(resource);
-                            break;
-                        }
-                    }
-                }
-
-                Resource imagesRootResource = ac.getImagesRootDriveResource();
-
-                Resource resource = new Resource();
-                resource.setUniqueId(UUID.randomUUID().toString());
-                resource.setContainerId(imagesRootResource.getResourceId());
-                resource.setContentType("Image");
-                resource.setMimeType(FileUtil.getMimeType(screenShotFile));
-                resource.setType("file");
-                resource.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                resource.setAreaId(ae.getUniqueId());
-                resource.setName(screenshotFileName);
-                resource.setSize(screenShotFile.length() + "");
-
-                Position position = new Position();
-                position.setLat(ae.getCenterPosition().getLat());
-                position.setLng(ae.getCenterPosition().getLng());
-                position.setName("Position_" + ae.getPositions().size());
-                position.setUniqueId(UUID.randomUUID().toString());
-                resource.setPosition(position);
-
-                resource.setPath(screenShotFilePath);
-                resource.setCreatedOnMillis(System.currentTimeMillis() + "");
-
-                ddh.insertResourceLocally(resource);
-                ddh.insertResourceToServer(resource);
-                resources.add(resource);
-
-                ThumbnailCreator creator = new ThumbnailCreator(getApplicationContext());
-                creator.createImageThumbnail(screenShotFile, ae.getUniqueId());
 
             } catch (Exception e) {
                 e.printStackTrace();

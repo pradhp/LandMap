@@ -104,7 +104,7 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
             postParams.put("query_type", queryType);
             postParams.put("source_user", userElement.getEmail());
             postParams.put("target_user", targetUser);
-            postParams.put("area_id", area.getUniqueId());
+            postParams.put("area_id", area.getId());
             postParams.put("function_codes", functionCodes);
         } catch (JSONException e) {
             e.printStackTrace();

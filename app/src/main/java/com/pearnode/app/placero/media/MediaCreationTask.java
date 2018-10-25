@@ -24,22 +24,22 @@ import java.util.Map;
 /**
  * Created by USER on 11/5/2015.
  */
-public class OrgMediaCreationTask extends AsyncTask<Object, String, String> {
+public class MediaCreationTask extends AsyncTask<Object, String, String> {
 
     private TaskFinishedListener finishedListener;
     private Media media = null;
 
-    public OrgMediaCreationTask(TaskFinishedListener listener) {
+    public MediaCreationTask(TaskFinishedListener listener) {
         this.finishedListener = listener;
     }
 
     @Override
     protected String doInBackground(Object[] params) {
         media = (Media) params[0];
-        return addOrganizationMedia(media);
+        return addMedia(media);
     }
 
-    private String addOrganizationMedia(Media media) {
+    private String addMedia(Media media) {
         String response = null;
         HttpURLConnection conn = null;
         URL url = null;

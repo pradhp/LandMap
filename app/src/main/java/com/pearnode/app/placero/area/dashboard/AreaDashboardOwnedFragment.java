@@ -98,13 +98,12 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
 
                 Area area = new Area();
                 String uniqueId = UUID.randomUUID().toString();
-                area.setUniqueId(uniqueId);
                 area.setName("PL_" + uniqueId);
                 area.setCreatedBy(UserContext.getInstance().getUserElement().getEmail());
 
                 PermissionElement pe = new PermissionElement();
                 pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                pe.setAreaId(area.getUniqueId());
+                pe.setAreaId(area.getId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
                 area.getPermissions().put(PermissionConstants.FULL_CONTROL, pe);
 

@@ -3,14 +3,13 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.gson.JsonObject;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
@@ -36,9 +35,9 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
     private Context localContext;
     private AreaDBHelper adh;
     private PositionsDBHelper pdh;
-    private DriveDBHelper ddh;
     private PermissionsDBHelper pmh;
     private TagsDBHelper tdh;
+    private MediaDataBaseHandler pmdh;
 
     private AsyncTaskCallback callback;
 
@@ -46,9 +45,9 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
         localContext = appContext;
         adh = new AreaDBHelper(localContext);
         pdh = new PositionsDBHelper(localContext);
-        ddh = new DriveDBHelper(localContext);
         pmh = new PermissionsDBHelper(localContext, null);
         tdh = new TagsDBHelper(localContext, null);
+        pmdh = new MediaDataBaseHandler(localContext);
     }
 
     protected void onPreExecute() {
@@ -59,7 +58,8 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
             String urlString = APIRegistry.USER_AREA_SEARCH + "?us=";
             JSONObject postDataParam = postDataParams[0];
             String searchKey = postDataParam.getString("us");
-            URL url = new URL(urlString + URLEncoder.encode(searchKey, "utf-8"));
+            String callUrl = urlString + URLEncoder.encode(searchKey, "utf-8");
+            URL url = new URL(callUrl);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
@@ -102,12 +102,12 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 JSONObject detailObj = dataObj.getJSONObject("detail");
 
                 Area ae = new Area();
+                ae.setId(detailObj.getString("id"));
                 ae.setName(detailObj.getString("name"));
                 ae.setCreatedBy(detailObj.getString("createdBy"));
                 ae.setDescription(detailObj.getString("description"));
                 ae.getCenterPosition().setLat(detailObj.getDouble("center_lat"));
                 ae.getCenterPosition().setLng(detailObj.getDouble("center_lon"));
-                ae.setUniqueId(detailObj.getString("uniqueId"));
 
                 double msqFt = detailObj.getDouble("msqft");
                 AreaMeasure measure = new AreaMeasure(msqFt);
@@ -117,7 +117,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 Address address = Address.fromStoredAddress(addressText);
                 if (address != null) {
                     ae.setAddress(address);
-                    tdh.insertTagsLocally(address.getTags(), "area", ae.getUniqueId());
+                    tdh.insertTagsLocally(address.getTags(), "area", ae.getId());
                 }
                 ae.setType(detailObj.getString("type"));
                 ae.setDirty(0);
@@ -126,17 +126,17 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
 
                 JSONObject permissionObj = dataObj.getJSONObject("permission");
                 PermissionElement permissionElement = new PermissionElement();
-                permissionElement.setUserId(permissionObj.getString("user_id"));
+                permissionElement.setUserId(permissionObj.getString("source_user"));
                 permissionElement.setAreaId(permissionObj.getString("area_id"));
-                permissionElement.setFunctionCode(permissionObj.getString("function_code"));
+                permissionElement.setFunctionCode(permissionObj.getString("function_codes"));
                 pmh.insertPermissionLocally(permissionElement);
 
                 JSONArray positions = dataObj.getJSONArray("positions");
                 for (int p = 0; p < positions.length(); p++) {
                     JSONObject positionObj = (JSONObject) positions.get(p);
                     Position position = new Position();
-                    position.setUniqueId(positionObj.getString("unique_id"));
-                    position.setUniqueAreaId(positionObj.getString("unique_area_id"));
+                    position.setId(positionObj.getString("id"));
+                    position.setAreaRef(positionObj.getString("area_ref"));
                     position.setName(positionObj.getString("name"));
                     position.setDescription(positionObj.getString("description"));
                     position.setLat(positionObj.getDouble("lat"));
@@ -144,38 +144,34 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                     position.setTags(positionObj.getString("tags"));
                     position.setType(positionObj.getString("type"));
                     position.setCreatedOnMillis(positionObj.getString("created_on"));
-
                     pdh.insertPositionFromServer(position);
                 }
 
-                JSONArray resources = dataObj.getJSONArray("resources");
-                for (int d = 0; d < resources.length(); d++) {
-                    JSONObject resourceObj = (JSONObject) resources.get(d);
-                    Resource resource = new Resource();
-                    resource.setUniqueId(resourceObj.getString("unique_id"));
-                    resource.setAreaId(resourceObj.getString("area_id"));
-                    resource.setUserId(resourceObj.getString("user_id"));
-                    resource.setContainerId(resourceObj.getString("container_id"));
-                    resource.setResourceId(resourceObj.getString("resource_id"));
-                    resource.setName(resourceObj.getString("name"));
-                    resource.setType(resourceObj.getString("type"));
-                    resource.setSize(resourceObj.getString("size"));
-                    resource.setMimeType(resourceObj.getString("mime_type"));
-                    resource.setContentType(resourceObj.getString("content_type"));
-                    String positionId = resourceObj.getString("position_id");
-                    if (!positionId.equalsIgnoreCase("null")) {
-                        resource.setPosition(pdh.getPositionById(positionId));
-                    }
-                    resource.setCreatedOnMillis(resourceObj.getString("created_on"));
-                    ddh.insertResourceFromServer(resource);
+                JSONArray mediaElements = dataObj.getJSONArray("resources");
+                for (int d = 0; d < mediaElements.length(); d++) {
+                    JSONObject mediaObj = (JSONObject) mediaElements.get(d);
+                    Media media = new Media();
+                    media.setPlaceRef(mediaObj.getString("place_ref"));
+                    media.setName(mediaObj.getString("name"));
+                    media.setType(mediaObj.getString("type"));
+                    media.setTfName(mediaObj.getString("tf_name"));
+                    media.setTfPath(mediaObj.getString("tf_path"));
+                    media.setRfName(mediaObj.getString("rf_name"));
+                    media.setRfPath(mediaObj.getString("rf_path"));
+                    media.setLat(mediaObj.getString("lat"));
+                    media.setLng(mediaObj.getString("lng"));
+                    media.setCreatedOn(System.currentTimeMillis());
+                    pmdh.addMedia(media);
                 }
             }
 
             UserElement userElement = UserContext.getInstance().getUserElement();
             tdh.insertTagsLocally(userElement.getSelections().getTags(), "user", userElement.getEmail());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         finalizeTaskCompletion();
     }
 

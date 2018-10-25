@@ -9,8 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
@@ -30,7 +29,7 @@ public class AreaContext {
     private Context context;
     private Bitmap displayBMap;
     private List<Bitmap> viewBitmaps = new ArrayList<>();
-    private final ArrayList<Resource> uploadQueue = new ArrayList<>();
+    private final ArrayList<Media> mediaQueue = new ArrayList<>();
 
     public Area getAreaElement() {
         return this.currentArea;
@@ -41,30 +40,28 @@ public class AreaContext {
 
         this.context = context;
         currentArea = area;
-        uploadQueue.clear();
+        mediaQueue.clear();
 
         PositionsDBHelper pdb = new PositionsDBHelper(context);
         currentArea.setPositions(pdb.getPositionsForArea(currentArea));
         centerize(currentArea);
 
-        DriveDBHelper ddh = new DriveDBHelper(context);
-        currentArea.setResources(ddh.getDriveResourcesByAreaId(currentArea.getUniqueId()));
-        uploadQueue.addAll(ddh.getUploadableDirtyResources(currentArea.getUniqueId()));
-
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
-        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getUniqueId()));
+        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getId()));
     }
 
 
     public void clearContext(){
         if(currentArea != null){
             currentArea.getPositions().clear();
-            currentArea.getResources().clear();
+            currentArea.getPictures().clear();
+            currentArea.getVideos().clear();
+            currentArea.getDocuments().clear();
             currentArea.getPermissions().clear();
 
             currentArea = null;
             context = null;
-            uploadQueue.clear();
+            mediaQueue.clear();
 
             if(displayBMap != null){
                 displayBMap.recycle();
@@ -84,7 +81,6 @@ public class AreaContext {
     public Area centerize(Area area) {
         double latSum = 0.0;
         double longSum = 0.0;
-        String positionId = null;
 
         double latAvg = 0.0;
         double lonAvg = 0.0;
@@ -99,9 +95,6 @@ public class AreaContext {
                     continue;
                 }else {
                     boundaryCtr ++;
-                    if (positionId == null) {
-                        positionId = pe.getUniqueId();
-                    }
                 }
                 latSum += pe.getLat();
                 longSum += pe.getLng();
@@ -109,60 +102,23 @@ public class AreaContext {
             if(boundaryCtr > 0){
                 latAvg = latSum / boundaryCtr;
                 lonAvg = longSum / boundaryCtr;
-
-                Position centerPosition = new Position();
             }
         }
 
         Position centerPosition = area.getCenterPosition();
         centerPosition.setLat(latAvg);
         centerPosition.setLng(lonAvg);
-        centerPosition.setUniqueId(positionId);
 
         return area;
     }
 
     // Drive specific resources.
-    public void addResourceToQueue(Resource dr) {
-        this.uploadQueue.add(dr);
+    public void addMediaToQueue(Media dr) {
+        this.mediaQueue.add(dr);
     }
 
-    public void removeResourceFromQueue(Resource dr) {
-        this.uploadQueue.remove(dr);
-    }
-
-    public ArrayList<Resource> getUploadedQueue() {
-        return this.uploadQueue;
-    }
-
-    private Resource imagesResourceRoot = null;
-    public Resource getImagesRootDriveResource() {
-        if(imagesResourceRoot == null){
-            DriveDBHelper ddh = new DriveDBHelper(context);
-            imagesResourceRoot
-                    = ddh.getDriveResourceRoot(FileStorageConstants.IMAGES_CONTENT_TYPE, currentArea);
-        }
-        return imagesResourceRoot;
-    }
-
-    private Resource videosResourceRoot = null;
-    public Resource getVideosRootDriveResource() {
-        if(videosResourceRoot == null){
-            DriveDBHelper ddh = new DriveDBHelper(context);
-            videosResourceRoot
-                    = ddh.getDriveResourceRoot(FileStorageConstants.VIDEOS_CONTENT_TYPE, currentArea);
-        }
-        return videosResourceRoot;
-    }
-
-    private Resource documentsResourceRoot = null;
-    public Resource getDocumentRootDriveResource() {
-        if(documentsResourceRoot == null){
-            DriveDBHelper ddh = new DriveDBHelper(context);
-            documentsResourceRoot
-                    = ddh.getDriveResourceRoot(FileStorageConstants.DOCUMENTS_CONTENT_TYPE, currentArea);
-        }
-        return documentsResourceRoot;
+    public List<Media> getUploadedQueue() {
+        return this.mediaQueue;
     }
 
     public File getAreaLocalImageRoot(String areaId) {
@@ -190,7 +146,7 @@ public class AreaContext {
     }
 
     public File getAreaLocalDocumentRoot(String areaId) {
-        String areaDocumentsRoot = LocalFolderStructureManager.getDocsStorageDir().getAbsolutePath()
+        String areaDocumentsRoot = LocalFolderStructureManager.getDocumentsStorageDir().getAbsolutePath()
                 + File.separatorChar + areaId;
         File areaDocumentsFolder = new File(areaDocumentsRoot);
         if (areaDocumentsFolder.exists()) {
@@ -235,20 +191,6 @@ public class AreaContext {
             documentThumbnailFolder.mkdirs();
         }
         return documentThumbnailFolder;
-    }
-
-    public File getLocalStoreLocationForDriveResource(Resource resource) {
-        // Assuming that folders will not be passed.
-        File dumpRoot = null;
-        String contentType = resource.getContentType();
-        if (contentType.equalsIgnoreCase("Image")) {
-            dumpRoot = this.getAreaLocalImageRoot(resource.getAreaId());
-        } else if (contentType.equalsIgnoreCase("Video")) {
-            dumpRoot = this.getAreaLocalVideoRoot(resource.getAreaId());
-        } else if (contentType.equalsIgnoreCase("Document")) {
-            dumpRoot = this.getAreaLocalDocumentRoot(resource.getAreaId());
-        }
-        return dumpRoot;
     }
 
     public Bitmap getDisplayBMap() {

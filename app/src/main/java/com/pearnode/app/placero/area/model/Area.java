@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.gson.Gson;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.position.Position;
 
@@ -16,23 +17,35 @@ import com.pearnode.app.placero.position.Position;
  */
 public class Area implements Serializable {
 
+    private String id = "";
     private String name = "";
     private String description = "No Description";
     private String createdBy = null;
     private String type = "self";
-    private String uniqueId = "";
     private Integer dirty = 0;
     private String dirtyAction = "none";
-    private Long createdOn = -1L;
-    private Long updatedOn = -1L;
 
     private Address address = new Address();
     private AreaMeasure measure = new AreaMeasure(0.0);
     private Position centerPosition = new Position();
 
     private List<Position> positions = new ArrayList<>();
-    private List<Resource> resources = new ArrayList<>();
+    private List<Media> pictures = new ArrayList<>();
+    private List<Media> videos = new ArrayList<>();
+    private List<Media> documents = new ArrayList<>();
     private Map<String, PermissionElement> permissions = new HashMap<>();
+
+    public Area(){
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getCreatedBy() {
         return this.createdBy;
@@ -90,22 +103,6 @@ public class Area implements Serializable {
         this.positions = positions;
     }
 
-    public String getUniqueId() {
-        return this.uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    public List<Resource> getResources() {
-        return this.resources;
-    }
-
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
-    }
-
     public String getType() {
         return type;
     }
@@ -142,24 +139,28 @@ public class Area implements Serializable {
         this.measure = measure;
     }
 
-    public void setCenterPosition(Position centerPosition) {
-        this.centerPosition = centerPosition;
+    public List<Media> getPictures() {
+        return pictures;
     }
 
-    public Long getCreatedOn() {
-        return this.createdOn;
+    public void setPictures(List<Media> pictures) {
+        this.pictures = pictures;
     }
 
-    public void setCreatedOn(Long createdOn) {
-        this.createdOn = createdOn;
+    public List<Media> getVideos() {
+        return videos;
     }
 
-    public Long getUpdatedOn() {
-        return this.updatedOn;
+    public void setVideos(List<Media> videos) {
+        this.videos = videos;
     }
 
-    public void setUpdatedOn(Long updatedOn) {
-        this.updatedOn = updatedOn;
+    public List<Media> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<Media> documents) {
+        this.documents = documents;
     }
 
     @Override

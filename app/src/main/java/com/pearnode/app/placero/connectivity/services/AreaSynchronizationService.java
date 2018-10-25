@@ -9,7 +9,6 @@ import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.area.tasks.RemoveAreaTask;
 import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
 import com.pearnode.app.placero.custom.GlobalContext;
-import com.pearnode.app.placero.drive.DriveDBHelper;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 
 import java.util.ArrayList;
@@ -41,14 +40,6 @@ public class AreaSynchronizationService extends IntentService {
                 RemoveAreaTask removeAreaTask = new RemoveAreaTask(getApplicationContext(), null);
                 removeAreaTask.execute(area);
             }
-        }
-
-        PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-        DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
-        if(adh.getDirtyAreas().size() == 0
-                && pdh.getDirtyPositions().size() == 0
-                && ddh.getDirtyResources().size() == 0){
-            GlobalContext.INSTANCE.put(GlobalContext.SYNCHRONIZING_OFFLINE, new Boolean(false).toString());
         }
 
     }

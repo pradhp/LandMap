@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +30,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
@@ -58,15 +62,18 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
 
     private Area area;
     private boolean online = true;
+    private static final int TAG_CODE_PERMISSION_LOCATION = 7;
 
     private final ArrayList<Position> positionList = new ArrayList<Position>();
     private PositionListAdaptor adaptor;
+    private AreaDetailsActivity activity = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
         online = ConnectivityChangeReceiver.isConnected(this);
+        activity = this;
 
         setContentView(R.layout.activity_area_details);
         getSupportActionBar().hide();
@@ -80,11 +87,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         Toolbar bottomTB = (Toolbar) findViewById(R.id.toolbar_bottom);
         ColorDrawable bottomDrawable = (ColorDrawable) bottomTB.getBackground().getCurrent();
         bottomDrawable.setColor(ColorProvider.getAreaToolBarColor(area));
-
-        if (!askForLocationPermission()) {
-            showMessage("No permission given for location fix !!", "error");
-            finish();
-        }
 
         ListView posListView = (ListView) findViewById(R.id.positionList);
         positionList.addAll(area.getPositions());
@@ -143,7 +145,11 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                     findViewById(R.id.position_list_empty_img).setVisibility(View.GONE);
                     findViewById(R.id.positions_view_master).setVisibility(View.GONE);
                     findViewById(R.id.splash_panel).setVisibility(View.VISIBLE);
-                    new GPSLocationProvider(AreaDetailsActivity.this).getLocation();
+
+                    ActivityCompat.requestPermissions(activity, new String[]{
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                    android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                            TAG_CODE_PERMISSION_LOCATION);
                 } else {
                     showMessage("You do not have Plotting rights !!", "error");
                 }
@@ -253,6 +259,27 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         showErrorsIfAny();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case TAG_CODE_PERMISSION_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        new GPSLocationProvider(activity).getLocation();
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    // Permission denied cannot get location.
+                }
+                return;
+            }
+        }
+    }
+
     private void showErrorsIfAny() {
         Bundle intentBundle = getIntent().getExtras();
         if (intentBundle != null) {
@@ -265,8 +292,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
 
     @Override
     public void receivedLocationPostion(Position pe) {
-        pe.setName("P_" + UUID.randomUUID());
-        pe.setUniqueAreaId(area.getUniqueId());
+        pe.setName("P_" + pe.getId());
 
         Area ae = AreaContext.INSTANCE.getAreaElement();
         List<Position> positions = ae.getPositions();
@@ -323,23 +349,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         Intent areaDashboardIntent = new Intent(getApplicationContext(), AreaDashboardActivity.class);
         startActivity(areaDashboardIntent);
         finish();
-    }
-
-    private boolean askForLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    permission.ACCESS_FINE_LOCATION,
-                    permission.ACCESS_COARSE_LOCATION}, 1);
-            return ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) ==
-                    PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) ==
-                            PackageManager.PERMISSION_GRANTED;
-        }
     }
 
     private void showEnableGPSDialog() {

@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.drive.DriveDBHelper;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.sync.LMSRestAsyncTask;
@@ -45,12 +44,6 @@ public class UserDBHelper extends SQLiteOpenHelper {
                         PHOTO_URL + " text, " +
                         AUTH_SYS_ID + " text )"
         );
-
-        new AreaDBHelper(localContext).onCreate(db);
-        new PositionsDBHelper(localContext).onCreate(db);
-        new DriveDBHelper(localContext).onCreate(db);
-        new PermissionsDBHelper(localContext).onCreate(db);
-        new TagsDBHelper(localContext).onCreate(db);
     }
 
     @Override

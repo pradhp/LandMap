@@ -19,8 +19,8 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
 
 /**
  * Created by USER on 11/2/2017.
@@ -71,18 +71,18 @@ public class AreaPopulationUtil {
         if(ae.getDirty() == 1){
             view.setBackgroundColor(ColorProvider.DEFAULT_DIRTY_ITEM_COLOR);
         }
-        DriveDBHelper ddh = new DriveDBHelper(view.getContext());
+        MediaDataBaseHandler ddh = new MediaDataBaseHandler(view.getContext());
         ImageView areaImgView = (ImageView) view.findViewById(id.area_default_img);
         String thumbRootPath = AreaContext.INSTANCE
-                .getAreaLocalPictureThumbnailRoot(ae.getUniqueId()).getAbsolutePath();
-        List<Resource> imageResources = ddh.fetchImageResources(ae);
-        if (imageResources.size() > 0) {
+                .getAreaLocalPictureThumbnailRoot(ae.getId()).getAbsolutePath();
+        List<Media> pictures = ddh.getPlacePictures(ae.getId());
+        if (pictures.size() > 0) {
             Bitmap displayBMap = AreaContext.INSTANCE.getDisplayBMap();
             if (displayBMap != null) {
                 areaImgView.setImageBitmap(displayBMap);
             } else {
-                Resource imageResource = imageResources.get(0);
-                String imageName = imageResource.getName();
+                Media media = pictures.get(0);
+                String imageName = media.getName();
                 String thumbnailPath = thumbRootPath + File.separatorChar + imageName;
                 File thumbFile = new File(thumbnailPath);
                 if (thumbFile.exists()) {

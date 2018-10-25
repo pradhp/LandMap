@@ -3,13 +3,10 @@ package com.pearnode.app.placero.connectivity.services;
 import android.app.IntentService;
 import android.content.Intent;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.custom.GlobalContext;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
 
 public class ResourceSynchronizationService extends IntentService {
 
@@ -23,33 +20,18 @@ public class ResourceSynchronizationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        DriveDBHelper ddh = new DriveDBHelper(getApplicationContext());
-        final ArrayList<Resource> dirtyResources = ddh.getDirtyResources();
-        for (Resource resource : dirtyResources) {
+        MediaDataBaseHandler ddh = new MediaDataBaseHandler(getApplicationContext());
+        List<Media> dirtyMedia = ddh.getDirtyMedia();
+        for (Media resource : dirtyMedia) {
             String dirtyAction = resource.getDirtyAction();
             if (dirtyAction.equalsIgnoreCase("insert")) {
-                if (ddh.insertResourceToServer(resource)) {
-                    resource.setDirty(0);
-                    ddh.updateResourceLocally(resource);
-                }
+                    // TODO : Invoke the media insert code here.
             } else if (dirtyAction.equalsIgnoreCase("update")) {
-                if (ddh.updateResourceToServer(resource)) {
-                    resource.setDirty(0);
-                    ddh.updateResourceLocally(resource);
-                }
+                // TODO : Invoke the media update code here.
             } else if (dirtyAction.equalsIgnoreCase("delete")) {
-                ddh.deleteResourceByGlobally(resource);
+                // TODO : Invoke the media remove code here.
             }
         }
-
-        AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
-        PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-        if(adh.getDirtyAreas().size() == 0
-                && pdh.getDirtyPositions().size() == 0
-                && ddh.getDirtyResources().size() == 0){
-            GlobalContext.INSTANCE.put(GlobalContext.SYNCHRONIZING_OFFLINE, new Boolean(false).toString());
-        }
-
     }
 
 }

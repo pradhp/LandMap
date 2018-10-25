@@ -9,25 +9,23 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.drive.DriveDBHelper;
-import com.pearnode.app.placero.drive.Resource;
-import com.pearnode.app.placero.position.Position;
+import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.util.ColorProvider;
 
 /**
  * Created by USER on 10/16/2017.
  */
-public class AreaAddResourceAdaptor extends ArrayAdapter<Resource> {
+public class AreaAddResourceAdaptor extends ArrayAdapter<Media> {
 
-    private final ArrayList<Resource> items;
+    private final List<Media> items;
     private final Context context;
 
-    public AreaAddResourceAdaptor(Context context, ArrayList<Resource> items) {
+    public AreaAddResourceAdaptor(Context context, List<Media> items) {
         super(context, R.layout.upload_element_row, items);
         this.context = context;
         this.items = items;
@@ -42,19 +40,10 @@ public class AreaAddResourceAdaptor extends ArrayAdapter<Resource> {
         }
 
         final AreaContext areaContext = AreaContext.INSTANCE;
-        final Resource resource = items.get(position);
+        final Media resource = items.get(position);
 
         TextView nameText = (TextView) v.findViewById(R.id.ar_file_name);
         nameText.setText(resource.getName());
-
-        TextView filePathText = (TextView) v.findViewById(R.id.ar_file_path);
-        Position resourcePosition = resource.getPosition();
-        if(resourcePosition != null){
-            String message = "Position: " + resourcePosition.getLat() + ", " + resourcePosition.getLng();
-            filePathText.setText(message);
-        }else {
-            filePathText.setText(resource.getSize() + " bytes");
-        }
 
         v.setBackgroundColor(ColorProvider.DEFAULT_DIRTY_ITEM_COLOR);
 
@@ -65,9 +54,6 @@ public class AreaAddResourceAdaptor extends ArrayAdapter<Resource> {
                 areaContext.getUploadedQueue().remove(resource);
                 items.remove(resource);
                 notifyDataSetChanged();
-
-                DriveDBHelper ddh = new DriveDBHelper(getContext());
-                ddh.deleteResourceLocally(resource);
             }
         });
         return v;

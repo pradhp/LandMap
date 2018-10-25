@@ -4,18 +4,23 @@ package com.pearnode.app.placero.provider;
  * Created by USER on 10/16/2017.
  */
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.ActivityCompat;
 
 import java.util.List;
 import java.util.UUID;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
@@ -43,6 +48,8 @@ public class GPSLocationProvider implements LocationListener {
         timeout = timeoutSecs;
     }
 
+
+    @SuppressLint("MissingPermission")
     public void getLocation() {
         try {
             final LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
@@ -53,7 +60,7 @@ public class GPSLocationProvider implements LocationListener {
             handler.postDelayed(new Runnable() {
                 public void run() {
                     locationManager.removeUpdates(GPSLocationProvider.this);
-                    String uniqueId = pe.getUniqueId();
+                    String uniqueId = pe.getId();
                     if (uniqueId.equalsIgnoreCase("")) {
                         notifyFailureForLocationFix();
                     }
@@ -66,14 +73,12 @@ public class GPSLocationProvider implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        pe.setUniqueId(UUID.randomUUID().toString());
-
         Area area = AreaContext.INSTANCE.getAreaElement();
         List<Position> positions = area.getPositions();
         pe.setName("Position_" + (positions.size() + 1));
         pe.setLng(location.getLongitude());
         pe.setLat(location.getLatitude());
-        pe.setUniqueAreaId(area.getUniqueId());
+        pe.setAreaRef(area.getId());
         pe.setCreatedOnMillis(System.currentTimeMillis() + "");
 
         if (receiver != null) {

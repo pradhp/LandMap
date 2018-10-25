@@ -8,15 +8,17 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import com.pearnode.app.placero.R;
-import com.pearnode.app.placero.R.id;
+import com.pearnode.app.placero.area.AreaContext;
+import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
+
+import java.util.List;
 
 /**
  * Created by USER on 11/4/2017.
  */
 public class AreaDocumentDisplayFragment extends Fragment {
-
-    private GridView gridView;
-    private AreaDocumentDisplayAdaptor adaptor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,10 +33,15 @@ public class AreaDocumentDisplayFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.gridView = (GridView) this.getView().findViewById(id.gridView);
-        this.adaptor = new AreaDocumentDisplayAdaptor(this.getContext(), this, 2);
-        this.gridView.setAdapter(this.adaptor);
-        getView().findViewById(id.res_action_layout).setVisibility(View.GONE);
+        GridView gridView = (GridView) this.getView().findViewById(R.id.gridView);
+
+        MediaDataBaseHandler mdh = new MediaDataBaseHandler(getContext());
+        Area area = AreaContext.INSTANCE.getAreaElement();
+        String areaId = area.getId();
+        List<Media> placeDocuments = mdh.getPlaceDocuments(areaId);
+
+        DocumentDisplayAdaptor adaptor = new DocumentDisplayAdaptor(this.getContext(), R.layout.media_display_item, placeDocuments);
+        gridView.setAdapter(adaptor);
     }
 
 }

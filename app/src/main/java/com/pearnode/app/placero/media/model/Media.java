@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 public class Media {
 
     private Long id = -1L;
-    private Long placeRef = -1L;
+    private String placeRef;
     private String name = "";
     private String type = "";
     private String tfName = "";
@@ -14,6 +14,8 @@ public class Media {
     private String rfPath = "";
     private String lat = "";
     private String lng = "";
+    private Integer dirty = 0;
+    private String dirtyAction = "none";
     private Long createdOn = -1L;
     private Long fetchedOn = -1L;
 
@@ -25,11 +27,11 @@ public class Media {
         this.id = id;
     }
 
-    public Long getPlaceRef() {
+    public String getPlaceRef() {
         return placeRef;
     }
 
-    public void setPlaceRef(Long placeRef) {
+    public void setPlaceRef(String placeRef) {
         this.placeRef = placeRef;
     }
 
@@ -111,6 +113,22 @@ public class Media {
 
     public void setFetchedOn(Long fetchedOn) {
         this.fetchedOn = fetchedOn;
+    }
+
+    public Integer getDirty() {
+        return dirty;
+    }
+
+    public void setDirty(Integer dirty) {
+        this.dirty = dirty;
+    }
+
+    public String getDirtyAction() {
+        return dirtyAction;
+    }
+
+    public void setDirtyAction(String dirtyAction) {
+        this.dirtyAction = dirtyAction;
     }
 
     @Override

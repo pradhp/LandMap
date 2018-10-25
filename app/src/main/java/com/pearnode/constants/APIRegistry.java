@@ -12,7 +12,6 @@ public final class APIRegistry {
     public static final String PUBLIC_AREAS_SEARCH = API_ROOT + "/area/search/public.php";
     public static final String USER_AREA_SEARCH = API_ROOT + "/area/search/user.php";
 
-    public static final String DRIVE_SEARCH_GENERIC = API_ROOT + "/drive/search/key.php";
     public static final String POSITIONS_SEARCH_GENERIC = API_ROOT + "/position/search/key.php";
     public static final String USER_SEARCH_GENERIC = API_ROOT + "/user/search/key.php";
 

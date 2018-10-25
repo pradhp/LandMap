@@ -18,9 +18,9 @@ public class MediaUploadTask extends AsyncTask<Object, String, String> {
     private final TaskFinishedListener finishedListener;
     private Context context = null;
 
-    public MediaUploadTask(Context appContext, TaskFinishedListener listener) {
+    public MediaUploadTask(Context context, TaskFinishedListener listener) {
         this.finishedListener = listener;
-        this.context = appContext;
+        this.context = context;
     }
 
     @Override

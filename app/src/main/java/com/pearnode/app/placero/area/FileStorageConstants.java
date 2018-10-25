@@ -3,25 +3,11 @@
 /**
  * Created by USER on 11/15/2017.
  */
-public interface FileStorageConstants {
+public class FileStorageConstants {
 
-    String IMAGE_ROOT_FOLDER_NAME = "app.lms.images";
-
-    String VIDEO_ROOT_FOLDER_NAME = "app.lms.videos";
-
-    String DOCUMENT_ROOT_FOLDER_NAME = "app.lms.documents";
-
-    String TEMP_ROOT_FOLDER_NAME = "app.lms.temp";
-
-    String IMAGES_CONTENT_TYPE = "Images";
-
-    String IMAGE_CONTENT_TYPE = "Image";
-
-    String VIDEOS_CONTENT_TYPE = "Videos";
-
-    String VIDEO_CONTENT_TYPE = "Video";
-
-    String DOCUMENTS_CONTENT_TYPE = "Documents";
-
-    String DOCUMENT_CONTENT_TYPE = "Documents";
+    public static final String TEMP_FOLDER_NAME = "placero/temp";
+    public static final String THUMBNAIL_FOLDER_NAME = "placero/thumbnails";
+    public static final String PICTURES_FOLDER_NAME = "placero/pictures";
+    public static final String VIDEOS_FOLDER_NAME = "placero/videos";
+    public static final String DOCUMENTS_FOLDER_NAME = "placero/documents";
 }

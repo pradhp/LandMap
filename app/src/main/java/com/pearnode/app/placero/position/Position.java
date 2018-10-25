@@ -3,23 +3,44 @@ package com.pearnode.app.placero.position;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Created by USER on 10/16/2017.
  */
 public class Position implements Serializable {
 
+    private String id = "";
     private String name = "";
     private String description = "No Description";
     private double lat = 0.0;
     private double lng = 0.0;
     private String tags = "";
-    private String uniqueAreaId = "";
-    private String uniqueId = "";
+    private String areaRef = "";
     private String createdOnMillis = System.currentTimeMillis() + "";
     private String type = "boundary";
     private Integer dirty = 0;
     private String dirtyAction = "";
+
+    public Position(){
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getAreaRef() {
+        return areaRef;
+    }
+
+    public void setAreaRef(String areaRef) {
+        this.areaRef = areaRef;
+    }
 
     public String getName() {
         return this.name;
@@ -59,22 +80,6 @@ public class Position implements Serializable {
 
     public void setTags(String tags) {
         this.tags = tags;
-    }
-
-    public String getUniqueAreaId() {
-        return this.uniqueAreaId;
-    }
-
-    public void setUniqueAreaId(String uniqueAreaId) {
-        this.uniqueAreaId = uniqueAreaId;
-    }
-
-    public String getUniqueId() {
-        return this.uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
     }
 
     public Position copy() {

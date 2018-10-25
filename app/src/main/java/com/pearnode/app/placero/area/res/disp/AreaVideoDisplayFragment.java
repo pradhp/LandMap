@@ -7,16 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
-import com.pearnode.app.placero.R.id;
+import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.layout;
+import com.pearnode.app.placero.area.AreaContext;
+import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
+
+import java.util.List;
 
 /**
  * Created by USER on 11/4/2017.
  */
 public class AreaVideoDisplayFragment extends Fragment {
-
-    private GridView gridView;
-    private AreaVideoDisplayAdaptor adaptor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,10 +34,15 @@ public class AreaVideoDisplayFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.gridView = (GridView) this.getView().findViewById(id.gridView);
-        this.adaptor = new AreaVideoDisplayAdaptor(getContext(), this, 1);
-        this.gridView.setAdapter(this.adaptor);
-        getView().findViewById(id.res_action_layout).setVisibility(View.GONE);
+        GridView gridView = (GridView) this.getView().findViewById(R.id.gridView);
+
+        MediaDataBaseHandler mdh = new MediaDataBaseHandler(getContext());
+        Area area = AreaContext.INSTANCE.getAreaElement();
+        String areaId = area.getId();
+        List<Media> placeVideos = mdh.getPlaceVideos(areaId);
+
+        VideoDisplayAdaptor adaptor = new VideoDisplayAdaptor(getContext(), R.layout.media_display_item, placeVideos);
+        gridView.setAdapter(adaptor);
     }
 
 }

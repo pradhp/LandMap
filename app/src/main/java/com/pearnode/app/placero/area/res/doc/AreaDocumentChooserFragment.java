@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
-import java.util.UUID;
 
 import com.pearnode.app.placero.AreaAddResourcesActivity;
 import com.pearnode.app.placero.R.drawable;
@@ -35,9 +34,7 @@ import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.DocumentChooserAdaptor;
 import com.pearnode.app.placero.area.res.disp.FileDisplayElement;
 import com.pearnode.app.placero.custom.PermittedFileArrayList;
-import com.pearnode.app.placero.drive.Resource;
-import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.util.FileUtil;
+import com.pearnode.app.placero.media.model.Media;
 
 public class AreaDocumentChooserFragment extends Fragment {
 
@@ -77,7 +74,7 @@ public class AreaDocumentChooserFragment extends Fragment {
                     AreaContext areaContext = AreaContext.INSTANCE;
                     Area ae = areaContext.getAreaElement();
 
-                    File loadFile = new File(areaContext.getAreaLocalDocumentRoot(ae.getUniqueId())
+                    File loadFile = new File(areaContext.getAreaLocalDocumentRoot(ae.getId())
                             .getAbsolutePath() + File.separatorChar + documentFile.getName());
                     try {
                         FileUtils.copyFile(documentFile, loadFile);
@@ -85,22 +82,16 @@ public class AreaDocumentChooserFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    Resource resource = new Resource();
+                    Media resource = new Media();
                     resource.setName(loadFile.getName());
-                    resource.setPath(loadFile.getAbsolutePath());
-                    resource.setType("file");
-                    resource.setUserId(UserContext.getInstance().getUserElement().getEmail());
-                    resource.setSize(loadFile.length() + "");
-                    resource.setUniqueId(UUID.randomUUID().toString());
-                    resource.setAreaId(ae.getUniqueId());
-                    resource.setMimeType(FileUtil.getMimeType(loadFile));
-                    resource.setContentType("Document");
-                    resource.setContainerId(areaContext.getDocumentRootDriveResource().getResourceId());
+                    resource.setRfPath(loadFile.getAbsolutePath());
+                    resource.setType("document");
+                    resource.setPlaceRef(ae.getId());
                     resource.setDirty(1);
                     resource.setDirtyAction("upload");
 
-                    ae.getResources().add(resource);
-                    areaContext.addResourceToQueue(resource);
+                    ae.getDocuments().add(resource);
+                    areaContext.addMediaToQueue(resource);
 
                     Intent intent = new Intent(getContext(), AreaAddResourcesActivity.class);
                     startActivity(intent);
