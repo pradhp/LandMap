@@ -38,32 +38,8 @@ public class AreaVideoCaptureActivity extends Activity implements LocationPositi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
-        askPermissions();
-    }
-
-    private void askPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                TAG_CODE_PERMISSION_LOCATION);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+        startPositioning();
         recordVideo();
-        switch (requestCode) {
-            case TAG_CODE_PERMISSION_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startPositioning();
-                } else {
-                    // Permission denied cannot get location.
-                }
-                return;
-            }
-        }
     }
 
     private void startPositioning() {

@@ -47,7 +47,7 @@ public class LocalDataRefresher implements AsyncTaskCallback {
 
         TagsDBHelper tdh = new TagsDBHelper(this.context);
         tdh.dryRun();
-        tdh.deleteAllTagsLocally();
+        tdh.deleteAllTags();
 
         UserAreaDetailsLoadTask loadTask = new UserAreaDetailsLoadTask(this.context);
         loadTask.setCompletionCallback(this);

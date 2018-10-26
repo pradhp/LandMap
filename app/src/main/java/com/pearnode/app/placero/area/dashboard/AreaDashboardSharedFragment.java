@@ -29,7 +29,7 @@ import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
-import com.pearnode.app.placero.tags.TagElement;
+import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
@@ -115,10 +115,10 @@ public class AreaDashboardSharedFragment extends Fragment
         UserPersistableSelections userPersistableSelections = userElement.getSelections();
         if(userPersistableSelections.isFilter()){
             filterUTView.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
-            List<TagElement> tags = userPersistableSelections.getTags();
+            List<Tag> tags = userPersistableSelections.getTags();
             List<String> filterables = new ArrayList<>();
             List<String> executables = new ArrayList<>();
-            for(TagElement tag: tags){
+            for(Tag tag: tags){
                 if(tag.getType().equals("filterable")){
                     filterables.add(tag.getName());
                 }else {

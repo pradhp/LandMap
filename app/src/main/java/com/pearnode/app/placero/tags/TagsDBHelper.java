@@ -24,6 +24,10 @@ public class TagsDBHelper extends SQLiteOpenHelper {
     public static final String TYPE_FIELD = "type_field";
     public static final String CONTEXT = "context";
     public static final String CONTEXT_ID = "context_id";
+    private static final String DIRTY_FLAG = "dirty";
+    private static final String DIRTY_ACTION = "d_action";
+    private static final String CREATED_ON = "con";
+
     private AsyncTaskCallback callback;
 
     public TagsDBHelper(Context context, AsyncTaskCallback callback) {
@@ -44,7 +48,13 @@ public class TagsDBHelper extends SQLiteOpenHelper {
                         TYPE + " text," +
                         TYPE_FIELD + " text," +
                         CONTEXT + " text, " +
-                        CONTEXT_ID + " text)"
+                        CONTEXT_ID + " text, " +
+                        DIRTY_FLAG    + " integer DEFAULT 0," +
+                        DIRTY_ACTION  + " text," +
+                        TYPE          + " text," +
+                        CREATED_ON    + " long"
+                        + ")"
+
         );
     }
 
@@ -60,9 +70,24 @@ public class TagsDBHelper extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    public void insertTagsLocally(List<TagElement> elements, String context, String contextId) {
+    public void addTag(Tag tag) {
         SQLiteDatabase db = getWritableDatabase();
-        for(TagElement tagElement : elements){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONTEXT_ID, tag.getContextId());
+        contentValues.put(CONTEXT, tag.getContext());
+        contentValues.put(NAME, tag.getName());
+        contentValues.put(TYPE, tag.getType());
+        contentValues.put(TYPE_FIELD, tag.getTypeField());
+        contentValues.put(DIRTY_FLAG, tag.getDirty());
+        contentValues.put(DIRTY_ACTION, tag.getDirtyAction());
+        contentValues.put(CREATED_ON, tag.getCreatedOn());
+        db.insert(TABLE_NAME, null, contentValues);
+        db.close();
+    }
+
+    public void addTags(List<Tag> elements, String context, String contextId) {
+        SQLiteDatabase db = getWritableDatabase();
+        for(Tag tag : elements){
             ContentValues contentValues = new ContentValues();
             if(context.equalsIgnoreCase("user")){
                 contentValues.put(CONTEXT_ID, contextId);
@@ -71,59 +96,40 @@ public class TagsDBHelper extends SQLiteOpenHelper {
                 contentValues.put(CONTEXT_ID, contextId);
                 contentValues.put(CONTEXT, "area");
             }
-            contentValues.put(NAME, tagElement.getName());
-            contentValues.put(TYPE, tagElement.getType());
-            contentValues.put(TYPE_FIELD, tagElement.getTypeField());
+            contentValues.put(NAME, tag.getName());
+            contentValues.put(TYPE, tag.getType());
+            contentValues.put(TYPE_FIELD, tag.getTypeField());
+            contentValues.put(DIRTY_FLAG, tag.getDirty());
+            contentValues.put(DIRTY_ACTION, tag.getDirtyAction());
+            contentValues.put(CREATED_ON, tag.getCreatedOn());
             db.insert(TABLE_NAME, null, contentValues);
         }
         db.close();
     }
 
-    public void insertTagsToServer(List<TagElement> tagElements, String context, String contextId) {
-        for (TagElement tagElement: tagElements){
-            TagInsertAsyncTask task = new TagInsertAsyncTask(callback);
-            task.execute(preparePostParams(tagElement, context, contextId));
-        }
-    }
-
-    private JSONObject preparePostParams(TagElement tagElement, String context, String contextId) {
-        JSONObject postParams = new JSONObject();
-        try {
-            postParams.put("name", tagElement.getName());
-            postParams.put("type", tagElement.getType());
-            postParams.put("type_field", tagElement.getTypeField());
-            postParams.put("context", context);
-            postParams.put("context_id", contextId);
-            postParams.put("query_type", "insert");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return postParams;
-    }
-
-    public ArrayList<TagElement> getTagsByContext(String context){
-        ArrayList<TagElement> tagElements = new ArrayList<TagElement>();
+    public ArrayList<Tag> getTagsByContext(String context){
+        ArrayList<Tag> tags = new ArrayList<Tag>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE " + CONTEXT + "=?",
                 new String[]{context});
         if (cursor != null) {
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
-                TagElement te = new TagElement();
-                te.setName(cursor.getString(cursor.getColumnIndex(NAME)));
-                te.setContext(cursor.getString(cursor.getColumnIndex(CONTEXT)));
-                te.setContextId(cursor.getString(cursor.getColumnIndex(CONTEXT_ID)));
-                te.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
-                te.setTypeField(cursor.getString(cursor.getColumnIndex(TYPE_FIELD)));
-                if(!tagElements.contains(te)){
-                    tagElements.add(te);
-                }
+                Tag tag = new Tag();
+                tag.setName(cursor.getString(cursor.getColumnIndex(NAME)));
+                tag.setContext(cursor.getString(cursor.getColumnIndex(CONTEXT)));
+                tag.setContextId(cursor.getString(cursor.getColumnIndex(CONTEXT_ID)));
+                tag.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
+                tag.setTypeField(cursor.getString(cursor.getColumnIndex(TYPE_FIELD)));
+                tag.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY_FLAG)));
+                tag.setDirtyAction(cursor.getString(cursor.getColumnIndex(DIRTY_ACTION)));
+                tag.setCreatedOn(cursor.getLong(cursor.getColumnIndex(CREATED_ON)));
                 cursor.moveToNext();
             }
             cursor.close();
         }
         db.close();
-        return tagElements;
+        return tags;
     }
 
     public void deleteTagsByContext(String context, String contextId) {
@@ -133,7 +139,7 @@ public class TagsDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteAllTagsLocally() {
+    public void deleteAllTags() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, "1", null);
         db.close();

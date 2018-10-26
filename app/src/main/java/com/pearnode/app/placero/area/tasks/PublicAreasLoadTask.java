@@ -123,7 +123,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                 Address address = Address.fromStoredAddress(addressText);
                 if(address != null){
                     area.setAddress(address);
-                    tdh.insertTagsLocally(address.getTags(), "area", area.getId());
+                    tdh.addTags(address.getTags(), "area", area.getId());
                 }
 
                 JSONArray positionsArr = (JSONArray) responseObj.get("positions");

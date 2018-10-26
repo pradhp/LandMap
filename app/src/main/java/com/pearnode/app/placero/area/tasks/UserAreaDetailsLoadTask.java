@@ -117,7 +117,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 Address address = Address.fromStoredAddress(addressText);
                 if (address != null) {
                     ae.setAddress(address);
-                    tdh.insertTagsLocally(address.getTags(), "area", ae.getId());
+                    tdh.addTags(address.getTags(), "area", ae.getId());
                 }
                 ae.setType(detailObj.getString("type"));
                 ae.setDirty(0);
@@ -140,7 +140,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                     position.setName(positionObj.getString("name"));
                     position.setDescription(positionObj.getString("description"));
                     position.setLat(positionObj.getDouble("lat"));
-                    position.setLng(positionObj.getDouble("lon"));
+                    position.setLng(positionObj.getDouble("lng"));
                     position.setTags(positionObj.getString("tags"));
                     position.setType(positionObj.getString("type"));
                     position.setCreatedOn(positionObj.getString("created_on"));
@@ -166,7 +166,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
             }
 
             UserElement userElement = UserContext.getInstance().getUserElement();
-            tdh.insertTagsLocally(userElement.getSelections().getTags(), "user", userElement.getEmail());
+            tdh.addTags(userElement.getSelections().getTags(), "user", userElement.getEmail());
 
         } catch (Exception e) {
             e.printStackTrace();

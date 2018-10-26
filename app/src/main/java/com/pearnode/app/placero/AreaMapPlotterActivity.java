@@ -66,6 +66,8 @@ import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.position.RemovePositionTask;
 import com.pearnode.app.placero.position.UpdatePositionTask;
+import com.pearnode.app.placero.tags.CreateTagTask;
+import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
 
@@ -195,9 +197,12 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
         @Override
         public void onTaskFinished(String response) {
-            AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
-            adh.insertAreaAddressTagsLocally(ae);
-            adh.insertAreaAddressTagsOnServer(ae);
+            List<Tag> tags = ae.getAddress().getTags();
+            for (int i = 0; i < tags.size(); i++) {
+                Tag tag = tags.get(i);
+                CreateTagTask createTagTask = new CreateTagTask(getApplicationContext(), null);
+                createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
+            }
         }
     }
 

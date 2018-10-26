@@ -3,6 +3,7 @@ package com.pearnode.app.placero.tags;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
 import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.R;
@@ -74,9 +74,9 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
         final UserPersistableSelections preferences = userElement.getSelections();
         final String userId = userElement.getEmail();
 
-        final List<TagElement> userTags = preferences.getTags();
-        for(TagElement userTag: userTags){
-            Tag tag = new Tag(userTag.getName());
+        final List<Tag> userTags = preferences.getTags();
+        for(Tag userTag: userTags){
+            com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(userTag.getName());
             tag.tagTextSize = 15;
             tag.isDeletable = true;
             tag.layoutColor = Color.parseColor("#E67E22");
@@ -85,10 +85,10 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
 
         topContainer.setOnTagDeleteListener(new TagView.OnTagDeleteListener() {
             @Override
-            public void onTagDeleted(TagView tagView, Tag tag, int i) {
+            public void onTagDeleted(TagView tagView, com.cunoraz.tagview.Tag tag, int i) {
                 topContainer.remove(i);
                 for (int j = 0; j < userTags.size(); j++) {
-                    TagElement tagElement = userTags.get(j);
+                    Tag tagElement = userTags.get(j);
                     if(tagElement.getName().equalsIgnoreCase(tag.text)){
                         userTags.remove(tagElement);
                     }
@@ -101,11 +101,12 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
             @Override
             public void onClick(View v) {
                 TagsDBHelper tdh = new TagsDBHelper(mActivity);
-
                 tdh.deleteTagsByContext("user", userId);
-                tdh.insertTagsLocally(userTags, "user", userId);
-                tdh.insertTagsToServer(userTags, "user", userId);
-
+                for (int i = 0; i < userTags.size(); i++) {
+                    Tag tag = userTags.get(i);
+                    CreateTagTask createTagTask = new CreateTagTask(getContext(), null);
+                    createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
+                }
                 Intent intent = new Intent(mActivity, AreaDashboardActivity.class);
                 startActivity(intent);
             }

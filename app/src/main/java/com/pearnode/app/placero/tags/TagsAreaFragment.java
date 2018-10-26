@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
 
 import java.util.List;
@@ -91,7 +90,7 @@ public class TagsAreaFragment extends Fragment implements FragmentHandler {
                     compareValue.setText("?");
                     return;
                 }
-                Tag tag = new Tag(selectedMeasure + " " + selectedCompare + " " + text);
+                com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(selectedMeasure + " " + selectedCompare + " " + text);
                 tag.isDeletable = true;
                 bottomContainer.addTag(tag);
             }
@@ -99,7 +98,7 @@ public class TagsAreaFragment extends Fragment implements FragmentHandler {
 
         bottomContainer.setOnTagDeleteListener(new TagView.OnTagDeleteListener() {
             @Override
-            public void onTagDeleted(TagView tagView, Tag tag, int i) {
+            public void onTagDeleted(TagView tagView, com.cunoraz.tagview.Tag tag, int i) {
                 bottomContainer.remove(i);
             }
         });
@@ -108,13 +107,13 @@ public class TagsAreaFragment extends Fragment implements FragmentHandler {
         addTags.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Tag> selectedTags = bottomContainer.getTags();
+                List<com.cunoraz.tagview.Tag> selectedTags = bottomContainer.getTags();
                 UserElement userElement = UserContext.getInstance().getUserElement();
                 UserPersistableSelections preferences = userElement.getSelections();
                 if (selectedTags.size() > 0) {
-                    for (Tag selectedTag : selectedTags) {
-                        TagElement tagElement = new TagElement(selectedTag.text, "executable", "area");
-                        preferences.getTags().add(tagElement);
+                    for (com.cunoraz.tagview.Tag selectedTag : selectedTags) {
+                        Tag tag = new Tag(selectedTag.text, "executable", "area");
+                        preferences.getTags().add(tag);
                     }
                     Integer position = TagsDisplayMetaStore.INSTANCE.getTabPositionByType("user");
                     TabLayout tabLayout = (TabLayout) mActivity.findViewById(R.id.areas_tags_tab_layout);

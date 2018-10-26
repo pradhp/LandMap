@@ -15,7 +15,6 @@ import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.sync.LMSRestAsyncTask;
 import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
 
@@ -360,24 +359,12 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void fetchShareHistory(Area ae) {
-        LMSRestAsyncTask findTask = new LMSRestAsyncTask(callback);
-        findTask.execute(preparePostParams("findShareHistory", ae));
-    }
-
     public void insertAreaAddressTagsLocally(Area ae) {
         TagsDBHelper tagsDBHelper = new TagsDBHelper(context);
         Address address = ae.getAddress();
         if (address != null) {
-            tagsDBHelper.insertTagsLocally(address.getTags(), "area", ae.getId());
+            tagsDBHelper.addTags(address.getTags(), "area", ae.getId());
         }
     }
 
-    public void insertAreaAddressTagsOnServer(Area ae) {
-        TagsDBHelper tagsDBHelper = new TagsDBHelper(context);
-        Address address = ae.getAddress();
-        if (address != null) {
-            tagsDBHelper.insertTagsToServer(address.getTags(), "area", ae.getId());
-        }
-    }
 }

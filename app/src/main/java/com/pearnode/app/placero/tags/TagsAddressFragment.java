@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.TagAssignmentActivity;
@@ -73,9 +72,9 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
         topContainer.removeAll();
 
         TagsDBHelper tdh = new TagsDBHelper(getContext());
-        ArrayList<TagElement> tagElements = tdh.getTagsByContext("area");
-        for(TagElement te: tagElements){
-            Tag tag = new Tag(te.getName());
+        ArrayList<Tag> tags = tdh.getTagsByContext("area");
+        for(Tag te: tags){
+            com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(te.getName());
             tag.tagTextSize = 16;
             tag.layoutColor = ColorProvider.getDefaultToolBarColor();
             topContainer.addTag(tag);
@@ -87,12 +86,12 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
 
         topContainer.setOnTagLongClickListener(new TagView.OnTagLongClickListener() {
             @Override
-            public void onTagLongClick(Tag tag, int i) {
+            public void onTagLongClick(com.cunoraz.tagview.Tag tag, int i) {
                 tag.isDeletable = true;
                 topContainer.remove(i);
                 bottomContainer.setOnTagDeleteListener(new TagView.OnTagDeleteListener() {
                     @Override
-                    public void onTagDeleted(TagView tagView, Tag tag, int i) {
+                    public void onTagDeleted(TagView tagView, com.cunoraz.tagview.Tag tag, int i) {
                         tag.isDeletable = false;
                         topContainer.addTag(tag);
                         bottomContainer.remove(i);
@@ -110,13 +109,13 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
         addTags.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Tag> selectedTags = bottomContainer.getTags();
+                List<com.cunoraz.tagview.Tag> selectedTags = bottomContainer.getTags();
                 UserElement userElement = UserContext.getInstance().getUserElement();
                 UserPersistableSelections preferences = userElement.getSelections();
                 if(selectedTags.size() > 0){
-                    for(Tag selectedTag: selectedTags){
-                        TagElement tagElement = new TagElement(selectedTag.text, "filterable", "address");
-                        preferences.getTags().add(tagElement);
+                    for(com.cunoraz.tagview.Tag selectedTag: selectedTags){
+                        Tag tag = new Tag(selectedTag.text, "filterable", "address");
+                        preferences.getTags().add(tag);
                     }
                     Integer position = TagsDisplayMetaStore.INSTANCE.getTabPositionByType("user");
                     TabLayout tabLayout = (TabLayout) mActivity.findViewById(R.id.areas_tags_tab_layout);

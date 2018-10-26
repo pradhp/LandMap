@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
@@ -54,7 +53,7 @@ import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.tags.TagElement;
+import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
@@ -168,10 +167,10 @@ public class AreaDashboardActivity extends AppCompatActivity {
                 }else {
                     userPersistableSelections.setFilter(true);
                     filterUTView.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
-                    List<TagElement> tags = userPersistableSelections.getTags();
+                    List<Tag> tags = userPersistableSelections.getTags();
                     List<String> filterables = new ArrayList<>();
                     List<String> executables = new ArrayList<>();
-                    for(TagElement tag: tags){
+                    for(Tag tag: tags){
                         if(tag.getType().equals("filterable")){
                             filterables.add(tag.getName());
                         }else {

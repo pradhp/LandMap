@@ -18,7 +18,7 @@ import com.pearnode.app.placero.util.AndroidSystemUtil;
 public class PositionsDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
-    public static final String TABLE_NAME = "position_master";
+    public static final String TABLE_NAME = "pm";
 
     private static final String UNIQUE_ID = "uid";
     private static final String AREA_REF = "ar";
@@ -26,7 +26,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public static final String TYPE = "type";
     public static final String DESCRIPTION = "desc";
     public static final String LAT = "lat";
-    public static final String LON = "lon";
+    public static final String LNG = "lng";
     public static final String TAGS = "tags";
     private static final String DIRTY = "dirty";
     private static final String D_ACTION = "d_action";
@@ -42,13 +42,13 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" +
+                        UNIQUE_ID + " text," +
+                        AREA_REF + " text," +
                         NAME + " text," +
                         TYPE + " text," +
                         DESCRIPTION + " text," +
                         LAT + " text, " +
-                        LON + " text," +
-                        AREA_REF + " text," +
-                        UNIQUE_ID + " text," +
+                        LNG + " text," +
                         CREATED_ON + " text," +
                         DIRTY + " integer DEFAULT 0," +
                         D_ACTION + " text," +
@@ -72,11 +72,12 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UNIQUE_ID, pe.getId());
+        contentValues.put(AREA_REF, pe.getAreaRef());
         contentValues.put(NAME, pe.getName());
         contentValues.put(TYPE, pe.getType());
         contentValues.put(DESCRIPTION, pe.getDescription());
         contentValues.put(LAT, pe.getLat());
-        contentValues.put(LON, pe.getLng());
+        contentValues.put(LNG, pe.getLng());
         contentValues.put(TAGS, pe.getTags());
         contentValues.put(DIRTY, pe.getDirty());
         contentValues.put(D_ACTION, pe.getDirtyAction());
@@ -96,7 +97,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(TYPE, pe.getType());
         contentValues.put(DESCRIPTION, pe.getDescription());
         contentValues.put(LAT, pe.getLat());
-        contentValues.put(LON, pe.getLng());
+        contentValues.put(LNG, pe.getLng());
         contentValues.put(TAGS, pe.getTags());
         contentValues.put(DIRTY, pe.getDirty());
         contentValues.put(D_ACTION, pe.getDirtyAction());
@@ -145,7 +146,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                 String latStr = cursor.getString(cursor.getColumnIndex(LAT));
                 pe.setLat(Double.parseDouble(latStr));
 
-                String lonStr = cursor.getString(cursor.getColumnIndex(LON));
+                String lonStr = cursor.getString(cursor.getColumnIndex(LNG));
                 pe.setLng(Double.parseDouble(lonStr));
 
                 pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));
@@ -184,7 +185,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                 }
                 String latStr = cursor.getString(cursor.getColumnIndex(LAT));
                 pe.setLat(Double.parseDouble(latStr));
-                String lonStr = cursor.getString(cursor.getColumnIndex(LON));
+                String lonStr = cursor.getString(cursor.getColumnIndex(LNG));
                 pe.setLng(Double.parseDouble(lonStr));
                 pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));
                 pe.setCreatedOn(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
@@ -221,7 +222,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             String latStr = cursor.getString(cursor.getColumnIndex(LAT));
             pe.setLat(Double.parseDouble(latStr));
 
-            String lonStr = cursor.getString(cursor.getColumnIndex(LON));
+            String lonStr = cursor.getString(cursor.getColumnIndex(LNG));
             pe.setLng(Double.parseDouble(lonStr));
 
             pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));

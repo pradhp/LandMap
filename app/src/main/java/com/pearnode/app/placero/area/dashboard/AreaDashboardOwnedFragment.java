@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.AreaDetailsActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
@@ -33,7 +32,7 @@ import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionElement;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.tags.TagElement;
+import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.user.UserPersistableSelections;
@@ -148,10 +147,10 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
         UserPersistableSelections userPersistableSelections = userElement.getSelections();
         if(userPersistableSelections.isFilter()){
             filterUTView.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
-            List<TagElement> tags = userPersistableSelections.getTags();
+            List<Tag> tags = userPersistableSelections.getTags();
             List<String> filterables = new ArrayList<>();
             List<String> executables = new ArrayList<>();
-            for(TagElement tag: tags){
+            for(Tag tag: tags){
                 if(tag.getType().equals("filterable")){
                     filterables.add(tag.getName());
                 }else {
@@ -246,10 +245,10 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
                     final ImageView filterUTView = (ImageView) activity.findViewById(id.action_filter_ut);
                     UserElement userElement = UserContext.getInstance().getUserElement();
                     if(filterUTView.getBackground() != null){
-                        List<TagElement> tags = userElement.getSelections().getTags();
+                        List<Tag> tags = userElement.getSelections().getTags();
                         List<String> filterables = new ArrayList<>();
                         List<String> executables = new ArrayList<>();
-                        for(TagElement tag: tags){
+                        for(Tag tag: tags){
                             if(tag.getType().equals("filterable")){
                                 filterables.add(tag.getName());
                             }else {

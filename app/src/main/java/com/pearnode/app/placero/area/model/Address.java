@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.pearnode.app.placero.tags.TagElement;
+import com.pearnode.app.placero.tags.Tag;
 
 /**
  * Created by USER on 11/27/2017.
@@ -133,8 +133,8 @@ public class Address {
         return address;
     }
 
-    public List<TagElement> getTags(){
-        List<TagElement> tags = new ArrayList<>();
+    public List<Tag> getTags(){
+        List<Tag> tags = new ArrayList<>();
         if(premises != null && !premises.trim().equalsIgnoreCase("")){
             premises = premises.replaceAll("[-+.^:,]","");
             if(!premises.matches("[0-9]+")){
@@ -142,11 +142,11 @@ public class Address {
                 if(split.length > 1){
                     for (int i = 0; i < split.length; i++) {
                         if(!split[i].matches("[0-9]+")){
-                            tags.add(new TagElement(split[i], "filterable", "address"));
+                            tags.add(new Tag(split[i], "filterable", "address"));
                         }
                     }
                 }
-                tags.add(new TagElement(premises, "filterable", "address"));
+                tags.add(new Tag(premises, "filterable", "address"));
             }
         }
         if(subLocality != null && !subLocality.trim().equalsIgnoreCase("")){
@@ -156,11 +156,11 @@ public class Address {
                 if(split.length > 1){
                     for (int i = 0; i < split.length; i++) {
                         if(!split[i].matches("[0-9]+")){
-                            tags.add(new TagElement(split[i], "filterable", "address"));
+                            tags.add(new Tag(split[i], "filterable", "address"));
                         }
                     }
                 }
-                tags.add(new TagElement(subLocality, "filterable", "address"));
+                tags.add(new Tag(subLocality, "filterable", "address"));
             }
         }
         if(locality != null && !locality.trim().equalsIgnoreCase("")){
@@ -170,11 +170,11 @@ public class Address {
                 if(split.length > 1){
                     for (int i = 0; i < split.length; i++) {
                         if(!split[i].matches("[0-9]+")){
-                            tags.add(new TagElement(split[i], "filterable", "address"));
+                            tags.add(new Tag(split[i], "filterable", "address"));
                         }
                     }
                 }
-                tags.add(new TagElement(locality, "filterable", "address"));
+                tags.add(new Tag(locality, "filterable", "address"));
             }
         }
         if(subAdminArea != null && !subAdminArea.trim().equalsIgnoreCase("")){
@@ -184,11 +184,11 @@ public class Address {
                 if(split.length > 1){
                     for (int i = 0; i < split.length; i++) {
                         if(!split[i].matches("[0-9]+")){
-                            tags.add(new TagElement(split[i], "filterable", "address"));
+                            tags.add(new Tag(split[i], "filterable", "address"));
                         }
                     }
                 }
-                tags.add(new TagElement(subAdminArea, "filterable", "address"));
+                tags.add(new Tag(subAdminArea, "filterable", "address"));
             }
         }
         if(adminArea != null && !adminArea.trim().equalsIgnoreCase("")){
@@ -198,20 +198,20 @@ public class Address {
                 if(split.length > 1){
                     for (int i = 0; i < split.length; i++) {
                         if(!split[i].matches("[0-9]+")){
-                            tags.add(new TagElement(split[i], "filterable", "address"));
+                            tags.add(new Tag(split[i], "filterable", "address"));
                         }
                     }
                 }
-                tags.add(new TagElement(adminArea, "filterable", "address"));
+                tags.add(new Tag(adminArea, "filterable", "address"));
             }
         }
         if(postalCode != null && !postalCode.trim().equalsIgnoreCase("")){
             postalCode = postalCode.replaceAll("[-+.^:,]","");
-            tags.add(new TagElement(postalCode, "filterable", "address"));
+            tags.add(new Tag(postalCode, "filterable", "address"));
         }
         if(country != null && !country.trim().equalsIgnoreCase("")){
             country = country.replaceAll("[-+.^:,]","");
-            tags.add(new TagElement(country, "filterable", "address"));
+            tags.add(new Tag(country, "filterable", "address"));
         }
         return tags;
     }

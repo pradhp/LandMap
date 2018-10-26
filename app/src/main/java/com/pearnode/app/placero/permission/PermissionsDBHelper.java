@@ -34,6 +34,7 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
 
     private AsyncTaskCallback callback;
     private Context localContext;
+
     public PermissionsDBHelper(Context context, AsyncTaskCallback callback) {
         super(context, DATABASE_NAME, null, 1);
         this.callback = callback;

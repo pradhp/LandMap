@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.tags.TagElement;
+import com.pearnode.app.placero.tags.Tag;
 
 /**
  * Created by USER on 12/15/2017.
@@ -15,7 +15,7 @@ public class UserPersistableSelections {
     private String search = "";
     private String dashboard = "0";
     private boolean filter = false;
-    private List<TagElement> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();
     private Area area = null;
     private Position position = null;
 
@@ -27,11 +27,11 @@ public class UserPersistableSelections {
         this.search = search;
     }
 
-    public List<TagElement> getTags() {
+    public List<Tag> getTags() {
         return this.tags;
     }
 
-    public void setTags(List<TagElement> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
 

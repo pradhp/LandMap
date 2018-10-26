@@ -5,21 +5,33 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 /**
  * Created by USER on 12/13/2017.
  */
-public class TagElement {
+public class Tag {
 
+    private Long id = -1L;
     private String name = "";
     private String type = "";
     private String typeField = "";
     private String context = "";
     private String contextId = "";
+    private Integer dirty = 0;
+    private String dirtyAction = "none";
+    private Long createdOn = -1L;
 
-    public TagElement(String name, String type, String typeField){
+    public Tag(String name, String type, String typeField){
         this.name = name;
         this.type = type;
         this.typeField = typeField;
     }
 
-    public TagElement(){
+    public Tag(){
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -62,10 +74,27 @@ public class TagElement {
         this.typeField = typeField;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getName(), ((TagElement) o).getName());
-        return builder.isEquals();
+    public Integer getDirty() {
+        return dirty;
+    }
+
+    public void setDirty(Integer dirty) {
+        this.dirty = dirty;
+    }
+
+    public String getDirtyAction() {
+        return dirtyAction;
+    }
+
+    public void setDirtyAction(String dirtyAction) {
+        this.dirtyAction = dirtyAction;
+    }
+
+    public Long getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Long createdOn) {
+        this.createdOn = createdOn;
     }
 }

@@ -34,7 +34,7 @@ import com.pearnode.app.placero.SplashActivity;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GlobalContext;
-import com.pearnode.app.placero.tags.TagElement;
+import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserDBHelper;
 import com.pearnode.app.placero.user.UserElement;
@@ -235,8 +235,8 @@ public class SignInActivity extends AppCompatActivity implements
 
             UserElement userElement = UserContext.getInstance().getUserElement();
             for (int i = 0; i < tagsArr.length; i++) {
-                TagElement tagElement = new TagElement(tagsArr[i], tagTypesArr[i], "user");
-                userElement.getSelections().getTags().add(tagElement);
+                Tag tag = new Tag(tagsArr[i], tagTypesArr[i], "user");
+                userElement.getSelections().getTags().add(tag);
             }
         }catch (Exception e){
         }

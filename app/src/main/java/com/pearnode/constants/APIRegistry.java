@@ -12,6 +12,12 @@ public final class APIRegistry {
     public static final String POSITION_UPDATE = API_ROOT + "/position/update.php";
     public static final String POSITION_REMOVE = API_ROOT + "/position/remove.php";
 
+
+    public static final String TAG_CREATE = API_ROOT + "/tag/create.php";
+
+    public static final String MEDIA_CREATE = API_ROOT + "/media/create.php";
+    public static final String MEDIA_REMOVE = API_ROOT + "/media/remove.php";
+
     // Add API's as required.
     public static final String PUBLIC_AREAS_SEARCH = API_ROOT + "/area/search/public.php";
     public static final String USER_AREA_SEARCH = API_ROOT + "/area/search/user.php";

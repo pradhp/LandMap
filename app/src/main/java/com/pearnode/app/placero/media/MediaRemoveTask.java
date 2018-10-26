@@ -25,27 +25,27 @@ import java.util.Map;
 /**
  * Created by USER on 11/5/2015.
  */
-public class MediaCreationTask extends AsyncTask<Object, String, String> {
+public class MediaRemoveTask extends AsyncTask<Object, String, String> {
 
     private TaskFinishedListener finishedListener;
     private Media media = null;
 
-    public MediaCreationTask(TaskFinishedListener listener) {
+    public MediaRemoveTask(TaskFinishedListener listener) {
         this.finishedListener = listener;
     }
 
     @Override
     protected String doInBackground(Object[] params) {
         media = (Media) params[0];
-        return addMedia(media);
+        return removeMedia(media);
     }
 
-    private String addMedia(Media media) {
+    private String removeMedia(Media media) {
         String response = null;
         HttpURLConnection conn = null;
         URL url = null;
         try {
-            url = new URL(APIRegistry.MEDIA_CREATE);
+            url = new URL(APIRegistry.MEDIA_REMOVE);
             conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
@@ -117,8 +117,18 @@ public class MediaCreationTask extends AsyncTask<Object, String, String> {
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-        if(finishedListener != null){
-            finishedListener.onTaskFinished(result); // Tell whoever was listening we have finished
+        JSONTokener tokener = new JSONTokener(result);
+        String response = "SUCCESS";
+        try {
+            JSONObject orgJsonObj = new JSONObject(tokener);
+            // Not saving to local as org details will be reloaded.
+        } catch (Exception e) {
+            e.printStackTrace();
+            response = "ERROR";
+        } finally {
+            if(finishedListener != null){
+                finishedListener.onTaskFinished(response); // Tell whoever was listening we have finished
+            }
         }
     }
 
