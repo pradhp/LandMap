@@ -41,6 +41,7 @@ public class AreaDocumentDisplayFragment extends Fragment {
         List<Media> placeDocuments = mdh.getPlaceDocuments(areaId);
 
         DocumentDisplayAdaptor adaptor = new DocumentDisplayAdaptor(this.getContext(), R.layout.media_display_item, placeDocuments);
+        adaptor.setFragment(this);
         gridView.setAdapter(adaptor);
     }
 

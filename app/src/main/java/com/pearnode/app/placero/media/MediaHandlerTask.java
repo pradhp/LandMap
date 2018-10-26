@@ -13,6 +13,8 @@ import com.pearnode.app.placero.sync.LocalFolderStructureManager;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.constants.FixedValuesRegistry;
 
+import org.json.JSONObject;
+
 import java.io.File;
 
 /**
@@ -161,8 +163,17 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
         }
         @Override
         public void onTaskFinished(String response) {
-            MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
-            mdh.addMedia(media);
+            try {
+                JSONObject responseObj = new JSONObject(response);
+                JSONObject createdMedia = responseObj.getJSONObject("ret_obj");
+                long id = createdMedia.getLong("id");
+                media.setId(id);
+
+                MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
+                mdh.addMedia(media);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 

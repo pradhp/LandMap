@@ -22,28 +22,26 @@ import com.pearnode.app.placero.util.ColorProvider;
 /**
  * Created by USER on 11/4/2017.
  */
-public class AreaResourceDisplayActivity extends AppCompatActivity {
+public class AreaMediaDisplayActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
 
-        this.setContentView(layout.activity_area_res_display);
+        this.setContentView(R.layout.activity_area_res_display);
         Bundle extras = this.getIntent().getExtras();
-
         int selectedTab = 0;
         if (extras != null) {
             selectedTab = extras.getInt("tab_position");
         }
 
         Area area = AreaContext.INSTANCE.getAreaElement();
-
-        ViewPager viewPager = (ViewPager) this.findViewById(id.area_tab_pager);
+        ViewPager viewPager = (ViewPager) this.findViewById(R.id.area_tab_pager);
         // Assign created adapter to viewPager
         viewPager.setAdapter(new DisplayResourcesPagerAdapter(getSupportFragmentManager()));
 
-        TabLayout tabLayout = (TabLayout) this.findViewById(id.tab_layout);
+        TabLayout tabLayout = (TabLayout) this.findViewById(R.id.tab_layout);
         // This method setup all required method for TabLayout with Viewpager
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.setBackgroundColor(ColorProvider.getAreaToolBarColor(area));
@@ -83,7 +81,7 @@ public class AreaResourceDisplayActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Images";
+                    return "Pictures";
                 case 1:
                     return "Videos";
                 case 2:

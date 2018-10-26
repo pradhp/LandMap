@@ -23,7 +23,7 @@ public class AreaVideoDisplayFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(layout.fragment_video_display, container, false);
+        return inflater.inflate(R.layout.fragment_video_display, container, false);
     }
 
     @Override
@@ -42,6 +42,7 @@ public class AreaVideoDisplayFragment extends Fragment {
         List<Media> placeVideos = mdh.getPlaceVideos(areaId);
 
         VideoDisplayAdaptor adaptor = new VideoDisplayAdaptor(getContext(), R.layout.media_display_item, placeVideos);
+        adaptor.setFragment(this);
         gridView.setAdapter(adaptor);
     }
 

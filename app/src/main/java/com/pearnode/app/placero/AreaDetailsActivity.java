@@ -36,7 +36,6 @@ import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.position.CreatePositionTask;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionListAdaptor;
-import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
@@ -239,7 +238,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         displayResItem.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), AreaResourceDisplayActivity.class);
+                Intent intent = new Intent(getApplicationContext(), AreaMediaDisplayActivity.class);
                 startActivity(intent);
             }
         });

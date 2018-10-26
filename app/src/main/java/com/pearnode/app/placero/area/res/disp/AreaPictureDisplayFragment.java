@@ -23,7 +23,7 @@ public class AreaPictureDisplayFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(layout.fragment_picture_display, container, false);
+        return inflater.inflate(R.layout.fragment_picture_display, container, false);
     }
 
     @Override
@@ -41,8 +41,9 @@ public class AreaPictureDisplayFragment extends Fragment {
         String areaId = area.getId();
         List<Media> placePictures = mdh.getPlacePictures(areaId);
 
-        PictureDisplayAdaptor pictureDisplayAdaptor = new PictureDisplayAdaptor(getContext(), layout.media_display_item, placePictures);
-        gridView.setAdapter(pictureDisplayAdaptor);
+        PictureDisplayAdaptor adaptor = new PictureDisplayAdaptor(getContext(), R.layout.media_display_item, placePictures);
+        adaptor.setFragment(this);
+        gridView.setAdapter(adaptor);
     }
 
 }

@@ -114,7 +114,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name="com.pearnode.app.placero.AreaResourceDisplayActivity"
+            android:name="com.pearnode.app.placero.AreaMediaDisplayActivity"
             android:label="@string/area_resources"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation"
