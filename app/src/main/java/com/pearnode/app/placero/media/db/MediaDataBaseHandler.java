@@ -88,6 +88,7 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
     public void addMedia(Media media) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_ID, media.getId());
         values.put(PLACE_REF, media.getPlaceRef());
         values.put(NAME, media.getName());
         values.put(TYPE, media.getType());

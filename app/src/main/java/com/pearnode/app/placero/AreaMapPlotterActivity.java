@@ -444,7 +444,9 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         AreaMeasure measure = ae.getMeasure();
         float zoomLevel = 21f;
         double decimals = measure.getDecimals();
-        if(decimals > 20 && decimals < 100) {
+        if(decimals < 20){
+            zoomLevel = 17f;
+        }else if(decimals > 20 && decimals < 100) {
             zoomLevel = 20f;
         }else if(decimals > 100 && decimals < 300){
             zoomLevel = 19f;

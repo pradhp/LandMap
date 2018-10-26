@@ -147,10 +147,11 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                     pdh.addPostion(position);
                 }
 
-                JSONArray mediaElements = dataObj.getJSONArray("resources");
+                JSONArray mediaElements = dataObj.getJSONArray("medias");
                 for (int d = 0; d < mediaElements.length(); d++) {
                     JSONObject mediaObj = (JSONObject) mediaElements.get(d);
                     Media media = new Media();
+                    media.setId(mediaObj.getLong("id"));
                     media.setPlaceRef(mediaObj.getString("place_ref"));
                     media.setName(mediaObj.getString("name"));
                     media.setType(mediaObj.getString("type"));
