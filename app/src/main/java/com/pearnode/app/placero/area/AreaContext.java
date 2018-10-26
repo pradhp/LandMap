@@ -44,7 +44,7 @@ public class AreaContext {
 
         PositionsDBHelper pdb = new PositionsDBHelper(context);
         currentArea.setPositions(pdb.getPositionsForArea(currentArea));
-        centerize(currentArea);
+        deriveCenter(currentArea);
 
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
         currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getId()));
@@ -78,7 +78,7 @@ public class AreaContext {
         }
     }
 
-    public Area centerize(Area area) {
+    public void deriveCenter(Area area) {
         double latSum = 0.0;
         double longSum = 0.0;
 
@@ -104,12 +104,9 @@ public class AreaContext {
                 lonAvg = longSum / boundaryCtr;
             }
         }
-
         Position centerPosition = area.getCenterPosition();
         centerPosition.setLat(latAvg);
         centerPosition.setLng(lonAvg);
-
-        return area;
     }
 
     // Drive specific resources.

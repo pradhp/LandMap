@@ -3,7 +3,6 @@ package com.pearnode.app.placero;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -13,14 +12,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -67,10 +64,10 @@ import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.position.RemovePositionTask;
+import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
-
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class AreaMapPlotterActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -281,7 +278,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 if (markerTag.equalsIgnoreCase("PositionMarker")) {
                     infoImage.setImageResource(drawable.position);
                     infoTitle.setText(position.getName());
-                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(position.getCreatedOnMillis()),
+                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(position.getCreatedOn()),
                             System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);
                     DecimalFormat formatter = new DecimalFormat("##.##");
                     double distance = SphericalUtil.computeDistanceBetween(marker.getPosition(), centerMarker.getPosition());
@@ -351,19 +348,20 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
 
-                Position position = positionMarkers.get(marker);
+                final Position position = positionMarkers.get(marker);
                 if (position != null) {
                     if(PermissionManager.INSTANCE.hasAccess(PermissionConstants.UPDATE_AREA)){
-                        PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-                        Position markedPosition = positionMarkers.get(marker);
-                        pdh.deletePositionLocally(markedPosition);
-                        pdh.deletePositionFromServer(markedPosition);
+                        RemovePositionTask removeTask = new RemovePositionTask(getApplicationContext(), new TaskFinishedListener() {
+                            @Override
+                            public void onTaskFinished(String response) {
+                                ae.getPositions().remove(position);
+                                ac.deriveCenter(ae);
 
-                        ae.getPositions().remove(markedPosition);
-                        ac.centerize(ae);
-
-                        polygon.remove();
-                        plotPolygonUsingPositions();
+                                polygon.remove();
+                                plotPolygonUsingPositions();
+                            }
+                        });
+                        removeTask.execute(AsyncTask.THREAD_POOL_EXECUTOR, position);
                     }
                 }else {
                     Media resource = resourceMarkers.get(marker);
@@ -393,7 +391,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         LatLng position = new LatLng(pe.getLat(), pe.getLng());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
-        marker.setTitle(pe.getId());
+        marker.setTitle(pe.getName());
         marker.setAlpha((float) 0.5);
         marker.setDraggable(false);
         // First check for movement permission then check if the marker is a boundary marker.
@@ -410,20 +408,22 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                 public void onMarkerDragEnd(Marker marker) {
                     zoomCameraToPosition(marker);
 
-                    Position newPosition = positionMarkers.get(marker);
-                    newPosition.setLat(marker.getPosition().latitude);
-                    newPosition.setLng(marker.getPosition().longitude);
-                    newPosition.setCreatedOnMillis(System.currentTimeMillis() + "");
+                    Position updatedPosition = positionMarkers.get(marker);
+                    updatedPosition.setLat(marker.getPosition().latitude);
+                    updatedPosition.setLng(marker.getPosition().longitude);
+                    updatedPosition.setCreatedOn(System.currentTimeMillis() + "");
 
-                    PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-                    pdh.updatePositionLocally(newPosition);
-                    pdh.updatePositionToServer(newPosition);
-
-                    ae.setPositions(pdh.getPositionsForArea(ae));
-                    ac.centerize(ae);
-
-                    polygon.remove();
-                    plotPolygonUsingPositions();
+                    UpdatePositionTask updateTask = new UpdatePositionTask(getApplicationContext(), new TaskFinishedListener() {
+                        @Override
+                        public void onTaskFinished(String response) {
+                            PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
+                            ae.setPositions(pdh.getPositionsForArea(ae));
+                            ac.deriveCenter(ae);
+                            polygon.remove();
+                            plotPolygonUsingPositions();
+                        }
+                    });
+                    updateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, updatedPosition);
                 }
 
                 @Override

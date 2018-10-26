@@ -137,8 +137,8 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     pe.setLat(positionObj.getDouble("lat"));
                     pe.setLng(positionObj.getDouble("lon"));
                     pe.setTags((String) positionObj.get("tags"));
-                    pe.setCreatedOnMillis(positionObj.getString("created_on"));
-                    pdh.insertPositionFromServer(pe);
+                    pe.setCreatedOn(positionObj.getString("created_on"));
+                    pdh.addPostion(pe);
                 }
 
                 JSONArray mediaElements = responseObj.getJSONArray("resources");

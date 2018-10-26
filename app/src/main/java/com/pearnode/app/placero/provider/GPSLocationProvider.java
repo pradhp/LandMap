@@ -7,20 +7,15 @@ package com.pearnode.app.placero.provider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
 
 import java.util.List;
-import java.util.UUID;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
@@ -30,16 +25,11 @@ public class GPSLocationProvider implements LocationListener {
 
     private final Activity activity;
     private LocationPositionReceiver receiver;
-    private int timeout = 30;
+    private int timeout = 15;
     private final Position pe = new Position();
 
     public GPSLocationProvider(Activity activity) {
         this.activity = activity;
-    }
-
-    public GPSLocationProvider(Activity activity, LocationPositionReceiver receiver) {
-        this.activity = activity;
-        this.receiver = receiver;
     }
 
     public GPSLocationProvider(Activity activity, LocationPositionReceiver receiver, int timeoutSecs) {
@@ -54,14 +44,16 @@ public class GPSLocationProvider implements LocationListener {
         try {
             final LocationManager locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, null);
+            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, this, null);
+            locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER, this, null);
 
             Looper looper = Looper.myLooper();
             Handler handler = new Handler(looper);
             handler.postDelayed(new Runnable() {
                 public void run() {
                     locationManager.removeUpdates(GPSLocationProvider.this);
-                    String uniqueId = pe.getId();
-                    if (uniqueId.equalsIgnoreCase("")) {
+                    double lat = pe.getLat();
+                    if (lat == 0.0) {
                         notifyFailureForLocationFix();
                     }
                 }
@@ -73,13 +65,16 @@ public class GPSLocationProvider implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        if(pe.getLat() != 0.0){
+            return;
+        }
         Area area = AreaContext.INSTANCE.getAreaElement();
         List<Position> positions = area.getPositions();
         pe.setName("Position_" + (positions.size() + 1));
         pe.setLng(location.getLongitude());
         pe.setLat(location.getLatitude());
         pe.setAreaRef(area.getId());
-        pe.setCreatedOnMillis(System.currentTimeMillis() + "");
+        pe.setCreatedOn(System.currentTimeMillis() + "");
 
         if (receiver != null) {
             receiver.receivedLocationPostion(pe);

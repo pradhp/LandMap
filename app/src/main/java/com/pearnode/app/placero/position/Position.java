@@ -1,5 +1,7 @@
 package com.pearnode.app.placero.position;
 
+import com.google.gson.Gson;
+
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
@@ -17,7 +19,7 @@ public class Position implements Serializable {
     private double lng = 0.0;
     private String tags = "";
     private String areaRef = "";
-    private String createdOnMillis = System.currentTimeMillis() + "";
+    private String createdOn = System.currentTimeMillis() + "";
     private String type = "boundary";
     private Integer dirty = 0;
     private String dirtyAction = "";
@@ -86,12 +88,12 @@ public class Position implements Serializable {
         return SerializationUtils.clone(this);
     }
 
-    public String getCreatedOnMillis() {
-        return createdOnMillis;
+    public String getCreatedOn() {
+        return createdOn;
     }
 
-    public void setCreatedOnMillis(String createdOnMillis) {
-        this.createdOnMillis = createdOnMillis;
+    public void setCreatedOn(String createdOn) {
+        this.createdOn = createdOn;
     }
 
     public String getType() {
@@ -117,4 +119,9 @@ public class Position implements Serializable {
     public void setDirtyAction(String dirtyAction) {
         this.dirtyAction = dirtyAction;
     }
+
+    public String toString() {
+        return new Gson().toJson(this).toString();
+    }
+
 }

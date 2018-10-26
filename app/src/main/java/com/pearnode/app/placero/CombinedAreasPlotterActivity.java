@@ -130,7 +130,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     }
 
     private void plotPolygonUsingPositions(Area area) {
-        AreaContext.INSTANCE.centerize(area);
+        AreaContext.INSTANCE.deriveCenter(area);
 
         String areaId = area.getId();
         areaCenterPositions.put(areaId, area.getCenterPosition());
@@ -297,7 +297,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                     Position position = boundaryMarkers.get(marker);
                     infoImage.setImageResource(drawable.position);
                     infoTitle.setText(position.getName());
-                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(position.getCreatedOnMillis()),
+                    CharSequence timeSpan = DateUtils.getRelativeTimeSpanString(new Long(position.getCreatedOn()),
                             System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);
                     DecimalFormat formatter = new DecimalFormat("##.##");
                     double distance = SphericalUtil.computeDistanceBetween(marker.getPosition(), centerMarker.getPosition());
@@ -397,7 +397,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
         LatLng position = new LatLng(pe.getLat(), pe.getLng());
         Marker marker = googleMap.addMarker(new MarkerOptions().position(position));
         marker.setTag("PositionMarker");
-        marker.setTitle(pe.getId());
+        marker.setTitle(pe.getName());
         marker.setAlpha((float) 0.1);
         marker.setDraggable(false);
         marker.setVisible(false);

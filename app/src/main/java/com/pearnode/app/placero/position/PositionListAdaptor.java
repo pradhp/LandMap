@@ -1,6 +1,7 @@
 package com.pearnode.app.placero.position;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,6 +25,7 @@ import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
 import com.pearnode.app.placero.util.ColorProvider;
+import com.pearnode.common.TaskFinishedListener;
 
 /**
  * Created by USER on 10/16/2017.
@@ -90,11 +92,15 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
             @Override
             public void onClick(View v) {
                 if(PermissionManager.INSTANCE.hasAccess(PermissionConstants.UPDATE_AREA)){
-                    items.remove(position);
-                    area.getPositions().remove(pe);
-                    pdh.deletePositionLocally(pe);
-                    pdh.deletePositionFromServer(pe);
-                    notifyDataSetChanged();
+                    RemovePositionTask removeTask = new RemovePositionTask(getContext(), new TaskFinishedListener() {
+                        @Override
+                        public void onTaskFinished(String response) {
+                            items.remove(position);
+                            area.getPositions().remove(pe);
+                            notifyDataSetChanged();
+                        }
+                    });
+                    removeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
                 }
             }
         });

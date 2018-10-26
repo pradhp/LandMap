@@ -1,22 +1,16 @@
 package com.pearnode.app.placero;
 
-import android.Manifest.permission;
 import android.R.string;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -30,8 +24,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
@@ -41,9 +33,11 @@ import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
+import com.pearnode.app.placero.position.CreatePositionTask;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionListAdaptor;
 import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserElement;
@@ -54,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -62,7 +55,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
 
     private Area area;
     private boolean online = true;
-    private static final int TAG_CODE_PERMISSION_LOCATION = 7;
 
     private final ArrayList<Position> positionList = new ArrayList<Position>();
     private PositionListAdaptor adaptor;
@@ -145,11 +137,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                     findViewById(R.id.position_list_empty_img).setVisibility(View.GONE);
                     findViewById(R.id.positions_view_master).setVisibility(View.GONE);
                     findViewById(R.id.splash_panel).setVisibility(View.VISIBLE);
-
-                    ActivityCompat.requestPermissions(activity, new String[]{
-                                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                    android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                            TAG_CODE_PERMISSION_LOCATION);
+                    new GPSLocationProvider(AreaDetailsActivity.this).getLocation();
                 } else {
                     showMessage("You do not have Plotting rights !!", "error");
                 }
@@ -259,27 +247,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         showErrorsIfAny();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case TAG_CODE_PERMISSION_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    try {
-                        new GPSLocationProvider(activity).getLocation();
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    // Permission denied cannot get location.
-                }
-                return;
-            }
-        }
-    }
-
     private void showErrorsIfAny() {
         Bundle intentBundle = getIntent().getExtras();
         if (intentBundle != null) {
@@ -300,11 +267,9 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
             pe.setName("Position_" + positions.size());
             positions.add(pe);
 
-            PositionsDBHelper pdb = new PositionsDBHelper(getApplicationContext());
-            pdb.insertPositionLocally(pe);
-            pdb.insertPositionToServer(pe);
+            CreatePositionTask createPositionTask = new CreatePositionTask(getApplicationContext(), null);
+            createPositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pe);
 
-            AreaContext.INSTANCE.setAreaElement(ae, getApplicationContext());
             positionList.add(pe);
             adaptor.notifyDataSetChanged();
         }else{
@@ -440,17 +405,19 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(final DialogInterface dialog, int which) {
                 position.setName(posNameView.getText().toString());
                 position.setType(spinner.getSelectedItem().toString());
                 position.setDescription(posDescView.getText().toString());
 
-                PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
-                pdh.updatePositionLocally(position);
-                pdh.updatePositionToServer(position);
-
-                adaptor.notifyDataSetChanged();
-                dialog.dismiss();
+                UpdatePositionTask updateTask = new UpdatePositionTask(getApplicationContext(), new TaskFinishedListener() {
+                    @Override
+                    public void onTaskFinished(String response) {
+                        adaptor.notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                });
+                updateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

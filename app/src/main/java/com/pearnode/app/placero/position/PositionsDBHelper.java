@@ -13,8 +13,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
-import com.pearnode.app.placero.sync.LMSRestAsyncTask;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
 
 public class PositionsDBHelper extends SQLiteOpenHelper {
@@ -22,14 +20,14 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
     public static final String TABLE_NAME = "position_master";
 
+    private static final String UNIQUE_ID = "uid";
+    private static final String AREA_REF = "ar";
     public static final String NAME = "name";
     public static final String TYPE = "type";
     public static final String DESCRIPTION = "desc";
     public static final String LAT = "lat";
     public static final String LON = "lon";
     public static final String TAGS = "tags";
-    private static final String AREA_REF = "ar";
-    private static final String UNIQUE_ID = "uid";
     private static final String DIRTY = "dirty";
     private static final String D_ACTION = "d_action";
     private static final String CREATED_ON = "created_on";
@@ -70,7 +68,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public Position insertPositionLocally(Position pe) {
+    public Position addPostion(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UNIQUE_ID, pe.getId());
@@ -82,14 +80,14 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(TAGS, pe.getTags());
         contentValues.put(DIRTY, pe.getDirty());
         contentValues.put(D_ACTION, pe.getDirtyAction());
-        contentValues.put(CREATED_ON, pe.getCreatedOnMillis());
+        contentValues.put(CREATED_ON, pe.getCreatedOn());
 
         db.insert(TABLE_NAME, null, contentValues);
         db.close();
         return pe;
     }
 
-    public Position updatePositionLocally(Position pe) {
+    public Position updatePosition(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UNIQUE_ID, pe.getId());
@@ -102,7 +100,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         contentValues.put(TAGS, pe.getTags());
         contentValues.put(DIRTY, pe.getDirty());
         contentValues.put(D_ACTION, pe.getDirtyAction());
-        contentValues.put(CREATED_ON, pe.getCreatedOnMillis());
+        contentValues.put(CREATED_ON, pe.getCreatedOn());
 
         db.update(TABLE_NAME, contentValues, UNIQUE_ID + "=?",
                 new String[]{pe.getId()});
@@ -110,76 +108,17 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         return pe;
     }
 
-    public Position insertPositionFromServer(Position pe) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(UNIQUE_ID, pe.getId());
-        contentValues.put(AREA_REF, pe.getAreaRef());
-        contentValues.put(NAME, pe.getName());
-        contentValues.put(TYPE, pe.getType());
-        contentValues.put(DESCRIPTION, pe.getDescription());
-        contentValues.put(LAT, pe.getLat());
-        contentValues.put(LON, pe.getLng());
-        contentValues.put(TAGS, pe.getTags());
-        contentValues.put(DIRTY, pe.getDirty());
-        contentValues.put(D_ACTION, pe.getDirtyAction());
-        contentValues.put(CREATED_ON, pe.getCreatedOnMillis());
-        contentValues.put(DIRTY, 0);
-        contentValues.put(D_ACTION, "none");
-
-        db.insert(TABLE_NAME, null, contentValues);
-        db.close();
-        return pe;
-    }
-
-    public boolean insertPositionToServer(Position pe) {
-        boolean networkAvailable = ConnectivityChangeReceiver.isConnected(context);
-        if (networkAvailable) {
-            new LMSRestAsyncTask().execute(preparePostParams("insert", pe));
-        } else {
-            pe.setDirty(1);
-            pe.setDirtyAction("insert");
-            updatePositionLocally(pe);
-        }
-        return networkAvailable;
-    }
-
-    public boolean updatePositionToServer(Position pe) {
-        boolean networkAvailable = ConnectivityChangeReceiver.isConnected(context);
-        if (networkAvailable) {
-            new LMSRestAsyncTask().execute(preparePostParams("update", pe));
-        } else {
-            pe.setDirty(1);
-            pe.setDirtyAction("update");
-            updatePositionLocally(pe);
-        }
-        return networkAvailable;
-    }
-
-    public void deletePositionLocally(Position pe) {
+    public void deletePosition(Position pe) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, UNIQUE_ID + "=?", new String[]{pe.getId()});
         db.close();
         return;
     }
 
-    public boolean deletePositionFromServer(Position pe) {
-        boolean networkAvailable = ConnectivityChangeReceiver.isConnected(context);
-        if (networkAvailable) {
-            new LMSRestAsyncTask().execute(preparePostParams("delete", pe));
-        } else {
-            pe.setDirty(1);
-            pe.setDirtyAction("delete");
-            updatePositionLocally(pe);
-        }
-        return networkAvailable;
-    }
-
     public void deletePositionByAreaId(String areaRef) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
                 + AREA_REF + " = '" + areaRef + "'");
-
         db.close();
     }
 
@@ -210,7 +149,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                 pe.setLng(Double.parseDouble(lonStr));
 
                 pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));
-                pe.setCreatedOnMillis(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
+                pe.setCreatedOn(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
 
                 pe.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY)));
                 pe.setDirtyAction(cursor.getString(cursor.getColumnIndex(D_ACTION)));
@@ -248,7 +187,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
                 String lonStr = cursor.getString(cursor.getColumnIndex(LON));
                 pe.setLng(Double.parseDouble(lonStr));
                 pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));
-                pe.setCreatedOnMillis(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
+                pe.setCreatedOn(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
 
                 pe.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY)));
                 pe.setDirtyAction(cursor.getString(cursor.getColumnIndex(D_ACTION)));
@@ -286,7 +225,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             pe.setLng(Double.parseDouble(lonStr));
 
             pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));
-            pe.setCreatedOnMillis(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
+            pe.setCreatedOn(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
             pe.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY)));
             pe.setDirtyAction(cursor.getString(cursor.getColumnIndex(D_ACTION)));
 
@@ -310,7 +249,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
             postParams.put("type", pe.getType());
             postParams.put("area_ref", pe.getAreaRef());
             postParams.put("id", pe.getId());
-            postParams.put("created_on", pe.getCreatedOnMillis());
+            postParams.put("created_on", pe.getCreatedOn());
         } catch (JSONException e) {
             e.printStackTrace();
         }

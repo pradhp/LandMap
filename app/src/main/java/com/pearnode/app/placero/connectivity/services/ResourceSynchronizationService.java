@@ -25,7 +25,7 @@ public class ResourceSynchronizationService extends IntentService {
         for (Media resource : dirtyMedia) {
             String dirtyAction = resource.getDirtyAction();
             if (dirtyAction.equalsIgnoreCase("insert")) {
-                    // TODO : Invoke the media insert code here.
+                // TODO : Invoke the media insert code here.
             } else if (dirtyAction.equalsIgnoreCase("update")) {
                 // TODO : Invoke the media update code here.
             } else if (dirtyAction.equalsIgnoreCase("delete")) {

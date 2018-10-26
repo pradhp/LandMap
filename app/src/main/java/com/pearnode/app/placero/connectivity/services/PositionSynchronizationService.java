@@ -5,8 +5,6 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 
@@ -27,17 +25,8 @@ public class PositionSynchronizationService extends IntentService {
         for (Position position : dirtyPositions) {
             String dirtyAction = position.getDirtyAction();
             if (dirtyAction.equalsIgnoreCase("insert")) {
-                if (pdh.insertPositionToServer(position)) {
-                    position.setDirty(0);
-                    pdh.updatePositionLocally(position);
-                }
             } else if (dirtyAction.equalsIgnoreCase("update")) {
-                if (pdh.updatePositionToServer(position)) {
-                    position.setDirty(0);
-                    pdh.updatePositionLocally(position);
-                }
             } else if (dirtyAction.equalsIgnoreCase("delete")) {
-                pdh.deletePositionLocally(position);
             }
         }
     }

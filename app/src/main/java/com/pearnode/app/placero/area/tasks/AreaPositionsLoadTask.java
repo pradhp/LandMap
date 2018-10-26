@@ -88,7 +88,7 @@ public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
                 pe.setLng(new Double((String) responseObj.get("lon")));
                 pe.setTags((String) responseObj.get("tags"));
 
-                this.pdh.insertPositionFromServer(pe);
+                this.pdh.addPostion(pe);
             }
         } catch (Exception e) {
             e.printStackTrace();
