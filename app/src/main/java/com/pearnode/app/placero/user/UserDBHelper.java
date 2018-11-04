@@ -5,11 +5,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.sync.LMSRestAsyncTask;
-import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
 
 import org.json.JSONException;
@@ -57,28 +52,4 @@ public class UserDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void insertUserToServer(UserElement user) {
-        JSONObject postParams = this.preparePostParams("insert", user);
-        new LMSRestAsyncTask().execute(postParams);
-    }
-
-    private JSONObject preparePostParams(String queryType, UserElement user) {
-        JSONObject postParams = new JSONObject();
-        try {
-
-            postParams.put("queryType", queryType);
-            postParams.put("deviceID", AndroidSystemUtil.getDeviceId(localContext));
-            postParams.put("requestType", "UserMaster");
-            postParams.put(DISPLAY_NAME, user.getDisplayName());
-            postParams.put(FAMILY_NAME, user.getFamilyName());
-            postParams.put(GIVEN_NAME, user.getGivenName());
-            postParams.put(AUTH_SYS_ID, user.getAuthSystemId());
-            postParams.put(EMAIL, user.getEmail());
-            postParams.put(PHOTO_URL, user.getPhotoUrl());
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return postParams;
-    }
 }

@@ -17,7 +17,7 @@ import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.TagAssignmentActivity;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 
 import java.util.List;
@@ -70,9 +70,9 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
         final TagView topContainer = (TagView) mView.findViewById(R.id.tag_group);
         topContainer.removeAll();
 
-        UserElement userElement = UserContext.getInstance().getUserElement();
-        final UserPersistableSelections preferences = userElement.getSelections();
-        final String userId = userElement.getEmail();
+        User user = UserContext.getInstance().getUser();
+        final UserPersistableSelections preferences = user.getSelections();
+        final String userId = user.getEmail();
 
         final List<Tag> userTags = preferences.getTags();
         for(Tag userTag: userTags){

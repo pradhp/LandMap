@@ -19,7 +19,7 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 
 /**
@@ -61,8 +61,8 @@ public class AreaItemAdaptor extends ArrayAdapter {
                     child.setBackgroundResource(R.drawable.rounded_area_list_view);
                 }
                 v.setBackgroundResource(R.drawable.rounded_area_list_view_sel);
-                UserElement userElement = UserContext.getInstance().getUserElement();
-                userElement.getSelections().setArea(area);
+                User user = UserContext.getInstance().getUser();
+                user.getSelections().setArea(area);
 
                 final Activity activity = (Activity) context;
                 final View reportView = activity.findViewById(R.id.action_generate_report);
@@ -78,9 +78,9 @@ public class AreaItemAdaptor extends ArrayAdapter {
                 final AreaDashboardActivity activity = (AreaDashboardActivity) context;
                 activity.unregisterReceiver(activity.broadcastReceiver);
 
-                AreaContext.INSTANCE.setAreaElement(area, activity);
-                UserElement userElement = UserContext.getInstance().getUserElement();
-                userElement.getSelections().setArea(area);
+                AreaContext.INSTANCE.setArea(area, activity);
+                User user = UserContext.getInstance().getUser();
+                user.getSelections().setArea(area);
 
                 Intent intent = new Intent(activity, AreaDetailsActivity.class);
                 activity.startActivity(intent);

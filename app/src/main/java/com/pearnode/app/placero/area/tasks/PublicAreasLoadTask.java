@@ -21,7 +21,7 @@ import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
-import com.pearnode.app.placero.permission.PermissionElement;
+import com.pearnode.app.placero.permission.Permission;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
@@ -99,10 +99,11 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         try {
-            JSONArray responseArr = new JSONArray(s);
+            JSONObject responseObj = new JSONObject(s);
+            JSONArray responseArr = responseObj.getJSONArray("data");
             for (int i = 0; i < responseArr.length(); i++) {
-                JSONObject responseObj = (JSONObject) responseArr.get(i);
-                JSONObject areaObj = (JSONObject) responseObj.get("area");
+                JSONObject dataObj = (JSONObject) responseArr.get(i);
+                JSONObject areaObj = (JSONObject) dataObj.get("area");
 
                 Area area = new Area();
                 area.setName(areaObj.getString("name"));
@@ -126,7 +127,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     tdh.addTags(address.getTags(), "area", area.getId());
                 }
 
-                JSONArray positionsArr = (JSONArray) responseObj.get("positions");
+                JSONArray positionsArr = (JSONArray) dataObj.get("positions");
                 for (int p = 0; p < positionsArr.length(); p++) {
                     JSONObject positionObj = (JSONObject) positionsArr.get(p);
                     Position pe = new Position();
@@ -141,7 +142,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     pdh.addPostion(pe);
                 }
 
-                JSONArray mediaElements = responseObj.getJSONArray("resources");
+                JSONArray mediaElements = dataObj.getJSONArray("resources");
                 for (int d = 0; d < mediaElements.length(); d++) {
                     JSONObject mediaObj = (JSONObject) mediaElements.get(d);
                     Media media = new Media();
@@ -156,10 +157,10 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     pmdh.addMedia(media);
                 }
 
-                JSONArray permissionsArr = (JSONArray) responseObj.get("permissions");
+                JSONArray permissionsArr = (JSONArray) dataObj.get("permissions");
                 for (int e = 0; e < permissionsArr.length(); e++) {
                     JSONObject permissionObj = (JSONObject) permissionsArr.get(e);
-                    PermissionElement pe = new PermissionElement();
+                    Permission pe = new Permission();
                     pe.setUserId(permissionObj.getString("user_id"));
                     pe.setAreaId(permissionObj.getString("area_id"));
                     pe.setFunctionCode(permissionObj.getString("function_code"));

@@ -16,20 +16,20 @@ public class PermissionManager {
     }
 
     public boolean hasAccess(String functionCode) {
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         if(area.getType().equalsIgnoreCase("self")){
             return true;
         }
-        Map<String, PermissionElement> areaPermissions = area.getPermissions();
-        PermissionElement fullControl = areaPermissions.get(PermissionConstants.FULL_CONTROL);
+        Map<String, Permission> areaPermissions = area.getPermissions();
+        Permission fullControl = areaPermissions.get(PermissionConstants.FULL_CONTROL);
         if (fullControl != null) {
             return true;
         }
-        PermissionElement viewOnly = areaPermissions.get(PermissionConstants.VIEW_ONLY);
+        Permission viewOnly = areaPermissions.get(PermissionConstants.VIEW_ONLY);
         if (viewOnly != null) {
             return false;
         }
-        PermissionElement permission = areaPermissions.get(functionCode);
+        Permission permission = areaPermissions.get(functionCode);
         return permission != null;
     }
 }

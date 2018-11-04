@@ -21,7 +21,7 @@ import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.TagAssignmentActivity;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 
 /**
@@ -108,8 +108,8 @@ public class TagsAreaFragment extends Fragment implements FragmentHandler {
             @Override
             public void onClick(View v) {
                 List<com.cunoraz.tagview.Tag> selectedTags = bottomContainer.getTags();
-                UserElement userElement = UserContext.getInstance().getUserElement();
-                UserPersistableSelections preferences = userElement.getSelections();
+                User user = UserContext.getInstance().getUser();
+                UserPersistableSelections preferences = user.getSelections();
                 if (selectedTags.size() > 0) {
                     for (com.cunoraz.tagview.Tag selectedTag : selectedTags) {
                         Tag tag = new Tag(selectedTag.text, "executable", "area");

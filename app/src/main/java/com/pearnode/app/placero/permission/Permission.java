@@ -1,9 +1,11 @@
 package com.pearnode.app.placero.permission;
 
+import com.google.gson.Gson;
+
 /**
  * Created by USER on 11/11/2017.
  */
-public class PermissionElement {
+public class Permission {
 
     private String areaId;
     private String userId;
@@ -50,4 +52,10 @@ public class PermissionElement {
     public void setDirtyAction(String dirtyAction) {
         this.dirtyAction = dirtyAction;
     }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this).toString();
+    }
+
 }

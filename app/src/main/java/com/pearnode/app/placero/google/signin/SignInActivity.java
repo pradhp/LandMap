@@ -3,6 +3,7 @@ package com.pearnode.app.placero.google.signin;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -37,8 +38,9 @@ import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.UserDBHelper;
-import com.pearnode.app.placero.user.UserElement;
-import com.pearnode.app.placero.user.UserInfoSearchAsyncTask;
+import com.pearnode.app.placero.user.User;
+import com.pearnode.app.placero.user.UserInfoSearchTask;
+import com.pearnode.app.placero.user.task.UserCreateTask;
 import com.pearnode.app.placero.util.UserMappingUtil;
 
 /**
@@ -55,7 +57,7 @@ public class SignInActivity extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
     private ProgressDialog mProgressDialog;
-    private UserElement signedUser;
+    private User signedUser;
     private boolean offline = false;
 
     @Override
@@ -90,10 +92,10 @@ public class SignInActivity extends AppCompatActivity implements
     public void taskCompleted(Object result) {
         try {
             String userDetails = result.toString();
-            UserDBHelper udh = new UserDBHelper(getApplicationContext());
             Intent spashIntent = new Intent(this, SplashActivity.class);
             if (userDetails.trim().equalsIgnoreCase("[]")) {
-                udh.insertUserToServer(signedUser);
+                UserCreateTask userCreateTask = new UserCreateTask(getApplicationContext(), null);
+                userCreateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 spashIntent.putExtra("user_exists", "false");
             }else {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -157,7 +159,7 @@ public class SignInActivity extends AppCompatActivity implements
             // Convert google specific user account to app specific
             signedUser = UserMappingUtil.convertGoogleAccountToLocalAccount(acct);
             // Set the user context.
-            UserContext.getInstance().setUserElement(signedUser);
+            UserContext.getInstance().setUser(signedUser);
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
@@ -172,7 +174,7 @@ public class SignInActivity extends AppCompatActivity implements
             boolean online = ConnectivityChangeReceiver.isConnected(this);
             offline = !online;
             if(!offline){
-                UserElement user = buildUserFromPreferences();
+                User user = buildUserFromPreferences();
                 if(user == null){
                     updateUI(false);
                 }else {
@@ -187,13 +189,13 @@ public class SignInActivity extends AppCompatActivity implements
         }
     }
 
-    private UserElement buildUserFromPreferences() {
+    private User buildUserFromPreferences() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String email = preferences.getString("user_email", null);
         if(email == null){
             return null;
         }
-        UserElement user = new UserElement();
+        User user = new User();
         user.setEmail(email);
 
         String displayName = preferences.getString("user_display_name", null);
@@ -202,7 +204,7 @@ public class SignInActivity extends AppCompatActivity implements
         String photoUrl = preferences.getString("user_photo_url", null);
         user.setPhotoUrl(photoUrl);
 
-        UserContext.getInstance().setUserElement(user);
+        UserContext.getInstance().setUser(user);
         String userDetails = preferences.getString("user_details", null);
         if(userDetails != null){
             buildUserSelectionsFromDetails(userDetails);
@@ -210,8 +212,8 @@ public class SignInActivity extends AppCompatActivity implements
         return user;
     }
 
-    private void searchOnRemoteAndUpdate(UserElement ue) {
-        UserInfoSearchAsyncTask searchUserTask = new UserInfoSearchAsyncTask();
+    private void searchOnRemoteAndUpdate(User ue) {
+        UserInfoSearchTask searchUserTask = new UserInfoSearchTask();
         JSONObject params = new JSONObject();
         try {
             params.put("ss", ue.getEmail());
@@ -233,10 +235,10 @@ public class SignInActivity extends AppCompatActivity implements
             String tagTypes = userObj.getString("tag_types");
             String[] tagTypesArr = tagTypes.split(",");
 
-            UserElement userElement = UserContext.getInstance().getUserElement();
+            User user = UserContext.getInstance().getUser();
             for (int i = 0; i < tagsArr.length; i++) {
                 Tag tag = new Tag(tagsArr[i], tagTypesArr[i], "user");
-                userElement.getSelections().getTags().add(tag);
+                user.getSelections().getTags().add(tag);
             }
         }catch (Exception e){
         }

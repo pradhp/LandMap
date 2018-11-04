@@ -49,13 +49,13 @@ import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionConstants;
-import com.pearnode.app.placero.permission.PermissionElement;
+import com.pearnode.app.placero.permission.Permission;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
@@ -103,10 +103,10 @@ public class AreaDashboardActivity extends AppCompatActivity {
 
                 Area area = new Area();
                 area.setName("PL_" + area.getId());
-                area.setCreatedBy(UserContext.getInstance().getUserElement().getEmail());
+                area.setCreatedBy(UserContext.getInstance().getUser().getEmail());
 
-                PermissionElement pe = new PermissionElement();
-                pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
+                Permission pe = new Permission();
+                pe.setUserId(UserContext.getInstance().getUser().getEmail());
                 pe.setAreaId(area.getId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
                 area.getPermissions().put(PermissionConstants.FULL_CONTROL, pe);
@@ -122,7 +122,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
         generateReportView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserPersistableSelections selections = UserContext.getInstance().getUserElement().getSelections();
+                UserPersistableSelections selections = UserContext.getInstance().getUser().getSelections();
                 Area selectedArea = selections.getArea();
                 if (selectedArea == null) {
                     showMessage("You need to select a Place first", "error");
@@ -152,8 +152,8 @@ public class AreaDashboardActivity extends AppCompatActivity {
         });
 
         final ImageView filterUTView = (ImageView) this.findViewById(id.action_filter_ut);
-        UserElement userElement = UserContext.getInstance().getUserElement();
-        final UserPersistableSelections userPersistableSelections = userElement.getSelections();
+        User user = UserContext.getInstance().getUser();
+        final UserPersistableSelections userPersistableSelections = user.getSelections();
         filterUTView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,12 +248,12 @@ public class AreaDashboardActivity extends AppCompatActivity {
 
         @Override
         public void onTaskFinished(String response) {
-            AreaContext.INSTANCE.setAreaElement(area, getApplicationContext());
+            AreaContext.INSTANCE.setArea(area, getApplicationContext());
 
             PermissionsDBHelper pdh = new PermissionsDBHelper(getApplicationContext());
-            Map<String, PermissionElement> permissions = area.getPermissions();
-            Collection<PermissionElement> permissionElements = permissions.values();
-            for(PermissionElement permission : permissionElements){
+            Map<String, Permission> permissions = area.getPermissions();
+            Collection<Permission> permissionElements = permissions.values();
+            for(Permission permission : permissionElements){
                 pdh.insertPermissionLocally(permission);
             }
 
@@ -265,7 +265,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         if(area != null){
             TabLayout tabLayout = (TabLayout) findViewById(id.areas_display_tab_layout);
             AreaDashboardDisplayMetaStore store = AreaDashboardDisplayMetaStore.INSTANCE;

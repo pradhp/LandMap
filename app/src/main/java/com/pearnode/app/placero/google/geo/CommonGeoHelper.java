@@ -42,6 +42,8 @@ public class CommonGeoHelper {
                 areaAddress.setSubThoroughFare(address.getSubThoroughfare());
                 break;
             }
+            areaAddress.getDisplaybleAddress();
+            areaAddress.getStorableAddress();
         } catch (Exception e) {
             // Do nothing if fails.
         }

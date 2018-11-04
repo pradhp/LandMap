@@ -31,7 +31,7 @@ import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 
 /**
@@ -111,8 +111,8 @@ public class AreaDashboardSharedFragment extends Fragment
         mView.findViewById(id.splash_panel).setVisibility(View.GONE);
 
         final ImageView filterUTView = (ImageView) mActivity.findViewById(id.action_filter_ut);
-        UserElement userElement = UserContext.getInstance().getUserElement();
-        UserPersistableSelections userPersistableSelections = userElement.getSelections();
+        User user = UserContext.getInstance().getUser();
+        UserPersistableSelections userPersistableSelections = user.getSelections();
         if(userPersistableSelections.isFilter()){
             filterUTView.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
             List<Tag> tags = userPersistableSelections.getTags();

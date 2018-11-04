@@ -9,8 +9,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import com.pearnode.app.placero.R.id;
-import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaDocumentDisplayFragment;
@@ -36,7 +34,7 @@ public class AreaMediaDisplayActivity extends AppCompatActivity {
             selectedTab = extras.getInt("tab_position");
         }
 
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         ViewPager viewPager = (ViewPager) this.findViewById(R.id.area_tab_pager);
         // Assign created adapter to viewPager
         viewPager.setAdapter(new DisplayResourcesPagerAdapter(getSupportFragmentManager()));

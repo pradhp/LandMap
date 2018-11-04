@@ -4,15 +4,15 @@ import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 
 /**
  * Created by USER on 10/24/2017.
  */
 public class UserMappingUtil {
 
-    public static final UserElement convertGoogleAccountToLocalAccount(GoogleSignInAccount acct) {
-        UserElement ue = new UserElement();
+    public static final User convertGoogleAccountToLocalAccount(GoogleSignInAccount acct) {
+        User ue = new User();
         ue.setDisplayName(acct.getDisplayName());
         ue.setEmail(acct.getEmail());
         ue.setFamilyName(acct.getFamilyName());

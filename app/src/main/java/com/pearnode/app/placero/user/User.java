@@ -1,9 +1,11 @@
 package com.pearnode.app.placero.user;
 
+import com.google.gson.Gson;
+
 /**
  * Created by USER on 10/24/2017.
  */
-public class UserElement {
+public class User {
 
     private String displayName;
     private String email;
@@ -66,5 +68,9 @@ public class UserElement {
         return this.selections;
     }
 
+    @Override
+    public String toString() {
+        return new Gson().toJson(this).toString();
+    }
 
 }

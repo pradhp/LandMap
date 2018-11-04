@@ -383,7 +383,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
                         }
                     }
                 }else if(markerTag.equalsIgnoreCase("AreaCenter")){
-                    AreaContext.INSTANCE.setAreaElement(areaObj,getApplicationContext());
+                    AreaContext.INSTANCE.setArea(areaObj,getApplicationContext());
                     Intent detailsIntent = new Intent(getApplicationContext(), AreaMapPlotterActivity.class);
                     startActivity(detailsIntent);
                     finish();

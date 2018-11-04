@@ -10,13 +10,13 @@ import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
-import com.pearnode.app.placero.permission.PermissionElement;
+import com.pearnode.app.placero.permission.Permission;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.constants.APIRegistry;
 
 import org.json.JSONArray;
@@ -125,11 +125,11 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 adh.insertArea(ae);
 
                 JSONObject permissionObj = dataObj.getJSONObject("permission");
-                PermissionElement permissionElement = new PermissionElement();
-                permissionElement.setUserId(permissionObj.getString("source_user"));
-                permissionElement.setAreaId(permissionObj.getString("area_id"));
-                permissionElement.setFunctionCode(permissionObj.getString("function_codes"));
-                pmh.insertPermissionLocally(permissionElement);
+                Permission permission = new Permission();
+                permission.setUserId(permissionObj.getString("source_user"));
+                permission.setAreaId(permissionObj.getString("area_id"));
+                permission.setFunctionCode(permissionObj.getString("function_codes"));
+                pmh.insertPermissionLocally(permission);
 
                 JSONArray positions = dataObj.getJSONArray("positions");
                 for (int p = 0; p < positions.length(); p++) {
@@ -166,8 +166,8 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 }
             }
 
-            UserElement userElement = UserContext.getInstance().getUserElement();
-            tdh.addTags(userElement.getSelections().getTags(), "user", userElement.getEmail());
+            User user = UserContext.getInstance().getUser();
+            tdh.addTags(user.getSelections().getTags(), "user", user.getEmail());
 
         } catch (Exception e) {
             e.printStackTrace();

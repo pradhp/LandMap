@@ -68,7 +68,7 @@ public class GPSLocationProvider implements LocationListener {
         if(pe.getLat() != 0.0){
             return;
         }
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         List<Position> positions = area.getPositions();
         pe.setName("Position_" + (positions.size() + 1));
         pe.setLng(location.getLongitude());

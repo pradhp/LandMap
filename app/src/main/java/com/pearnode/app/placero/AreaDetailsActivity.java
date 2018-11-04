@@ -39,7 +39,7 @@ import com.pearnode.app.placero.position.PositionListAdaptor;
 import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
 
@@ -69,7 +69,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         setContentView(R.layout.activity_area_details);
         getSupportActionBar().hide();
 
-        area = AreaContext.INSTANCE.getAreaElement();
+        area = AreaContext.INSTANCE.getArea();
 
         Toolbar topTB = (Toolbar) findViewById(R.id.toolbar_top);
         ColorDrawable topDrawable = (ColorDrawable) topTB.getBackground().getCurrent();
@@ -188,8 +188,8 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
                 }
                 List<Position> positions = area.getPositions();
                 if (positions.size() > 0) {
-                    UserElement userElement = UserContext.getInstance().getUserElement();
-                    Position position = userElement.getSelections().getPosition();
+                    User user = UserContext.getInstance().getUser();
+                    Position position = user.getSelections().getPosition();
                     if(position == null){
                         position = positions.get(0);
                     }
@@ -260,7 +260,7 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
     public void receivedLocationPostion(Position pe) {
         pe.setName("P_" + pe.getId());
 
-        Area ae = AreaContext.INSTANCE.getAreaElement();
+        Area ae = AreaContext.INSTANCE.getArea();
         List<Position> positions = ae.getPositions();
         if(!positions.contains(pe)){
             pe.setName("Position_" + positions.size());

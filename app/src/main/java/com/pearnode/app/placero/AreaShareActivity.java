@@ -3,6 +3,7 @@ package com.pearnode.app.placero;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.R.id;
 import android.support.design.widget.Snackbar;
@@ -23,25 +24,26 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.task.AreaAddShareTask;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserInfoSearchAsyncTask;
+import com.pearnode.app.placero.user.UserInfoSearchTask;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.app.placero.util.GeneralUtil;
+import com.pearnode.common.TaskFinishedListener;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AreaShareActivity extends AppCompatActivity {
 
@@ -55,7 +57,7 @@ public class AreaShareActivity extends AppCompatActivity {
 
         this.setContentView(R.layout.activity_area_share);
 
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         ActionBar ab = this.getSupportActionBar();
         ab.setHomeButtonEnabled(false);
         ab.setDisplayHomeAsUpEnabled(false);
@@ -76,7 +78,7 @@ public class AreaShareActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                UserInfoSearchAsyncTask searcherTask = new UserInfoSearchAsyncTask();
+                UserInfoSearchTask searcherTask = new UserInfoSearchTask();
                 JSONObject searchParams = new JSONObject();
                 try {
                     searchParams.put("ss", s.toString());
@@ -148,14 +150,16 @@ public class AreaShareActivity extends AppCompatActivity {
                 View radioButton = roleGroup.findViewById(radioButtonID);
                 int idx = roleGroup.indexOfChild(radioButton);
 
-                PermissionsDBHelper pmh = new PermissionsDBHelper(getApplicationContext(),
-                        new DatabaseUpdateCallback());
+                User tuser = new User();
+                tuser.setEmail(targetUser);
                 if (idx == 0) {
                     // For view insert view_only permission.
-                    pmh.insertPermissionsToServer(targetUser, "view_only");
+                    AreaAddShareTask shareTask = new AreaAddShareTask(getApplicationContext(), new ShareCompletedCallback());
+                    shareTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tuser, "view_only");
                 } else if (idx == 1) {
                     // For Full control insert full_control permission.
-                    pmh.insertPermissionsToServer(targetUser, "full_control");
+                    AreaAddShareTask shareTask = new AreaAddShareTask(getApplicationContext(), new ShareCompletedCallback());
+                    shareTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tuser, "full_control");
                 } else if (idx == 2) {
                     View inflatedStub = findViewById(R.id.share_details_stub_restricted);
                     // For restricted read all the values.
@@ -171,7 +175,8 @@ public class AreaShareActivity extends AppCompatActivity {
                         }
                     }
                     String joinedFunctions = TextUtils.join(",", checkedFunctions);
-                    pmh.insertPermissionsToServer(targetUser, joinedFunctions);
+                    AreaAddShareTask shareTask = new AreaAddShareTask(getApplicationContext(), new ShareCompletedCallback());
+                    shareTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tuser, joinedFunctions);
                 }
             }
         });
@@ -190,7 +195,7 @@ public class AreaShareActivity extends AppCompatActivity {
         public void taskCompleted(Object result) {
             try {
                 String userArray = result.toString();
-                String currUserEmail = UserContext.getInstance().getUserElement().getEmail();
+                String currUserEmail = UserContext.getInstance().getUser().getEmail();
                 adapter.clear();
 
                 if (!userArray.trim().equalsIgnoreCase("[]")) {
@@ -211,10 +216,10 @@ public class AreaShareActivity extends AppCompatActivity {
     }
 
 
-    private class DatabaseUpdateCallback implements AsyncTaskCallback {
+    private class ShareCompletedCallback implements TaskFinishedListener {
 
         @Override
-        public void taskCompleted(Object result) {
+        public void onTaskFinished(String response) {
             Intent shareResourcesIntent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
             shareResourcesIntent.putExtra("share_to_user", targetUser);
             startActivity(shareResourcesIntent);

@@ -1,13 +1,13 @@
-package com.pearnode.app.placero.area.tasks;
+package com.pearnode.app.placero.permission.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.google.geo.CommonGeoHelper;
-import com.pearnode.app.placero.position.Position;
+import com.pearnode.app.placero.user.User;
+import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -28,32 +28,37 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Rinky on 21-10-2017.
  */
 
-public class RemoveAreaTask extends AsyncTask<Object, Void, String> {
+public class AreaAddShareTask extends AsyncTask<Object, Void, String> {
 
     private Context context;
     private TaskFinishedListener finishedListener;
-    private Area area = null;
 
-    public RemoveAreaTask(Context context, TaskFinishedListener listener) {
+    public AreaAddShareTask(Context context, TaskFinishedListener listener) {
         this.context = context;
         this.finishedListener = listener;
     }
 
     protected String doInBackground(Object... params) {
         try {
-            area = (Area) params[0];
-            URL url = new URL(APIRegistry.AREA_REMOVE);
+            User sourceUser  = UserContext.getInstance().getUser();
+            Area area = AreaContext.INSTANCE.getArea();
+            User targetUser  = (User) params[0];
+            String functions = (String) params[1];
 
+            URL url = new URL(APIRegistry.AREA_SHARE_USER);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setUseCaches(false);
 
             Map<String, Object> urlParams = new HashMap<>();
             urlParams.put("area", area);
+            urlParams.put("suser", sourceUser);
+            urlParams.put("tuser", targetUser);
+            urlParams.put("functions", functions);
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer
@@ -86,18 +91,8 @@ public class RemoveAreaTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        AreaDBHelper adh = new AreaDBHelper(context);
-        if(result == null){
-            area.setDirty(1);
-            area.setDirtyAction("delete");
-            adh.updateArea(area);
-        }else {
-            area.setDirty(0);
-            area.setDirtyAction("none");
-            adh.deleteArea(area);
-        }
         if(finishedListener != null){
-            finishedListener.onTaskFinished(area.toString());
+            finishedListener.onTaskFinished("");
         }
     }
 

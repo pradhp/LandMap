@@ -1,5 +1,7 @@
 package com.pearnode.app.placero.tags;
 
+import com.google.gson.Gson;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
@@ -97,4 +99,10 @@ public class Tag {
     public void setCreatedOn(Long createdOn) {
         this.createdOn = createdOn;
     }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this).toString();
+    }
+
 }

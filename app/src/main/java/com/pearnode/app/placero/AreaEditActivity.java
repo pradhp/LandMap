@@ -19,28 +19,25 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
-import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.task.AreaPublicShareTask;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
 
 public class AreaEditActivity extends AppCompatActivity {
 
-    private boolean online = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
-        online = ConnectivityChangeReceiver.isConnected(this);
         setContentView(R.layout.activity_area_edit);
 
-        final Area ae = AreaContext.INSTANCE.getAreaElement();
+        final Area ae = AreaContext.INSTANCE.getArea();
         ActionBar ab = getSupportActionBar();
         ab.setHomeButtonEnabled(false);
         ab.setDisplayHomeAsUpEnabled(false);
@@ -76,9 +73,7 @@ public class AreaEditActivity extends AppCompatActivity {
         addressText.setEnabled(false);
 
         CheckBox makePublicCheckBox = (CheckBox) findViewById(R.id.make_area_public);
-        if(!online){
-            makePublicCheckBox.setEnabled(false);
-        }
+        makePublicCheckBox.setEnabled(false);
 
         Button saveButton = (Button) findViewById(R.id.area_edit_save_btn);
         saveButton.setOnClickListener(new OnClickListener() {
@@ -118,9 +113,8 @@ public class AreaEditActivity extends AppCompatActivity {
     private boolean makeAreaPublic() {
         CheckBox makePublicCheckBox = (CheckBox) findViewById(R.id.make_area_public);
         if (makePublicCheckBox.isChecked()) {
-            PermissionsDBHelper pdh = new PermissionsDBHelper(getApplicationContext(),
-                    new MakeAreaPublicCallback());
-            pdh.insertPermissionsToServer("any", "view_only");
+            AreaPublicShareTask publicShareTask = new AreaPublicShareTask(getApplicationContext(), new MakeAreaPublicCallback());
+            publicShareTask.execute(AsyncTask.THREAD_POOL_EXECUTOR);
             return true;
         } else {
             navigateToDetailsView();
@@ -135,16 +129,14 @@ public class AreaEditActivity extends AppCompatActivity {
         finish();
     }
 
-    private class MakeAreaPublicCallback implements AsyncTaskCallback {
+    private class MakeAreaPublicCallback implements TaskFinishedListener {
 
         @Override
-        public void taskCompleted(Object result) {
-            if(online){
-                Intent areaDetailsIntent = new Intent(AreaEditActivity.this, AreaDetailsActivity.class);
-                areaDetailsIntent.putExtra("share_to_user", "any");
-                startActivity(areaDetailsIntent);
-                finish();
-            }
+        public void onTaskFinished(String response) {
+            Intent areaDetailsIntent = new Intent(AreaEditActivity.this, AreaDetailsActivity.class);
+            areaDetailsIntent.putExtra("share_to_user", "any");
+            startActivity(areaDetailsIntent);
+            finish();
         }
     }
 

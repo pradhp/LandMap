@@ -2,11 +2,9 @@ package com.pearnode.app.placero;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -75,7 +73,7 @@ public class AreaPictureCaptureActivity extends Activity implements LocationPosi
             if (resultCode == Activity.RESULT_OK) {
                 File imageFile = new File(fileUri.getPath());
                 AreaContext areaContext = AreaContext.INSTANCE;
-                Area ae = areaContext.getAreaElement();
+                Area ae = areaContext.getArea();
 
                 media.setName(imageFile.getName());
                 media.setRfPath(imageFile.getAbsolutePath());
@@ -107,7 +105,7 @@ public class AreaPictureCaptureActivity extends Activity implements LocationPosi
      * returning image / video_map
      */
     private static File getOutputMediaFile() {
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         File localRoot = AreaContext.INSTANCE.getAreaLocalImageRoot(area.getId());
         return new File(localRoot.getAbsolutePath() + File.separator + "IMG_" + timeStamp + ".jpg");

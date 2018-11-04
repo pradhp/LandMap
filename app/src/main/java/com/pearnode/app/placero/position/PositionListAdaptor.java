@@ -23,7 +23,7 @@ import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
 
@@ -65,7 +65,7 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
         }
 
         final AreaContext areaContext = AreaContext.INSTANCE;
-        final Area area = areaContext.getAreaElement();
+        final Area area = areaContext.getArea();
         final String uniqueId = area.getId();
 
         ImageView posImgView = v.findViewById(id.position_default_img);
@@ -114,8 +114,8 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
                     child.setBackgroundResource(R.drawable.rounded_pos_list_view);
                 }
                 v.setBackgroundResource(R.drawable.rounded_pos_list_view_sel);
-                UserElement userElement = UserContext.getInstance().getUserElement();
-                userElement.getSelections().setPosition(pe);
+                User user = UserContext.getInstance().getUser();
+                user.getSelections().setPosition(pe);
                 ((AreaDetailsActivity) context).findViewById(R.id.action_navigate_area)
                         .setBackgroundResource(R.drawable.rounded_corner);
                 return true;

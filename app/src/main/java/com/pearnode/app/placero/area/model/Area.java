@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.pearnode.app.placero.media.model.Media;
-import com.pearnode.app.placero.permission.PermissionElement;
+import com.pearnode.app.placero.permission.Permission;
 import com.pearnode.app.placero.position.Position;
 
 /**
@@ -33,7 +33,7 @@ public class Area implements Serializable {
     private List<Media> pictures = new ArrayList<>();
     private List<Media> videos = new ArrayList<>();
     private List<Media> documents = new ArrayList<>();
-    private Map<String, PermissionElement> permissions = new HashMap<>();
+    private Map<String, Permission> permissions = new HashMap<>();
 
     public Area(){
         id = UUID.randomUUID().toString();
@@ -111,11 +111,11 @@ public class Area implements Serializable {
         this.type = type;
     }
 
-    public Map<String, PermissionElement> getPermissions() {
+    public Map<String, Permission> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(Map<String, PermissionElement> permissions) {
+    public void setPermissions(Map<String, Permission> permissions) {
         this.permissions = permissions;
     }
 

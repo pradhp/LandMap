@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import com.pearnode.app.placero.R;
-import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
@@ -37,7 +36,7 @@ public class AreaPictureDisplayFragment extends Fragment {
         GridView gridView = (GridView) this.getView().findViewById(R.id.gridView);
 
         MediaDataBaseHandler mdh = new MediaDataBaseHandler(getContext());
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         String areaId = area.getId();
         List<Media> placePictures = mdh.getPlacePictures(areaId);
 

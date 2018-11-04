@@ -39,7 +39,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_area_resource_main);
 
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         ActionBar ab = getSupportActionBar();
         ab.setHomeButtonEnabled(false);
         ab.setDisplayHomeAsUpEnabled(false);

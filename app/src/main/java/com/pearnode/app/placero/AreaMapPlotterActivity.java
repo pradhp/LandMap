@@ -53,7 +53,6 @@ import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
@@ -92,7 +91,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
     private Button infoButton;
     private final AreaContext ac = AreaContext.INSTANCE;
-    private final Area ae = ac.getAreaElement();
+    private final Area ae = ac.getArea();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

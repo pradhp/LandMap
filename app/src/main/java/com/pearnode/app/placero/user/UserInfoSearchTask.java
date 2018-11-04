@@ -1,9 +1,7 @@
-package com.pearnode.app.placero.area.tasks;
+package com.pearnode.app.placero.user;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,38 +11,29 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.constants.APIRegistry;
 
 /**
  * Created by Rinky on 21-10-2017.
  */
 
-public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
+public class UserInfoSearchTask extends AsyncTask<JSONObject, Void, String> {
 
-    private Context localContext;
-    private PositionsDBHelper pdh;
-
-    public AreaPositionsLoadTask(Context appContext) {
-        localContext = appContext;
-        this.pdh = new PositionsDBHelper(localContext);
-    }
+    private AsyncTaskCallback callback;
 
     protected void onPreExecute() {
     }
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = APIRegistry.POSITIONS_SEARCH_GENERIC;
-
+            String urlString = APIRegistry.USER_SEARCH_GENERIC;
             JSONObject postDataParam = postDataParams[0];
-            String searchField = postDataParam.getString("sf_alt");
-            String sfURL = "?sf_alt=" + searchField;
             String searchStr = postDataParam.getString("ss");
-            String ssURL = "&ss=" + searchStr;
-
-            URL url = new URL(urlString + sfURL + ssURL);
+            String sStrURL = "?ss=" + searchStr;
+            String searchField = postDataParam.getString("sf");
+            String sfURL = "&sf=" + searchField;
+            URL url = new URL(urlString + sStrURL + sfURL);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
@@ -56,6 +45,7 @@ public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
                 StringBuffer sb = new StringBuffer("");
                 String line = "";
                 while ((line = in.readLine()) != null) {
@@ -75,24 +65,11 @@ public class AreaPositionsLoadTask extends AsyncTask<JSONObject, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        try {
-            JSONArray responseArr = new JSONArray(s);
-            for (int i = 0; i < responseArr.length(); i++) {
-                JSONObject responseObj = (JSONObject) responseArr.get(i);
-
-                Position pe = new Position();
-                pe.setId((String) responseObj.get("unique_id"));
-                pe.setName((String) responseObj.get("name"));
-                pe.setDescription((String) responseObj.get("description"));
-                pe.setLat(new Double((String) responseObj.get("lat")));
-                pe.setLng(new Double((String) responseObj.get("lon")));
-                pe.setTags((String) responseObj.get("tags"));
-
-                this.pdh.addPostion(pe);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println(s);
+        this.callback.taskCompleted(s);
     }
+
+    public void setCompletionCallback(AsyncTaskCallback callback) {
+        this.callback = callback;
+    }
+
 }

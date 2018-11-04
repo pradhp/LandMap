@@ -37,7 +37,7 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
             Media media = (Media) params[0];
             String mediaType = media.getType();
             File mediaFile = new File(media.getRfPath());
-            Area area = AreaContext.INSTANCE.getAreaElement();
+            Area area = AreaContext.INSTANCE.getArea();
 
             ThumbnailCreator thumbnailCreator = new ThumbnailCreator(context);
             File thumbnailFile = thumbnailCreator.createThumbnail(media);

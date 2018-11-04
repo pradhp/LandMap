@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
 import com.pearnode.app.placero.tags.Tag;
 
 /**
@@ -274,6 +275,6 @@ public class Address {
 
     @Override
     public String toString() {
-        return super.toString();
+        return new Gson().toJson(this).toString();
     }
 }

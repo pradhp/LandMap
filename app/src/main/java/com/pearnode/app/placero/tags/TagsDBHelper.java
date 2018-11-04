@@ -51,7 +51,6 @@ public class TagsDBHelper extends SQLiteOpenHelper {
                         CONTEXT_ID + " text, " +
                         DIRTY_FLAG    + " integer DEFAULT 0," +
                         DIRTY_ACTION  + " text," +
-                        TYPE          + " text," +
                         CREATED_ON    + " long"
                         + ")"
 

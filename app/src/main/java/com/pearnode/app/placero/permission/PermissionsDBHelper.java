@@ -15,12 +15,9 @@ import java.util.Map;
 
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.custom.GlobalContext;
-import com.pearnode.app.placero.sync.LMSRestAsyncTask;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 
 public class PermissionsDBHelper extends SQLiteOpenHelper {
 
@@ -71,7 +68,7 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    public PermissionElement insertPermissionLocally(PermissionElement pe) {
+    public Permission insertPermissionLocally(Permission pe) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -86,47 +83,20 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
         return pe;
     }
 
-    public boolean insertPermissionsToServer(String targetUser, String functionCodes) {
-        boolean networkAvailable = (new Boolean(GlobalContext.INSTANCE.get(GlobalContext.INTERNET_AVAILABLE))
-                || ConnectivityChangeReceiver.isConnected(localContext) );
-        if (networkAvailable) {
-            new LMSRestAsyncTask(callback)
-                    .execute(preparePostParams("insert", targetUser, functionCodes));
-        }
-        return networkAvailable;
-    }
-
-    private JSONObject preparePostParams(String queryType, String targetUser, String functionCodes) {
-        JSONObject postParams = new JSONObject();
-        Area area = AreaContext.INSTANCE.getAreaElement();
-        UserElement userElement = UserContext.getInstance().getUserElement();
-        try {
-            postParams.put("requestType", "AreaShare");
-            postParams.put("query_type", queryType);
-            postParams.put("source_user", userElement.getEmail());
-            postParams.put("target_user", targetUser);
-            postParams.put("area_id", area.getId());
-            postParams.put("function_codes", functionCodes);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return postParams;
-    }
-
     public void deletePermissionsByAreaId(String areaId) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + AREA_ID + " = '" + areaId + "'");
         db.close();
     }
 
-    public Map<String, PermissionElement> fetchPermissionsByAreaId(String areaId) {
+    public Map<String, Permission> fetchPermissionsByAreaId(String areaId) {
         SQLiteDatabase db = getWritableDatabase();
-        Map<String, PermissionElement> perMap = new HashMap<>();
+        Map<String, Permission> perMap = new HashMap<>();
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE " + AREA_ID + "=?", new String[]{areaId});
         if (cursor != null) {
             cursor.moveToFirst();
             while (cursor.isAfterLast() == false) {
-                PermissionElement pe = new PermissionElement();
+                Permission pe = new Permission();
 
                 pe.setUserId(cursor.getString(cursor.getColumnIndex(USER_ID)));
                 pe.setAreaId(areaId);

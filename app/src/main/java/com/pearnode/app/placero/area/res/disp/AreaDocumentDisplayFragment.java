@@ -36,7 +36,7 @@ public class AreaDocumentDisplayFragment extends Fragment {
         GridView gridView = (GridView) this.getView().findViewById(R.id.gridView);
 
         MediaDataBaseHandler mdh = new MediaDataBaseHandler(getContext());
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         String areaId = area.getId();
         List<Media> placeDocuments = mdh.getPlaceDocuments(areaId);
 

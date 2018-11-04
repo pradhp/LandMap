@@ -56,11 +56,9 @@ public class UpdateAreaTask extends AsyncTask<Object, Void, String> {
             if (address == null) {
                 CommonGeoHelper geoHelper = CommonGeoHelper.INSTANCE;
                 Position centerPosition = area.getCenterPosition();
-                if(centerPosition != null){
-                    Address areaAddress = geoHelper.getAddressByGeoLocation(context,
-                            centerPosition.getLat(), centerPosition.getLng());
-                    area.setAddress(areaAddress);
-                }
+                Address areaAddress = geoHelper.getAddressByGeoLocation(context,
+                        centerPosition.getLat(), centerPosition.getLng());
+                area.setAddress(areaAddress);
             }
 
             Map<String, Object> urlParams = new HashMap<>();

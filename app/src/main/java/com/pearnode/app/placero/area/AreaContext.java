@@ -26,19 +26,17 @@ public class AreaContext {
     }
 
     private Area currentArea;
-    private Context context;
     private Bitmap displayBMap;
     private List<Bitmap> viewBitmaps = new ArrayList<>();
     private final ArrayList<Media> mediaQueue = new ArrayList<>();
 
-    public Area getAreaElement() {
+    public Area getArea() {
         return this.currentArea;
     }
 
-    public void setAreaElement(Area area, Context context) {
+    public void setArea(Area area, Context context) {
         clearContext();
 
-        this.context = context;
         currentArea = area;
         mediaQueue.clear();
 
@@ -60,7 +58,6 @@ public class AreaContext {
             currentArea.getPermissions().clear();
 
             currentArea = null;
-            context = null;
             mediaQueue.clear();
 
             if(displayBMap != null){

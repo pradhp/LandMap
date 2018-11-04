@@ -30,11 +30,11 @@ import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
-import com.pearnode.app.placero.permission.PermissionElement;
+import com.pearnode.app.placero.permission.Permission;
 import com.pearnode.app.placero.permission.PermissionsDBHelper;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserElement;
+import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
 import com.pearnode.common.TaskFinishedListener;
 
@@ -98,10 +98,10 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
                 Area area = new Area();
                 String uniqueId = UUID.randomUUID().toString();
                 area.setName("PL_" + uniqueId);
-                area.setCreatedBy(UserContext.getInstance().getUserElement().getEmail());
+                area.setCreatedBy(UserContext.getInstance().getUser().getEmail());
 
-                PermissionElement pe = new PermissionElement();
-                pe.setUserId(UserContext.getInstance().getUserElement().getEmail());
+                Permission pe = new Permission();
+                pe.setUserId(UserContext.getInstance().getUser().getEmail());
                 pe.setAreaId(area.getId());
                 pe.setFunctionCode(PermissionConstants.FULL_CONTROL);
                 area.getPermissions().put(PermissionConstants.FULL_CONTROL, pe);
@@ -143,8 +143,8 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
         mView.findViewById(id.splash_panel).setVisibility(View.GONE);
 
         final ImageView filterUTView = (ImageView) activity.findViewById(id.action_filter_ut);
-        UserElement userElement = UserContext.getInstance().getUserElement();
-        UserPersistableSelections userPersistableSelections = userElement.getSelections();
+        User user = UserContext.getInstance().getUser();
+        UserPersistableSelections userPersistableSelections = user.getSelections();
         if(userPersistableSelections.isFilter()){
             filterUTView.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
             List<Tag> tags = userPersistableSelections.getTags();
@@ -177,12 +177,12 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
 
         @Override
         public void onTaskFinished(String response) {
-            AreaContext.INSTANCE.setAreaElement(area, getContext());
+            AreaContext.INSTANCE.setArea(area, getContext());
 
             PermissionsDBHelper pdh = new PermissionsDBHelper(getContext());
-            Map<String, PermissionElement> permissions = area.getPermissions();
-            Collection<PermissionElement> permissionElements = permissions.values();
-            for(PermissionElement permission : permissionElements){
+            Map<String, Permission> permissions = area.getPermissions();
+            Collection<Permission> permissionElements = permissions.values();
+            for(Permission permission : permissionElements){
                 pdh.insertPermissionLocally(permission);
             }
 
@@ -243,9 +243,9 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
                     ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
                     ArrayAdapter<Area> adapter = (ArrayAdapter<Area>) areaListView.getAdapter();
                     final ImageView filterUTView = (ImageView) activity.findViewById(id.action_filter_ut);
-                    UserElement userElement = UserContext.getInstance().getUserElement();
+                    User user = UserContext.getInstance().getUser();
                     if(filterUTView.getBackground() != null){
-                        List<Tag> tags = userElement.getSelections().getTags();
+                        List<Tag> tags = user.getSelections().getTags();
                         List<String> filterables = new ArrayList<>();
                         List<String> executables = new ArrayList<>();
                         for(Tag tag: tags){

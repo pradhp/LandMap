@@ -33,7 +33,7 @@ public class AreaPopulationUtil {
     }
 
     public void populateAreaElement(View view) {
-        Area area = AreaContext.INSTANCE.getAreaElement();
+        Area area = AreaContext.INSTANCE.getArea();
         this.populateAreaElement(view, area);
     }
 

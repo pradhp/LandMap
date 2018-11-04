@@ -54,7 +54,7 @@ public class LocalDataRefresher implements AsyncTaskCallback {
 
         try {
             JSONObject queryObj = new JSONObject();
-            queryObj.put("us", UserContext.getInstance().getUserElement().getEmail());
+            queryObj.put("us", UserContext.getInstance().getUser().getEmail());
             loadTask.execute(queryObj);
         } catch (Exception e) {
             e.printStackTrace();

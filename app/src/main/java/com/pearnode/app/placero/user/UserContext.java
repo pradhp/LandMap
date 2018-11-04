@@ -16,16 +16,16 @@ public class UserContext {
     private UserContext() {
     }
 
-    private UserElement userElement;
+    private User user;
 
-    public UserElement getUserElement() {
-        if (this.userElement == null) {
+    public User getUser() {
+        if (this.user == null) {
             throw new UserUnavailableException();
         }
-        return this.userElement;
+        return this.user;
     }
 
-    public void setUserElement(UserElement userElement) {
-        this.userElement = userElement;
+    public void setUser(User user) {
+        this.user = user;
     }
 }
