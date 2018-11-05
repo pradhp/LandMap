@@ -222,7 +222,13 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
             if (picture.getName().equalsIgnoreCase("plot_screenshot.png")) {
                 continue;
             }
-            LatLng position = new LatLng(new Double(picture.getLat()), new Double(picture.getLng()));
+            String picLat = picture.getLat();
+            String picLng = picture.getLng();
+            if(picLat.trim().equals("") || picLng.trim().equals("")){
+                // Cannot plot Lat Lng of the media missing.
+                continue;
+            }
+            LatLng position = new LatLng(new Double(picLat), new Double(picLng));
 
             MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.icon(pictureBMap);
@@ -250,7 +256,13 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         BitmapDescriptor videoBMap = BitmapDescriptorFactory.fromResource(drawable.video_map);
         for (int i = 0; i < videos.size(); i++) {
             Media video = videos.get(i);
-            LatLng position = new LatLng(new Double(video.getLat()), new Double(video.getLng()));
+            String vidLat = video.getLat();
+            String vidLng = video.getLng();
+            if(vidLat.trim().equals("") || vidLng.trim().equals("")){
+                // Cannot plot Lat Lng of the media missing.
+                continue;
+            }
+            LatLng position = new LatLng(new Double(vidLat), new Double(vidLng));
 
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.icon(videoBMap);

@@ -153,6 +153,8 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                     media.setTfPath(mediaObj.getString("tf_path"));
                     media.setRfName(mediaObj.getString("rf_name"));
                     media.setRfPath(mediaObj.getString("rf_path"));
+                    media.setLat(mediaObj.getString("lat"));
+                    media.setLng(mediaObj.getString("lng"));
                     media.setCreatedOn(System.currentTimeMillis());
                     pmdh.addMedia(media);
                 }
