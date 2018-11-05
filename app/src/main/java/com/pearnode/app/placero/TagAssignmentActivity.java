@@ -39,7 +39,6 @@ public class TagAssignmentActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag_assignment);
-        registerReceiver(broadcastReceiver, new IntentFilter("INTERNET_LOST"));
 
         // Setup Toolbar
         Toolbar topToolbar = (Toolbar) this.findViewById(R.id.areas_tags_toolbar);
@@ -88,18 +87,10 @@ public class TagAssignmentActivity extends AppCompatActivity{
         }
     }
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-        }
-    };
-
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(getApplicationContext(), AreaDashboardActivity.class);
         startActivity(intent);
-
-        unregisterReceiver(broadcastReceiver);
         finish();
     }
 

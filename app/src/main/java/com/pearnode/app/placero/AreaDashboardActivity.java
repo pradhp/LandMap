@@ -36,7 +36,7 @@ import com.pearnode.app.placero.area.dashboard.AreaDashboardSharedFragment;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.reporting.AreaReportingService;
 import com.pearnode.app.placero.area.reporting.ReportingContext;
-import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
+import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.connectivity.services.AreaSynchronizationService;
@@ -77,7 +77,6 @@ public class AreaDashboardActivity extends AppCompatActivity {
         online = ConnectivityChangeReceiver.isConnected(this);
 
         setContentView(R.layout.activity_area_dashboard);
-        registerReceiver(broadcastReceiver, new IntentFilter("INTERNET_LOST"));
 
         // Setup Toolbar
         Toolbar topToolbar = (Toolbar) this.findViewById(R.id.areas_display_toolbar);
@@ -146,7 +145,6 @@ public class AreaDashboardActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), TagAssignmentActivity.class);
                 startActivity(intent);
-                unregisterReceiver(broadcastReceiver);
                 finish();
             }
         });
@@ -217,7 +215,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
                 DisplayAreasPagerAdapter adapter = (DisplayAreasPagerAdapter) viewPager.getAdapter();
                 FragmentHandler fragment
                         = (FragmentHandler) adapter.getItem(AreaDashboardDisplayMetaStore.INSTANCE.getActiveTab());
-                AreaItemAdaptor viewAdaptor = (AreaItemAdaptor) fragment.getViewAdaptor();
+                AreaListAdaptor viewAdaptor = (AreaListAdaptor) fragment.getViewAdaptor();
                 List<String> areaIds = new ArrayList<>();
                 ArrayList<Area> adaptorItems = viewAdaptor.getItems();
                 if((adaptorItems == null) || (adaptorItems.size() == 0)){
@@ -329,7 +327,6 @@ public class AreaDashboardActivity extends AppCompatActivity {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                         startActivity(intent);
-                        unregisterReceiver(broadcastReceiver);
                         finish();
                     }
                 }).setNegativeButton("no", null).show();
@@ -353,11 +350,5 @@ public class AreaDashboardActivity extends AppCompatActivity {
                     .show();
         }
     }
-
-    public BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-        }
-    };
 
 }

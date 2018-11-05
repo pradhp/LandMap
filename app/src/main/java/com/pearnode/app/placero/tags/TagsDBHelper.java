@@ -123,6 +123,7 @@ public class TagsDBHelper extends SQLiteOpenHelper {
                 tag.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY_FLAG)));
                 tag.setDirtyAction(cursor.getString(cursor.getColumnIndex(DIRTY_ACTION)));
                 tag.setCreatedOn(cursor.getLong(cursor.getColumnIndex(CREATED_ON)));
+                tags.add(tag);
                 cursor.moveToNext();
             }
             cursor.close();

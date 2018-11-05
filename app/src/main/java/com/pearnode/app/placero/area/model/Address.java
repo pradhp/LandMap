@@ -25,6 +25,7 @@ public class Address {
 
     private String storable = "";
     private String displayable = "";
+    private List<Tag> tags = new ArrayList<>();
 
     public Address(){
     }
@@ -135,7 +136,6 @@ public class Address {
     }
 
     public List<Tag> getTags(){
-        List<Tag> tags = new ArrayList<>();
         if(premises != null && !premises.trim().equalsIgnoreCase("")){
             premises = premises.replaceAll("[-+.^:,]","");
             if(!premises.matches("[0-9]+")){
@@ -271,6 +271,10 @@ public class Address {
 
     public void setDisplayable(String displayable) {
         this.displayable = displayable;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
     @Override

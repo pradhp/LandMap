@@ -26,9 +26,11 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
+import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
+import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
+import com.pearnode.app.placero.sync.LocalDataRefresher;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
@@ -42,8 +44,7 @@ public class AreaDashboardSharedFragment extends Fragment
 
     private Activity mActivity = null;
     private View mView = null;
-    private boolean offline = false;
-    private AreaItemAdaptor viewAdapter = null;
+    private AreaListAdaptor viewAdapter = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,7 +66,6 @@ public class AreaDashboardSharedFragment extends Fragment
         if(getUserVisibleHint()){
             loadFragment();
         }
-        offline = ((AreaDashboardActivity)mActivity).isOffline();
     }
 
     @Override
@@ -73,7 +73,15 @@ public class AreaDashboardSharedFragment extends Fragment
         super.setUserVisibleHint(visible);
         if (visible && (mView != null) && (mActivity != null)) {
             AreaDashboardDisplayMetaStore.INSTANCE.setActiveTab(AreaDashboardDisplayMetaStore.TAB_SHARED_SEQ);
-            this.loadFragment();
+            LocalDataRefresher dataRefresher = new LocalDataRefresher(mActivity, new DataReloadCallback());
+            dataRefresher.refreshSharedAreas();
+        }
+    }
+
+    private class DataReloadCallback implements AsyncTaskCallback {
+        @Override
+        public void taskCompleted(Object result) {
+            loadFragment();
         }
     }
 
@@ -96,7 +104,7 @@ public class AreaDashboardSharedFragment extends Fragment
         AreaDBHelper adh = new AreaDBHelper(mView.getContext());
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
         ArrayList<Area> sharedAreas = adh.getAreas("shared");
-        viewAdapter = new AreaItemAdaptor(mView.getContext(), layout.area_element_row, sharedAreas);
+        viewAdapter = new AreaListAdaptor(mView.getContext(), layout.area_element_row, sharedAreas);
 
         if (sharedAreas.size() > 0) {
             mView.findViewById(id.shared_area_empty_layout).setVisibility(View.GONE);
@@ -139,7 +147,7 @@ public class AreaDashboardSharedFragment extends Fragment
     @Override
     public void doFilter(List<String> filterables, List<String> executables) {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaItemAdaptor adapter = (AreaItemAdaptor) areaListView.getAdapter();
+        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
         if(adapter.getCount() == 0){
             return;
         }
@@ -151,7 +159,7 @@ public class AreaDashboardSharedFragment extends Fragment
     @Override
     public void resetFilter() {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaItemAdaptor adapter = (AreaItemAdaptor) areaListView.getAdapter();
+        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
         if(adapter == null){
             return;
         }

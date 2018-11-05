@@ -3,6 +3,7 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
@@ -53,7 +54,7 @@ public class UpdateAreaTask extends AsyncTask<Object, Void, String> {
             conn.setUseCaches(false);
 
             Address address = area.getAddress();
-            if (address == null) {
+            if (address.getDisplaybleAddress().trim().equals("")) {
                 CommonGeoHelper geoHelper = CommonGeoHelper.INSTANCE;
                 Position centerPosition = area.getCenterPosition();
                 Address areaAddress = geoHelper.getAddressByGeoLocation(context,

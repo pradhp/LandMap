@@ -36,6 +36,7 @@ import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.position.CreatePositionTask;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionListAdaptor;
+import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
@@ -53,7 +54,6 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class AreaDetailsActivity extends AppCompatActivity implements LocationPositionReceiver {
 
     private Area area;
-    private boolean online = true;
 
     private final ArrayList<Position> positionList = new ArrayList<Position>();
     private PositionListAdaptor adaptor;
@@ -63,7 +63,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
-        online = ConnectivityChangeReceiver.isConnected(this);
         activity = this;
 
         setContentView(R.layout.activity_area_details);
@@ -164,10 +163,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         plotItem.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!online){
-                    showMessage("No Internet..", "error");
-                    return;
-                }
                 List<Position> positions = area.getPositions();
                 if (positions.size() >= 1) {
                     Intent intent = new Intent(getApplicationContext(), AreaMapPlotterActivity.class);
@@ -182,10 +177,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         navigateItem.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!online){
-                    showMessage("No Internet..", "error");
-                    return;
-                }
                 List<Position> positions = area.getPositions();
                 if (positions.size() > 0) {
                     User user = UserContext.getInstance().getUser();
@@ -208,10 +199,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         shareAreaItem.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!online){
-                    showMessage("No Internet..", "error");
-                    return;
-                }
                 if (PermissionManager.INSTANCE.hasAccess(PermissionConstants.SHARE_READ_ONLY)) {
                     Intent areaShareIntent = new Intent(getApplicationContext(), AreaShareActivity.class);
                     startActivity(areaShareIntent);
@@ -252,7 +239,9 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
             String action = intentBundle.getString("action");
             String outcome = intentBundle.getString("outcome");
             String outcomeType = intentBundle.getString("outcome_type");
-            showMessage(action + " " + outcomeType + ". " + outcome, outcomeType);
+            if((action != null) && (outcome != null) && (outcomeType != null)){
+                showMessage(action + " " + outcomeType + ". " + outcome, outcomeType);
+            }
         }
     }
 
@@ -260,19 +249,21 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
     public void receivedLocationPostion(Position pe) {
         pe.setName("P_" + pe.getId());
 
-        Area ae = AreaContext.INSTANCE.getArea();
-        List<Position> positions = ae.getPositions();
+        List<Position> positions = area.getPositions();
         if(!positions.contains(pe)){
             pe.setName("Position_" + positions.size());
-            positions.add(pe);
-
-            CreatePositionTask createPositionTask = new CreatePositionTask(getApplicationContext(), null);
-            createPositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pe);
-
+            pe.setAreaRef(area.getId());
+            pe.setDescription("Default Description");
             positionList.add(pe);
             adaptor.notifyDataSetChanged();
-        }else{
-            showMessage("Position already exists. Ignoring.", "info");
+
+            CreatePositionTask createPositionTask = new CreatePositionTask(getApplicationContext(), new TaskFinishedListener() {
+                @Override
+                public void onTaskFinished(String response) {
+                    AreaContext.INSTANCE.setArea(area, getApplicationContext());
+                }
+            });
+            createPositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pe);
         }
 
         findViewById(R.id.positions_view_master).setVisibility(View.VISIBLE);

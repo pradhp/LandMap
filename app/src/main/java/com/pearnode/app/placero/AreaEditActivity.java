@@ -73,7 +73,7 @@ public class AreaEditActivity extends AppCompatActivity {
         addressText.setEnabled(false);
 
         CheckBox makePublicCheckBox = (CheckBox) findViewById(R.id.make_area_public);
-        makePublicCheckBox.setEnabled(false);
+        makePublicCheckBox.setEnabled(true);
 
         Button saveButton = (Button) findViewById(R.id.area_edit_save_btn);
         saveButton.setOnClickListener(new OnClickListener() {

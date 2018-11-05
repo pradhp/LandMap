@@ -104,6 +104,10 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
                 tdh.deleteTagsByContext("user", userId);
                 for (int i = 0; i < userTags.size(); i++) {
                     Tag tag = userTags.get(i);
+                    tag.setContext("user");
+                    tag.setContextId(userId);
+                    tag.setCreatedOn(System.currentTimeMillis());
+                    tdh.addTag(tag);
                     CreateTagTask createTagTask = new CreateTagTask(getContext(), null);
                     createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
                 }

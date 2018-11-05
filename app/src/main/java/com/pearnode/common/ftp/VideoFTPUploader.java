@@ -50,6 +50,7 @@ public class VideoFTPUploader {
                 ftpClient.deleteFile(vidName);
                 ftpClient.storeFile(vidName, buffIn);
             }catch (Exception e){
+                e.printStackTrace();
             }
             buffIn.close();
 

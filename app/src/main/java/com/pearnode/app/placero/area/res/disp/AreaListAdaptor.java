@@ -25,13 +25,13 @@ import com.pearnode.app.placero.util.AreaPopulationUtil;
 /**
  * Created by USER on 10/20/2017.
  */
-public class AreaItemAdaptor extends ArrayAdapter {
+public class AreaListAdaptor extends ArrayAdapter {
 
     private ArrayList<Area> items;
     private final ArrayList<Area> fixedItems = new ArrayList<>();
     private final Context context;
 
-    public AreaItemAdaptor(Context context, int textViewResourceId, ArrayList<Area> items) {
+    public AreaListAdaptor(Context context, int textViewResourceId, ArrayList<Area> items) {
         super(context, textViewResourceId, items);
         this.context = context;
         this.items = items;
@@ -76,7 +76,6 @@ public class AreaItemAdaptor extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 final AreaDashboardActivity activity = (AreaDashboardActivity) context;
-                activity.unregisterReceiver(activity.broadcastReceiver);
 
                 AreaContext.INSTANCE.setArea(area, activity);
                 User user = UserContext.getInstance().getUser();

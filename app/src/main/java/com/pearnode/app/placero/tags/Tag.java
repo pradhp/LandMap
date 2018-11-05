@@ -2,8 +2,6 @@ package com.pearnode.app.placero.tags;
 
 import com.google.gson.Gson;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-
 /**
  * Created by USER on 12/13/2017.
  */

@@ -54,6 +54,7 @@ public class PictureFTPUploader {
                 ftpClient.deleteFile(picName);
                 ftpClient.storeFile(picName, buffIn);
             }catch (Exception e){
+                e.printStackTrace();
             }
             buffIn.close();
 

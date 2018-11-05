@@ -67,6 +67,7 @@ import com.pearnode.app.placero.position.RemovePositionTask;
 import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.tags.CreateTagTask;
 import com.pearnode.app.placero.tags.Tag;
+import com.pearnode.app.placero.tags.TagsDBHelper;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
 
@@ -189,6 +190,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
             UpdateAreaTask updateAreaTask = new UpdateAreaTask(getApplicationContext(), new UpdateAreaFinishListener());
             updateAreaTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ae);
         }
+
         polygonMarkers.put(polygon, centerMarker);
     }
 
@@ -197,11 +199,18 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         @Override
         public void onTaskFinished(String response) {
             List<Tag> tags = ae.getAddress().getTags();
+            TagsDBHelper tdh = new TagsDBHelper(getApplicationContext());
             for (int i = 0; i < tags.size(); i++) {
                 Tag tag = tags.get(i);
+                tag.setContext("area");
+                tag.setContextId(ae.getId());
+                tag.setCreatedOn(System.currentTimeMillis());
+                tdh.addTag(tag);
+
                 CreateTagTask createTagTask = new CreateTagTask(getApplicationContext(), null);
                 createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
             }
+            AreaContext.INSTANCE.setArea(ae, getApplicationContext());
         }
     }
 

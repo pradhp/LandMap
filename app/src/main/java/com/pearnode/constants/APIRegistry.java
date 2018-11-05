@@ -26,5 +26,6 @@ public final class APIRegistry {
 
     public static final String USER_CREATE = API_ROOT + "/user/create.php";
     public static final String USER_AREA_SEARCH = API_ROOT + "/area/search/user.php";
-    public static final String USER_SEARCH_GENERIC = API_ROOT + "/user/search/key.php";
+    public static final String USER_SHARED_AREA_SEARCH = API_ROOT + "/area/search/user_shared.php";
+    public static final String USER_SEARCH_GENERIC = API_ROOT + "/user/search/kv.php";
 }

@@ -139,9 +139,22 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         contentValues.put(DESCRIPTION, ae.getDescription());
         contentValues.put(CENTER_LAT, centerPosition.getLat());
         contentValues.put(CENTER_LON, centerPosition.getLng());
-        contentValues.put(MEASURE_SQ_FT, ae.getMeasure().getSqFeet() + "");
         contentValues.put(CREATED_BY, ae.getCreatedBy());
         contentValues.put(TYPE, ae.getType());
+
+        Address address = ae.getAddress();
+        if(address != null){
+            contentValues.put(ADDRESS, address.getStorableAddress());
+        }else {
+            contentValues.put(ADDRESS, "");
+        }
+
+        AreaMeasure measure = ae.getMeasure();
+        if(measure != null){
+            contentValues.put(MEASURE_SQ_FT, measure.getSqFeet());
+        }else {
+            contentValues.put(MEASURE_SQ_FT, 0);
+        }
 
         contentValues.put(DIRTY_FLAG, ae.getDirty());
         contentValues.put(DIRTY_ACTION, ae.getDirtyAction());
@@ -212,8 +225,9 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         ArrayList<Area> areas = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
 
-        MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
+        MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
+        PositionsDBHelper posdh = new PositionsDBHelper(context);
 
         Cursor cursor = null;
         try {
@@ -242,12 +256,13 @@ public class AreaDBHelper extends SQLiteOpenHelper {
                     ae.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY_FLAG)));
                     ae.setDirtyAction(cursor.getString(cursor.getColumnIndex(DIRTY_ACTION)));
 
-                    ae.getPictures().addAll(ddh.getPlacePictures(ae.getId()));
-                    ae.getVideos().addAll(ddh.getPlaceVideos(ae.getId()));
-                    ae.getDocuments().addAll(ddh.getPlaceDocuments(ae.getId()));
+                    ae.getPictures().addAll(mdh.getPlacePictures(ae.getId()));
+                    ae.getVideos().addAll(mdh.getPlaceVideos(ae.getId()));
+                    ae.getDocuments().addAll(mdh.getPlaceDocuments(ae.getId()));
                     areas.add(ae);
 
                     ae.setPermissions(pdh.fetchPermissionsByAreaId(ae.getId()));
+                    ae.setPositions(posdh.getPositionsForArea(ae));
                     cursor.moveToNext();
                 }
             }
@@ -264,7 +279,7 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         ArrayList<Area> allAreas = new ArrayList<Area>();
         SQLiteDatabase db = getReadableDatabase();
 
-        MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
+        MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
         PermissionsDBHelper pdh = new PermissionsDBHelper(context);
         Cursor cursor = null;
         try {
@@ -291,9 +306,9 @@ public class AreaDBHelper extends SQLiteOpenHelper {
                     ae.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY_FLAG)));
                     ae.setDirtyAction(cursor.getString(cursor.getColumnIndex(DIRTY_ACTION)));
 
-                    ae.getPictures().addAll(ddh.getPlacePictures(ae.getId()));
-                    ae.getVideos().addAll(ddh.getPlaceVideos(ae.getId()));
-                    ae.getDocuments().addAll(ddh.getPlaceDocuments(ae.getId()));
+                    ae.getPictures().addAll(mdh.getPlacePictures(ae.getId()));
+                    ae.getVideos().addAll(mdh.getPlaceVideos(ae.getId()));
+                    ae.getDocuments().addAll(mdh.getPlaceDocuments(ae.getId()));
                     allAreas.add(ae);
 
                     ae.setPermissions(pdh.fetchPermissionsByAreaId(ae.getId()));
@@ -352,6 +367,25 @@ public class AreaDBHelper extends SQLiteOpenHelper {
             String areaId = publicAreas.get(i).getId();
             db.delete(TABLE_NAME, UNIQUE_ID + "=? AND "
                     + TYPE + "=?", new String[]{areaId, "public"});
+            pdh.deletePositionByAreaId(areaId);
+            ddh.deletePlaceMedia(areaId);
+            pmh.deletePermissionsByAreaId(areaId);
+        }
+        db.close();
+    }
+
+    public void deleteSharedAreas() {
+        ArrayList<Area> publicAreas = getAreas("shared");
+
+        PositionsDBHelper pdh = new PositionsDBHelper(context);
+        MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
+        PermissionsDBHelper pmh = new PermissionsDBHelper(context);
+
+        SQLiteDatabase db = getWritableDatabase();
+        for (int i = 0; i < publicAreas.size(); i++) {
+            String areaId = publicAreas.get(i).getId();
+            db.delete(TABLE_NAME, UNIQUE_ID + "=? AND "
+                    + TYPE + "=?", new String[]{areaId, "shared"});
             pdh.deletePositionByAreaId(areaId);
             ddh.deletePlaceMedia(areaId);
             pmh.deletePermissionsByAreaId(areaId);

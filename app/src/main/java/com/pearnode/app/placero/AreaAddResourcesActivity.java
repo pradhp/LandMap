@@ -98,6 +98,8 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
                         AsyncTask mediaHandlerTask = new MediaHandlerTask(getApplicationContext(), null);
                         mediaHandlerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, media);
                     }
+                    Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
+                    startActivity(intent);
                 }
 
             }

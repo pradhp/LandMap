@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.tasks.PublicAreasLoadTask;
+import com.pearnode.app.placero.area.tasks.SharedAreasLoadTask;
 import com.pearnode.app.placero.area.tasks.UserAreaDetailsLoadTask;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
@@ -66,6 +67,19 @@ public class LocalDataRefresher implements AsyncTaskCallback {
         adh.deletePublicAreas();
 
         PublicAreasLoadTask loadTask = new PublicAreasLoadTask(this.context);
+        loadTask.setCompletionCallback(this);
+        try {
+            loadTask.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refreshSharedAreas() {
+        AreaDBHelper adh = new AreaDBHelper(this.context);
+        adh.deleteSharedAreas();
+
+        SharedAreasLoadTask loadTask = new SharedAreasLoadTask(this.context);
         loadTask.setCompletionCallback(this);
         try {
             loadTask.execute();

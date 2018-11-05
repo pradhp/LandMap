@@ -66,7 +66,6 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
 
         final AreaContext areaContext = AreaContext.INSTANCE;
         final Area area = areaContext.getArea();
-        final String uniqueId = area.getId();
 
         ImageView posImgView = v.findViewById(id.position_default_img);
         posImgView.setImageResource(R.drawable.position);
@@ -100,7 +99,7 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
                             notifyDataSetChanged();
                         }
                     });
-                    removeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
+                    removeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pe);
                 }
             }
         });

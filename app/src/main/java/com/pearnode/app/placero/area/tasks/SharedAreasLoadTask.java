@@ -3,6 +3,22 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.model.Address;
+import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.area.model.AreaMeasure;
+import com.pearnode.app.placero.custom.AsyncTaskCallback;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
+import com.pearnode.app.placero.permission.Permission;
+import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.position.Position;
+import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.tags.TagsDBHelper;
+import com.pearnode.app.placero.user.User;
+import com.pearnode.app.placero.user.UserContext;
+import com.pearnode.constants.APIRegistry;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,25 +30,11 @@ import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.pearnode.app.placero.area.model.Address;
-import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.area.model.AreaMeasure;
-import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
-import com.pearnode.app.placero.media.model.Media;
-import com.pearnode.app.placero.permission.Permission;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.tags.TagsDBHelper;
-import com.pearnode.constants.APIRegistry;
-
 /**
  * Created by Rinky on 21-10-2017.
  */
 
-public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
+public class SharedAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     private Context localContext;
     private AreaDBHelper adh;
@@ -43,7 +45,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     private AsyncTaskCallback callback;
 
-    public PublicAreasLoadTask(Context appContext) {
+    public SharedAreasLoadTask(Context appContext) {
         localContext = appContext;
         adh = new AreaDBHelper(localContext);
         pdh = new PositionsDBHelper(localContext);
@@ -57,15 +59,10 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     protected String doInBackground(JSONObject... postDataParams) {
         try {
-            String urlString = APIRegistry.PUBLIC_AREAS_SEARCH;
-            URL url = null;
-            if (postDataParams.length > 0) {
-                JSONObject postDataParam = postDataParams[0];
-                String searchKey = postDataParam.getString("sk");
-                url = new URL(urlString + "?sk=" + URLEncoder.encode(searchKey, "utf-8"));
-            } else {
-                url = new URL(urlString);
-            }
+            String urlString = APIRegistry.USER_SHARED_AREA_SEARCH;
+            UserContext userContext = UserContext.getInstance();
+            User user = userContext.getUser();
+            URL url = new URL(urlString + "?us=" + user.getEmail());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
@@ -114,7 +111,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                 area.setCreatedBy(areaObj.getString("createdBy"));
                 area.setDirty(0);
                 area.setDirtyAction("none");
-                area.setType("public");
+                area.setType("shared");
 
                 AreaMeasure measure = new AreaMeasure(areaObj.getDouble("msqft"));
                 area.setMeasure(measure);

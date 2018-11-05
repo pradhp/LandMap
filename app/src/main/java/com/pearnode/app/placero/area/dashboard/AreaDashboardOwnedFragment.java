@@ -25,7 +25,7 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
+import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
@@ -51,7 +51,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
 
     private Activity activity = null;
     private View mView = null;
-    private AreaItemAdaptor viewAdapter = null;
+    private AreaListAdaptor viewAdapter = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -117,7 +117,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
             mView.findViewById(R.id.owned_area_empty_layout).setVisibility(View.GONE);
             areaListView.setVisibility(View.VISIBLE);
 
-            viewAdapter = new AreaItemAdaptor(activity, layout.area_element_row, areas);
+            viewAdapter = new AreaListAdaptor(activity, layout.area_element_row, areas);
             areaListView.setAdapter(viewAdapter);
             areaListView.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
         } else {
@@ -199,7 +199,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
     @Override
     public void doFilter(List<String> filterables, List<String> executables) {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaItemAdaptor adapter = (AreaItemAdaptor) areaListView.getAdapter();
+        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
         if(adapter.getCount() == 0){
             return;
         }
@@ -211,7 +211,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
     @Override
     public void resetFilter() {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaItemAdaptor adapter = (AreaItemAdaptor) areaListView.getAdapter();
+        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
         if(adapter == null){
             return;
         }

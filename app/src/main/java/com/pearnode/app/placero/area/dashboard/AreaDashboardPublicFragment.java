@@ -25,7 +25,7 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.area.res.disp.AreaItemAdaptor;
+import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
@@ -43,8 +43,7 @@ public class AreaDashboardPublicFragment extends Fragment
 
     private Activity mActivity = null;
     private View mView = null;
-    private boolean offline = false;
-    private AreaItemAdaptor viewAdapter = null;
+    private AreaListAdaptor viewAdapter = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,7 +63,6 @@ public class AreaDashboardPublicFragment extends Fragment
         if(getUserVisibleHint()){
             loadFragment();
         }
-        offline = ((AreaDashboardActivity)mActivity).isOffline();
     }
 
     @Override
@@ -115,7 +113,7 @@ public class AreaDashboardPublicFragment extends Fragment
     @Override
     public void doFilter(List<String> filterables, List<String> executables) {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaItemAdaptor adapter = (AreaItemAdaptor) areaListView.getAdapter();
+        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
         if(adapter.getCount() == 0){
             return;
         }
@@ -127,7 +125,7 @@ public class AreaDashboardPublicFragment extends Fragment
     @Override
     public void resetFilter() {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaItemAdaptor adapter = (AreaItemAdaptor) areaListView.getAdapter();
+        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
         if(adapter == null){
             return;
         }
@@ -159,7 +157,7 @@ public class AreaDashboardPublicFragment extends Fragment
                 mView.findViewById(id.public_area_empty_layout).setVisibility(View.VISIBLE);
             }
 
-            viewAdapter = new AreaItemAdaptor(mView.getContext(), layout.area_element_row, publicAreas);
+            viewAdapter = new AreaListAdaptor(mView.getContext(), layout.area_element_row, publicAreas);
             ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
             areaListView.setAdapter(viewAdapter);
 
@@ -216,10 +214,6 @@ public class AreaDashboardPublicFragment extends Fragment
                 }
             }
         }
-    }
-
-    public void setOffline(boolean offline) {
-        this.offline = offline;
     }
 
     @Override

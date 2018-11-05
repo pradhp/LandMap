@@ -175,18 +175,6 @@ public class AreaContext {
         return videoThumbnailFolder;
     }
 
-    public File getAreaLocalDocumentThumbnailRoot(String areaId) {
-        String localDocumentRootPath = this.getAreaLocalDocumentRoot(areaId).getAbsolutePath();
-        String documentThumbnailRoot = localDocumentRootPath + File.separatorChar + "thumb" + File.separatorChar;
-        File documentThumbnailFolder = new File(documentThumbnailRoot);
-        if (documentThumbnailFolder.exists()) {
-            return documentThumbnailFolder;
-        } else {
-            documentThumbnailFolder.mkdirs();
-        }
-        return documentThumbnailFolder;
-    }
-
     public Bitmap getDisplayBMap() {
         return this.displayBMap;
     }
