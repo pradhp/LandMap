@@ -49,7 +49,7 @@ public class AreaContext {
     }
 
 
-    public void clearContext(){
+    private void clearContext(){
         if(currentArea != null){
             currentArea.getPositions().clear();
             currentArea.getPictures().clear();
@@ -102,8 +102,12 @@ public class AreaContext {
             }
         }
         Position centerPosition = area.getCenterPosition();
+        centerPosition.setAreaRef(area.getId());
         centerPosition.setLat(latAvg);
         centerPosition.setLng(lonAvg);
+        centerPosition.setName(area.getName() + " Center");
+        centerPosition.setDescription("Center position for " + area.getName());
+        centerPosition.setType("center");
     }
 
     // Drive specific resources.

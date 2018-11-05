@@ -83,7 +83,6 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
     }
 
     private void loadFragment() {
-        AreaContext.INSTANCE.clearContext();
         mView.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
 
         ArrayList<Area> areas = new AreaDBHelper(activity).getAreas("self");
