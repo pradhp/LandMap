@@ -233,18 +233,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         showErrorsIfAny();
     }
 
-    private void showErrorsIfAny() {
-        Bundle intentBundle = getIntent().getExtras();
-        if (intentBundle != null) {
-            String action = intentBundle.getString("action");
-            String outcome = intentBundle.getString("outcome");
-            String outcomeType = intentBundle.getString("outcome_type");
-            if((action != null) && (outcome != null) && (outcomeType != null)){
-                showMessage(action + " " + outcomeType + ". " + outcome, outcomeType);
-            }
-        }
-    }
-
     @Override
     public void receivedLocationPostion(Position pe) {
         pe.setName("P_" + pe.getId());
@@ -418,6 +406,18 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
         });
 
         builder.show();
+    }
+
+    private void showErrorsIfAny() {
+        Bundle intentBundle = getIntent().getExtras();
+        if (intentBundle != null) {
+            String action = intentBundle.getString("action");
+            String outcome = intentBundle.getString("outcome");
+            String outcomeType = intentBundle.getString("outcome_type");
+            if((action != null) && (outcome != null) && (outcomeType != null)){
+                showMessage(action + " " + outcomeType + ". " + outcome, outcomeType);
+            }
+        }
     }
 
     private void showMessage(String message, String type) {

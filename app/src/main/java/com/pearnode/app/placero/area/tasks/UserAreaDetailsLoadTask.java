@@ -84,7 +84,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 return null;
             }
         } catch (Exception e) {
-            return new String("Exception: " + e.getMessage());
+            return null;
         }
     }
 
@@ -151,7 +151,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 for (int d = 0; d < mediaElements.length(); d++) {
                     JSONObject mediaObj = (JSONObject) mediaElements.get(d);
                     Media media = new Media();
-                    media.setId(mediaObj.getLong("id"));
+                    media.setId(mediaObj.getString("id"));
                     media.setPlaceRef(mediaObj.getString("place_ref"));
                     media.setName(mediaObj.getString("name"));
                     media.setType(mediaObj.getString("type"));
@@ -172,7 +172,6 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         finalizeTaskCompletion();
     }
 

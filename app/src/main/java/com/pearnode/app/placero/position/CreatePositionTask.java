@@ -74,7 +74,7 @@ public class CreatePositionTask extends AsyncTask<Object, Void, String> {
                 return null;
             }
         } catch (Exception e) {
-            return new String("Exception: " + e.getMessage());
+            return null;
         }
     }
 

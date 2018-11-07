@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author pradipta
@@ -51,7 +52,7 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_ORG_MEDIA_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
                 + "("
-                + KEY_ID + " INTEGER PRIMARY KEY,"
+                + KEY_ID + " TEXT PRIMARY KEY,"
                 + PLACE_REF + " TEXT,"
                 + NAME + " TEXT,"
                 + TYPE + " TEXT,"
@@ -86,24 +87,31 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
     }
 
     public void addMedia(Media media) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_ID, media.getId());
-        values.put(PLACE_REF, media.getPlaceRef());
-        values.put(NAME, media.getName());
-        values.put(TYPE, media.getType());
-        values.put(THUMBNAIL_FILE_NAME, media.getTfName());
-        values.put(THUMBNAIL_FILE_PATH, media.getTfPath());
-        values.put(RESOURCE_FILE_NAME, media.getRfName());
-        values.put(RESOURCE_FILE_PATH, media.getRfPath());
-        values.put(LATITUDE, media.getLat());
-        values.put(LONGITUDE, media.getLng());
-        values.put(DIRTY_FLAG, media.getDirty());
-        values.put(DIRTY_ACTION, media.getDirtyAction());
-        values.put(CREATED_ON, media.getCreatedOn());
-        values.put(FETCHED_ON, new Long(System.currentTimeMillis()));
-        db.insert(TABLE_NAME, null, values);
-        db.close();
+        String mediaId = media.getId();
+        if(mediaId == null){
+            media.setId(UUID.randomUUID().toString());
+        }
+        Media fetchedMedia = findMediaById(mediaId);
+        if(fetchedMedia == null){
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(KEY_ID, mediaId);
+            values.put(PLACE_REF, media.getPlaceRef());
+            values.put(NAME, media.getName());
+            values.put(TYPE, media.getType());
+            values.put(THUMBNAIL_FILE_NAME, media.getTfName());
+            values.put(THUMBNAIL_FILE_PATH, media.getTfPath());
+            values.put(RESOURCE_FILE_NAME, media.getRfName());
+            values.put(RESOURCE_FILE_PATH, media.getRfPath());
+            values.put(LATITUDE, media.getLat());
+            values.put(LONGITUDE, media.getLng());
+            values.put(DIRTY_FLAG, media.getDirty());
+            values.put(DIRTY_ACTION, media.getDirtyAction());
+            values.put(CREATED_ON, media.getCreatedOn());
+            values.put(FETCHED_ON, new Long(System.currentTimeMillis()));
+            db.insert(TABLE_NAME, null, values);
+            db.close();
+        }
     }
 
     public void addMedias(List<Media> media) {
@@ -132,6 +140,15 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
         return prepareDataFromQuery(selectQuery);
     }
 
+    public Media findMediaById(String id) {
+        String selectQuery = "SELECT * FROM " + TABLE_NAME + " where "+ KEY_ID + "='" + id + "'";
+        List<Media> medias = prepareDataFromQuery(selectQuery);
+        if(medias.size() > 0 ){
+            return medias.get(0);
+        }
+        return null;
+    }
+
     private List<Media> prepareDataFromQuery(String selectQuery) {
         List<Media> medias = new ArrayList<Media>();
         SQLiteDatabase db = this.getWritableDatabase();
@@ -139,7 +156,7 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Media media = new Media();
-                media.setId(Long.parseLong(cursor.getString(cursor.getColumnIndex(KEY_ID))));
+                media.setId(cursor.getString(cursor.getColumnIndex(KEY_ID)));
                 media.setPlaceRef(cursor.getString(cursor.getColumnIndex(PLACE_REF)));
                 media.setName(cursor.getString(cursor.getColumnIndex(NAME)));
                 media.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
@@ -185,10 +202,10 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deletePlaceDocument(String placeRef, Long docId) {
+    public void deletePlaceDocument(String placeRef, String docId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
-                + PLACE_REF + " = '" + placeRef + "' and " + KEY_ID + "=" + docId);
+                + PLACE_REF + " = '" + placeRef + "' and " + KEY_ID + "='" + docId + "'");
         db.close();
     }
 

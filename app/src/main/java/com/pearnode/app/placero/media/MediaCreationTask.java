@@ -89,7 +89,7 @@ public class MediaCreationTask extends AsyncTask<Object, String, String> {
             }
             conn.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
         return response;
     }
@@ -116,7 +116,9 @@ public class MediaCreationTask extends AsyncTask<Object, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        super.onPostExecute(result);
+        if(result == null){
+            finishedListener.onTaskFinished(null); // Tell whoever was listening we have finished
+        }
         if(finishedListener != null){
             finishedListener.onTaskFinished(result); // Tell whoever was listening we have finished
         }

@@ -164,11 +164,10 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
         @Override
         public void onTaskFinished(String response) {
             try {
-                JSONObject responseObj = new JSONObject(response);
-                JSONObject createdMedia = responseObj.getJSONObject("ret_obj");
-                long id = createdMedia.getLong("id");
-                media.setId(id);
-
+                if(response == null){
+                    media.setDirty(1);
+                    media.setDirtyAction("insert");
+                }
                 MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
                 mdh.addMedia(media);
             }catch (Exception e){

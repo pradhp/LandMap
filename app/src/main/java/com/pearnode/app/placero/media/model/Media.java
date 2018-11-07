@@ -2,10 +2,12 @@ package com.pearnode.app.placero.media.model;
 
 import com.google.gson.Gson;
 
+import java.util.UUID;
+
 public class Media {
 
-    private Long id = -1L;
-    private String placeRef;
+    private String id = null;
+    private String placeRef = null;
     private String name = "";
     private String type = "";
     private String tfName = "";
@@ -19,11 +21,15 @@ public class Media {
     private Long createdOn = -1L;
     private Long fetchedOn = -1L;
 
-    public Long getId() {
+    public void Media(){
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

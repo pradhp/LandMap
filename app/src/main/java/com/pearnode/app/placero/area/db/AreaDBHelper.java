@@ -90,42 +90,45 @@ public class AreaDBHelper extends SQLiteOpenHelper {
     }
 
     public Area insertArea(Area area) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(UNIQUE_ID, area.getId());
-        contentValues.put(NAME, area.getName());
-        contentValues.put(DESCRIPTION, area.getDescription());
-        contentValues.put(CREATED_BY, area.getCreatedBy());
+        Area fetchedArea = getAreaByIdType(area.getId(), area.getType());
+        if(fetchedArea == null){
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(UNIQUE_ID, area.getId());
+            contentValues.put(NAME, area.getName());
+            contentValues.put(DESCRIPTION, area.getDescription());
+            contentValues.put(CREATED_BY, area.getCreatedBy());
 
-        Position centerPosition = area.getCenterPosition();
-        if(centerPosition != null){
-            contentValues.put(CENTER_LAT, centerPosition.getLat());
-            contentValues.put(CENTER_LON, centerPosition.getLng());
-        }else {
-            contentValues.put(CENTER_LAT, 0.0D);
-            contentValues.put(CENTER_LON, 0.0D);
-        }
+            Position centerPosition = area.getCenterPosition();
+            if(centerPosition != null){
+                contentValues.put(CENTER_LAT, centerPosition.getLat());
+                contentValues.put(CENTER_LON, centerPosition.getLng());
+            }else {
+                contentValues.put(CENTER_LAT, 0.0D);
+                contentValues.put(CENTER_LON, 0.0D);
+            }
 
-        AreaMeasure measure = area.getMeasure();
-        if(measure != null){
-            contentValues.put(MEASURE_SQ_FT, measure.getSqFeet());
-        }else {
-            contentValues.put(MEASURE_SQ_FT, 0);
-        }
+            AreaMeasure measure = area.getMeasure();
+            if(measure != null){
+                contentValues.put(MEASURE_SQ_FT, measure.getSqFeet());
+            }else {
+                contentValues.put(MEASURE_SQ_FT, 0);
+            }
 
-        Address address = area.getAddress();
-        if(address != null){
-            contentValues.put(ADDRESS, address.getStorableAddress());
-        }else {
-            contentValues.put(ADDRESS, "");
+            Address address = area.getAddress();
+            if(address != null){
+                contentValues.put(ADDRESS, address.getStorableAddress());
+            }else {
+                contentValues.put(ADDRESS, "");
+            }
+            contentValues.put(TYPE, area.getType());
+            contentValues.put(DIRTY_FLAG, area.getDirty());
+            contentValues.put(DIRTY_ACTION, area.getDirtyAction());
+            contentValues.put(CREATED_ON, System.currentTimeMillis());
+            contentValues.put(UPDATED_ON, System.currentTimeMillis());
+            db.insert(TABLE_NAME, null, contentValues);
+            db.close();
         }
-        contentValues.put(TYPE, area.getType());
-        contentValues.put(DIRTY_FLAG, area.getDirty());
-        contentValues.put(DIRTY_ACTION, area.getDirtyAction());
-        contentValues.put(CREATED_ON, System.currentTimeMillis());
-        contentValues.put(UPDATED_ON, System.currentTimeMillis());
-        db.insert(TABLE_NAME, null, contentValues);
-        db.close();
         return area;
     }
 
@@ -184,6 +187,54 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE "
                 + UNIQUE_ID + " =?"
                 , new String[]{areaId});
+        try {
+            if(cursor == null || cursor.getCount() == 0){
+                return null;
+            }
+            cursor.moveToFirst();
+            ae.setName(cursor.getString(cursor.getColumnIndex(NAME)));
+            ae.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+            ae.setCreatedBy(cursor.getString(cursor.getColumnIndex(CREATED_BY)));
+            ae.setId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
+            ae.getCenterPosition().setLat(new Double(cursor.getString(cursor.getColumnIndex(CENTER_LAT))));
+            ae.getCenterPosition().setLng(new Double(cursor.getString(cursor.getColumnIndex(CENTER_LON))));
+
+            Double sqFt = new Double(cursor.getString(cursor.getColumnIndex(MEASURE_SQ_FT)));
+            AreaMeasure measure = new AreaMeasure(sqFt);
+            ae.setMeasure(measure);
+
+            String addressText = cursor.getString(cursor.getColumnIndex(ADDRESS));
+            ae.setAddress(Address.fromStoredAddress(addressText));
+            ae.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
+            ae.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY_FLAG)));
+            ae.setDirtyAction(cursor.getString(cursor.getColumnIndex(DIRTY_ACTION)));
+
+            ae.getPictures().addAll(ddh.getPlacePictures(ae.getId()));
+            ae.getVideos().addAll(ddh.getPlaceVideos(ae.getId()));
+            ae.getDocuments().addAll(ddh.getPlaceDocuments(ae.getId()));
+            ae.setPermissions(pmh.fetchPermissionsByAreaId(ae.getId()));
+            ae.setPositions(pdh.getPositionsForArea(ae));
+
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        db.close();
+        return ae;
+    }
+
+    public Area getAreaByIdType(String areaId, String type) {
+        SQLiteDatabase db = getReadableDatabase();
+        Area ae = new Area();
+
+        MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
+        PermissionsDBHelper pmh = new PermissionsDBHelper(context);
+        PositionsDBHelper pdh = new PositionsDBHelper(context);
+
+        Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE "
+                        + UNIQUE_ID + " =? and " + TYPE + "=?"
+                , new String[]{areaId, type});
         try {
             if(cursor == null || cursor.getCount() == 0){
                 return null;

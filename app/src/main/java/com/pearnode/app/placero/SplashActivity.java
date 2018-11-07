@@ -48,18 +48,18 @@ public class SplashActivity extends Activity {
     public  boolean isPermissionsGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             ActivityCompat.requestPermissions(this, new String[]{
-                    android.Manifest.permission.INTERNET,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-                    android.Manifest.permission.ACCESS_NETWORK_STATE,
-                    android.Manifest.permission.CALL_PHONE,
-                    android.Manifest.permission.CAMERA,
-                    android.Manifest.permission.READ_PHONE_STATE,
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.GET_ACCOUNTS
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.GET_ACCOUNTS
 
             }, 1);
             return false;
@@ -72,7 +72,7 @@ public class SplashActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int i = 0; i < grantResults.length; i++) {
-            System.out.println(grantResults[i]);
+            System.out.println("Permission :" + permissions[i] + " Result - " + grantResults[i]);
             if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
                 Toast.makeText(this,"Permission " + permissions[i] + " not granted. The app will now exit.", Toast.LENGTH_LONG);
                 finish();

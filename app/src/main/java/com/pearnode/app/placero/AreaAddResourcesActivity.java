@@ -1,9 +1,12 @@
 package com.pearnode.app.placero;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -15,6 +18,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,13 +97,40 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
                     showMessage("Nothing to upload.", "error");
                     return;
                 }else {
-                    for (int i = 0; i < itemCnt; i++) {
-                        Media media = adaptor.getItem(i);
-                        AsyncTask mediaHandlerTask = new MediaHandlerTask(getApplicationContext(), null);
-                        mediaHandlerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, media);
+                    // Check internet connection here before upload.
+                    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
+                    if(activeNetworkInfo != null){
+                        try {
+                            InetAddress ipAddr = InetAddress.getByName("ftp.pearnode.com");
+                            if(!ipAddr.equals("")){
+                                for (int i = 0; i < itemCnt; i++) {
+                                    Media media = adaptor.getItem(i);
+                                    AsyncTask mediaHandlerTask = new MediaHandlerTask(getApplicationContext(), null);
+                                    mediaHandlerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, media);
+                                }
+                                Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
+                                intent.putExtra("action", "Upload Media");
+                                intent.putExtra("outcome", "Media upload started in background");
+                                intent.putExtra("outcome_type", "info");
+                                startActivity(intent);
+                            }else {
+                                Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
+                                intent.putExtra("action", "Upload Media");
+                                intent.putExtra("outcome", "Media upload failed : No internet");
+                                intent.putExtra("outcome_type", "error");
+                                startActivity(intent);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
+                        intent.putExtra("action", "Upload Media");
+                        intent.putExtra("outcome", "Media upload failed : No network");
+                        intent.putExtra("outcome_type", "error");
+                        startActivity(intent);
                     }
-                    Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
-                    startActivity(intent);
                 }
 
             }
