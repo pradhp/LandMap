@@ -61,6 +61,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(AreaAddResourcesActivity.this, AreaPictureCaptureActivity.class);
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(i);
             }
         });
@@ -70,6 +71,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(AreaAddResourcesActivity.this, AreaVideoCaptureActivity.class);
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(i);
             }
         });
@@ -79,6 +81,7 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(AreaAddResourcesActivity.this, AreaDocumentChooserActivity.class);
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(i);
             }
         });

@@ -51,6 +51,7 @@ public class AreaVideoCaptureActivity extends Activity implements LocationPositi
         fileUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(intent, CAMERA_CAPTURE_VIDEO_REQUEST_CODE);
     }
 
