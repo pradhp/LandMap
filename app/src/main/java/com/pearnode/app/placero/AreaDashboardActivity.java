@@ -36,13 +36,9 @@ import com.pearnode.app.placero.area.reporting.ReportingContext;
 import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
-import com.pearnode.app.placero.connectivity.services.AreaSynchronizationService;
-import com.pearnode.app.placero.connectivity.services.PositionSynchronizationService;
-import com.pearnode.app.placero.connectivity.services.ResourceSynchronizationService;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
-import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionConstants;
@@ -50,6 +46,7 @@ import com.pearnode.app.placero.permission.Permission;
 import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionDatabaseHandler;
+import com.pearnode.app.placero.sync.tasks.OfflineElementsSyncTask;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
@@ -178,32 +175,28 @@ public class AreaDashboardActivity extends AppCompatActivity {
         });
 
         ImageView saveOfflineView = (ImageView) findViewById(R.id.action_save_offline);
-        final ArrayList<Area> dirtyAreas = new AreaDatabaseHandler(getApplicationContext()).getDirtyAreas();
-        final ArrayList<Position> dirtyPositions = new PositionDatabaseHandler(getApplicationContext()).getDirtyPositions();
-        final List<Media> dirtyMedia = new MediaDataBaseHandler(getApplicationContext()).getDirtyMedia();
-
         saveOfflineView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Boolean offlineSync = new Boolean(GlobalContext.INSTANCE.get(GlobalContext.SYNCHRONIZING_OFFLINE));
-                if(!offlineSync){
-                    if(dirtyAreas.size() == 0 && dirtyPositions.size() == 0 && dirtyMedia.size() == 0){
-                        showMessage("All caught up !!", "info");
-                        return;
+            List<Area> dirtyAreas = new AreaDatabaseHandler(getApplicationContext()).getDirtyAreas();
+            List<Position> dirtyPositions = new PositionDatabaseHandler(getApplicationContext()).getDirtyPositions();
+            List<Media> dirtyMedia = new MediaDataBaseHandler(getApplicationContext()).getDirtyMedia();
+            if(dirtyAreas.size() == 0 && dirtyPositions.size() == 0 && dirtyMedia.size() == 0){
+                showMessage("All caught up !!", "info");
+                return;
+            }else {
+                OfflineElementsSyncTask syncTask
+                        = new OfflineElementsSyncTask(getApplicationContext(), new TaskFinishedListener() {
+                    @Override
+                    public void onTaskFinished(String response) {
+                        showMessage("Started synchronizing offline elements", "info");
                     }
-                    GlobalContext.INSTANCE.put(GlobalContext.SYNCHRONIZING_OFFLINE, new Boolean(true).toString());
-                    startService(new Intent(getApplicationContext(), PositionSynchronizationService.class));
-                    startService(new Intent(getApplicationContext(), ResourceSynchronizationService.class));
-                    startService(new Intent(getApplicationContext(), AreaSynchronizationService.class));
-                }else {
-                    showMessage("Offline sync in progress..", "error");
-                }
+                });
+                syncTask.execute();
+            }
             }
         });
 
-        if(dirtyAreas.size() > 0 || dirtyPositions.size() > 0 || dirtyMedia.size() > 0){
-            saveOfflineView.setBackgroundResource(R.drawable.rounded_corner);
-        }
 
         ImageView plotAreasAction = (ImageView) findViewById(R.id.action_plot_areas);
         plotAreasAction.setOnClickListener(new View.OnClickListener() {

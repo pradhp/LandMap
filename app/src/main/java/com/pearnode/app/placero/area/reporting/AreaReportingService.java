@@ -82,7 +82,7 @@ public class AreaReportingService extends IntentService {
         Media media = createDocument();
         if (media != null) {
             MediaDataBaseHandler ddh = new MediaDataBaseHandler(reportingContext.getActivityContext());
-            ddh.deletePlaceDocument(area.getId(), media.getId());
+            ddh.deleteAreaDocuments(area.getId(), media.getId());
             ddh.addMedia(media);
         }
         reportingContext.setGeneratingReport(false);

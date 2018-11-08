@@ -22,6 +22,7 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
+import com.pearnode.app.placero.position.tasks.RemovePositionTask;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.util.ColorProvider;

@@ -1,4 +1,4 @@
-package com.pearnode.app.placero.media;
+package com.pearnode.app.placero.media.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -12,8 +12,6 @@ import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.constants.FixedValuesRegistry;
-
-import org.json.JSONObject;
 
 import java.io.File;
 
@@ -64,8 +62,10 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                 mediaP.setName(compressedPictureFile.getName());
                 mediaP.setTfName(thumbnailFile.getName());
                 mediaP.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + thumbnailFile.getName());
+                mediaP.setTlPath(thumbnailFile.getAbsolutePath());
                 mediaP.setRfName(compressedPictureFile.getName());
                 mediaP.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/pictures/" + compressedPictureFile.getName());
+                mediaP.setRlPath(compressedPictureFile.getAbsolutePath());
                 mediaP.setType("picture");
                 mediaP.setLat(media.getLat());
                 mediaP.setLng(media.getLng());
@@ -98,9 +98,11 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                     mediaV.setPlaceRef(area.getId());
                     mediaV.setName(compressedVideoFile.getName());
                     mediaV.setTfName(thumbnailFile.getName());
+                    mediaV.setTlPath(thumbnailFile.getAbsolutePath());
                     mediaV.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + thumbnailFile.getName());
                     mediaV.setRfName(compressedVideoFile.getName());
                     mediaV.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/videos/" + compressedVideoFile.getName());
+                    mediaV.setRlPath(compressedVideoFile.getAbsolutePath());
                     mediaV.setType("video");
                     mediaV.setLat(media.getLat());
                     mediaV.setLng(media.getLng());
@@ -132,8 +134,10 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                     mediaD.setName(mediaFile.getName());
                     mediaD.setTfName(thumbnailFile.getName());
                     mediaD.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + thumbnailFile.getName());
+                    mediaD.setTlPath(thumbnailFile.getAbsolutePath());
                     mediaD.setRfName(mediaFile.getName());
                     mediaD.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/documents/" + mediaFile.getName());
+                    mediaD.setRlPath(mediaFile.getAbsolutePath());
                     mediaD.setType("document");
                     mediaD.setLat(media.getLat());
                     mediaD.setLng(media.getLng());

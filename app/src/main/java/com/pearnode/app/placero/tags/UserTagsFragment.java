@@ -77,10 +77,10 @@ public class UserTagsFragment extends Fragment implements FragmentHandler {
         topContainer.removeAll();
 
         final User user = UserContext.getInstance().getUser();
-        final UserPersistableSelections preferences = user.getSelections();
+        final UserPersistableSelections tagSelections = user.getSelections();
         final String userId = user.getEmail();
 
-        final List<Tag> userTags = preferences.getTags();
+        final List<Tag> userTags = tagSelections.getTags();
         for(Tag userTag: userTags){
             com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(userTag.getName());
             tag.tagTextSize = 15;
@@ -107,9 +107,17 @@ public class UserTagsFragment extends Fragment implements FragmentHandler {
             @Override
             public void onClick(View v) {
                 TagDatabaseHandler tdh = new TagDatabaseHandler(mActivity);
+                for (int i = 0; i < userTags.size(); i++) {
+                    Tag tag = userTags.get(i);
+                    tag.setContext("user");
+                    tag.setContextId(user.getEmail());
+                    tag.setCreatedOn(System.currentTimeMillis());
+                    tag.setType("filterable");
+                    tag.setTypeField("user");
+                }
                 // Remove and add in local
                 tdh.deleteTagsByContext("user", userId);
-                tdh.addTags(user.getSelections().getTags(), "user", user.getEmail());
+                tdh.addTags(userTags, "user", userId);
 
                 // Update on server.
                 UserTagsUpdateTask updateTask = new UserTagsUpdateTask(getContext(), null);

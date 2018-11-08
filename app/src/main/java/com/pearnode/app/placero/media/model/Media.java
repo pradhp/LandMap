@@ -12,8 +12,10 @@ public class Media {
     private String type = "";
     private String tfName = "";
     private String tfPath = "";
+    private String tlPath = "";
     private String rfName = "";
     private String rfPath = "";
+    private String rlPath = "";
     private String lat = "";
     private String lng = "";
     private Integer dirty = 0;
@@ -135,6 +137,22 @@ public class Media {
 
     public void setDirtyAction(String dirtyAction) {
         this.dirtyAction = dirtyAction;
+    }
+
+    public String getTlPath() {
+        return tlPath;
+    }
+
+    public void setTlPath(String tlPath) {
+        this.tlPath = tlPath;
+    }
+
+    public String getRlPath() {
+        return rlPath;
+    }
+
+    public void setRlPath(String rlPath) {
+        this.rlPath = rlPath;
     }
 
     @Override

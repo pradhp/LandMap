@@ -32,8 +32,10 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
     private static final String TYPE = "type";
     private static final String THUMBNAIL_FILE_NAME = "tfname";
     private static final String THUMBNAIL_FILE_PATH = "tfpath";
+    private static final String THUMBNAIL_LFILE_PATH = "tlpath";
     private static final String RESOURCE_FILE_NAME = "rfname";
     private static final String RESOURCE_FILE_PATH = "rfpath";
+    private static final String RESOURCE_LFILE_PATH = "rlpath";
     private static final String LATITUDE = "lat";
     private static final String LONGITUDE = "lng";
     private static final String DIRTY_FLAG = "dirty";
@@ -58,8 +60,10 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
                 + TYPE + " TEXT,"
                 + RESOURCE_FILE_NAME + " TEXT,"
                 + RESOURCE_FILE_PATH + " TEXT,"
+                + RESOURCE_LFILE_PATH + " TEXT,"
                 + THUMBNAIL_FILE_NAME + " TEXT,"
                 + THUMBNAIL_FILE_PATH + " TEXT,"
+                + THUMBNAIL_LFILE_PATH + " TEXT,"
                 + LATITUDE + " TEXT,"
                 + LONGITUDE + " TEXT,"
                 + DIRTY_FLAG    + " integer DEFAULT 0,"
@@ -98,8 +102,10 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
             values.put(TYPE, media.getType());
             values.put(THUMBNAIL_FILE_NAME, media.getTfName());
             values.put(THUMBNAIL_FILE_PATH, media.getTfPath());
+            values.put(THUMBNAIL_LFILE_PATH, media.getTlPath());
             values.put(RESOURCE_FILE_NAME, media.getRfName());
             values.put(RESOURCE_FILE_PATH, media.getRfPath());
+            values.put(RESOURCE_LFILE_PATH, media.getRlPath());
             values.put(LATITUDE, media.getLat());
             values.put(LONGITUDE, media.getLng());
             values.put(DIRTY_FLAG, media.getDirty());
@@ -171,18 +177,18 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
 
     public void deleteAllMedia() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, null, null);
+        db.delete(TABLE_NAME, DIRTY_FLAG + "=0", null);
         db.close();
     }
 
-    public void deletePlaceMedia(String placeRef) {
+    public void deleteAreaMedia(String placeRef) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
                 + PLACE_REF + " = '" + placeRef + "'");
         db.close();
     }
 
-    public void deletePlaceDocument(String placeRef, String docId) {
+    public void deleteAreaDocuments(String placeRef, String docId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
                 + PLACE_REF + " = '" + placeRef + "' and " + KEY_ID + "='" + docId + "'");

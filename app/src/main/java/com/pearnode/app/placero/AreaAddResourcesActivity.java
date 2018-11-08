@@ -1,12 +1,9 @@
 package com.pearnode.app.placero;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -18,7 +15,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +22,7 @@ import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaAddResourceAdaptor;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
-import com.pearnode.app.placero.media.MediaHandlerTask;
+import com.pearnode.app.placero.media.tasks.MediaHandlerTask;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.util.AreaPopulationUtil;
 import com.pearnode.app.placero.util.ColorProvider;

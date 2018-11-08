@@ -32,11 +32,11 @@ public class LocalDataRefresher implements AsyncTaskCallback {
 
         AreaDatabaseHandler adh = new AreaDatabaseHandler(this.context);
         adh.dryRun();
-        adh.deleteAreasLocally();
+        adh.deleteAllAreas();
 
         PositionDatabaseHandler pdh = new PositionDatabaseHandler(this.context);
         pdh.dryRun();
-        pdh.deletePositionsLocally();
+        pdh.deleteAllPositions();
 
         MediaDataBaseHandler ddh = new MediaDataBaseHandler(this.context);
         ddh.dryRun();
@@ -44,7 +44,7 @@ public class LocalDataRefresher implements AsyncTaskCallback {
 
         PermissionDatabaseHandler pmh = new PermissionDatabaseHandler(this.context);
         pmh.dryRun();
-        pmh.deletePermissionsLocally();
+        pmh.deleteAllPermissions();
 
         TagDatabaseHandler tdh = new TagDatabaseHandler(this.context);
         tdh.dryRun();

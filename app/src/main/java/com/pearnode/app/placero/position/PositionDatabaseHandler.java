@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
@@ -166,7 +167,7 @@ public class PositionDatabaseHandler extends SQLiteOpenHelper {
         return pes;
     }
 
-    public ArrayList<Position> getDirtyPositions() {
+    public List<Position> getDirtyPositions() {
         ArrayList<Position> pes = new ArrayList<Position>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME
@@ -204,7 +205,7 @@ public class PositionDatabaseHandler extends SQLiteOpenHelper {
         return pes;
     }
 
-    public void deletePositionsLocally() {
+    public void deleteAllPositions() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, DIRTY + " = 0", null);
         db.close();

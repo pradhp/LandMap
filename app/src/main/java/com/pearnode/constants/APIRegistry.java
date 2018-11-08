@@ -29,6 +29,10 @@ public final class APIRegistry {
     public static final String USER_SHARED_AREA_SEARCH = API_ROOT + "/area/search/user_shared.php";
     public static final String USER_SEARCH_GENERIC = API_ROOT + "/user/search/kv.php";
 
-    public static final String USER_TAGS_LOAD = API_ROOT + "/tag/user_tags.php";
+    public static final String USER_TAGS_LOAD = API_ROOT + "/tag/load_user_tags.php";
     public static final String USER_TAGS_UPDATE = API_ROOT + "/tag/update_user_tags.php";
+
+    public static final String OFFLINE_AREAS_SYNC = API_ROOT + "/area/offline/sync.php";
+    public static final String OFFLINE_POSITION_SYNC = API_ROOT + "/position/offline/sync.php";
+    public static final String OFFLINE_MEDIA_SYNC = API_ROOT + "/media/offline/sync.php";
 }

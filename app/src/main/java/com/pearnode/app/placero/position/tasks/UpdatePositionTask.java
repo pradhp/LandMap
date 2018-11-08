@@ -1,19 +1,13 @@
-package com.pearnode.app.placero.user.task;
+package com.pearnode.app.placero.position.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.pearnode.app.placero.tags.Tag;
-import com.pearnode.app.placero.user.User;
-import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserPersistableSelections;
+import com.pearnode.app.placero.position.Position;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,7 +17,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -32,32 +25,31 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Rinky on 21-10-2017.
  */
 
-public class UserTagsUpdateTask extends AsyncTask<Object, Void, String> {
+public class UpdatePositionTask extends AsyncTask<Object, Void, String> {
 
     private Context context;
     private TaskFinishedListener finishedListener;
+    private Position position = null;
 
-    public UserTagsUpdateTask(Context context, TaskFinishedListener listener) {
+    public UpdatePositionTask(Context context, TaskFinishedListener listener) {
         this.context = context;
         this.finishedListener = listener;
     }
 
     protected String doInBackground(Object... params) {
         try {
-            User user  = UserContext.getInstance().getUser();
-            URL url = new URL(APIRegistry.USER_TAGS_UPDATE);
+            position = (Position) params[0];
+            URL url = new URL(APIRegistry.POSITION_UPDATE);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
+            conn.setRequestMethod("GET");
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setUseCaches(false);
 
             Map<String, Object> urlParams = new HashMap<>();
-            urlParams.put("user", user);
-            List<Tag> tags = user.getSelections().getTags();
-            urlParams.put("tags", tags);
+            urlParams.put("position", position);
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer
@@ -84,37 +76,29 @@ public class UserTagsUpdateTask extends AsyncTask<Object, Void, String> {
                 return null;
             }
         } catch (Exception e) {
-            return null;
+            return new String("Exception: " + e.getMessage());
         }
     }
 
     @Override
     protected void onPostExecute(String result) {
-        if(result != null){
-            try {
-                User user = UserContext.getInstance().getUser();
-                UserPersistableSelections selections = user.getSelections();
-                List<Tag> userTagList = selections.getTags();
-
-                JSONObject responseObj = new JSONObject(result);
-                JSONArray tagsArr = responseObj.getJSONArray("data");
-                for (int i = 0; i < tagsArr.length(); i++) {
-                    JSONObject tagObj = (JSONObject) tagsArr.get(i);
-                    Tag tag = new Tag();
-                    tag.setId(tagObj.getLong("id"));
-                    tag.setName(tagObj.getString("name"));
-                    tag.setType(tagObj.getString("type"));
-                    tag.setContext("user");
-                    tag.setContextId(user.getEmail());
-                    tag.setCreatedOn(System.currentTimeMillis());
-                    userTagList.add(tag);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
+        if(result == null){
+            if(position.getDirty() == 1){
+                // Trying to create a dirty position on server. // Ignore this will be retried later.
+            }else {
+                position.setDirty(1);
+                position.setDirtyAction("update");
+                pdh.addPostion(position);
             }
+        }else {
+            // Area was created on server end.
+            position.setDirty(0);
+            position.setDirtyAction("none");
+            pdh.updatePosition(position);
         }
         if(finishedListener != null){
-            finishedListener.onTaskFinished("");
+            finishedListener.onTaskFinished(position.toString());
         }
     }
 

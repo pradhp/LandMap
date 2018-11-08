@@ -104,7 +104,7 @@ public class PermissionDatabaseHandler extends SQLiteOpenHelper {
         return perMap;
     }
 
-    public void deletePermissionsLocally() {
+    public void deleteAllPermissions() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, DIRTY_FLAG + " = 0 ", null);
         db.close();

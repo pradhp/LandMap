@@ -12,12 +12,12 @@ import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
-import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionDatabaseHandler;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AreaDatabaseHandler extends SQLiteOpenHelper {
 
@@ -172,7 +172,7 @@ public class AreaDatabaseHandler extends SQLiteOpenHelper {
         pdb.deletePositionByAreaId(ae.getId());
 
         MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
-        mdh.deletePlaceMedia(ae.getId());
+        mdh.deleteAreaMedia(ae.getId());
     }
 
     public Area getAreaById(String areaId) {
@@ -325,7 +325,7 @@ public class AreaDatabaseHandler extends SQLiteOpenHelper {
         return areas;
     }
 
-    public ArrayList<Area> getDirtyAreas() {
+    public List<Area> getDirtyAreas() {
         ArrayList<Area> allAreas = new ArrayList<Area>();
         SQLiteDatabase db = getReadableDatabase();
 
@@ -374,7 +374,7 @@ public class AreaDatabaseHandler extends SQLiteOpenHelper {
         return allAreas;
     }
 
-    public void deleteAreasLocally() {
+    public void deleteAllAreas() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, DIRTY_FLAG + "=0", null);
         db.close();
@@ -393,7 +393,7 @@ public class AreaDatabaseHandler extends SQLiteOpenHelper {
             db.delete(TABLE_NAME, UNIQUE_ID + "=? AND "
                     + TYPE + "=?", new String[]{areaId, "public"});
             pdh.deletePositionByAreaId(areaId);
-            ddh.deletePlaceMedia(areaId);
+            ddh.deleteAreaMedia(areaId);
             pmh.deletePermissionsByAreaId(areaId);
         }
         db.close();
@@ -412,7 +412,7 @@ public class AreaDatabaseHandler extends SQLiteOpenHelper {
             db.delete(TABLE_NAME, UNIQUE_ID + "=? AND "
                     + TYPE + "=?", new String[]{areaId, "shared"});
             pdh.deletePositionByAreaId(areaId);
-            ddh.deletePlaceMedia(areaId);
+            ddh.deleteAreaMedia(areaId);
             pmh.deletePermissionsByAreaId(areaId);
         }
         db.close();

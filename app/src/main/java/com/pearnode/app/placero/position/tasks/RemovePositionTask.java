@@ -1,8 +1,10 @@
-package com.pearnode.app.placero.position;
+package com.pearnode.app.placero.position.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pearnode.app.placero.position.Position;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;

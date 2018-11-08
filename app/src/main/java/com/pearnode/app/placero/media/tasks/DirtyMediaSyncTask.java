@@ -1,20 +1,27 @@
-package com.pearnode.app.placero.position;
+package com.pearnode.app.placero.media.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
+import com.pearnode.app.placero.media.model.Media;
+import com.pearnode.app.placero.position.Position;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -23,31 +30,47 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by Rinky on 21-10-2017.
  */
 
-public class UpdatePositionTask extends AsyncTask<Object, Void, String> {
+public class DirtyMediaSyncTask extends AsyncTask<Object, Void, String> {
 
     private Context context;
     private TaskFinishedListener finishedListener;
-    private Position position = null;
 
-    public UpdatePositionTask(Context context, TaskFinishedListener listener) {
+    public DirtyMediaSyncTask(Context context, TaskFinishedListener listener) {
         this.context = context;
         this.finishedListener = listener;
     }
 
     protected String doInBackground(Object... params) {
         try {
-            position = (Position) params[0];
-            URL url = new URL(APIRegistry.POSITION_UPDATE);
+            MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
+            List<Media> dirtyMedias = mdh.getDirtyMedia();
+
+            for (int i = 0; i < dirtyMedias.size(); i++) {
+                Media dmedia = dirtyMedias.get(i);
+                AsyncTask tUploadTask = new MediaUploadTask(context, null);
+                // Upload the thumbnail
+                File thumbnailFile = new File(dmedia.getTlPath());
+                tUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, dmedia.getType(),
+                        dmedia.getName(), thumbnailFile);
+
+                // Upload the media file.
+                AsyncTask mUploadTask = new MediaUploadTask(context, null);
+                File dmediaFile = new File(dmedia.getRlPath());
+                mUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, dmedia.getType(),
+                        dmedia.getName(), dmediaFile);
+            }
+
+            URL url = new URL(APIRegistry.OFFLINE_MEDIA_SYNC);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setUseCaches(false);
 
             Map<String, Object> urlParams = new HashMap<>();
-            urlParams.put("position", position);
+            urlParams.put("medias", dirtyMedias);
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer
@@ -74,30 +97,14 @@ public class UpdatePositionTask extends AsyncTask<Object, Void, String> {
                 return null;
             }
         } catch (Exception e) {
-            return new String("Exception: " + e.getMessage());
+            return null;
         }
     }
 
     @Override
     protected void onPostExecute(String result) {
-        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
-        if(result == null){
-            if(position.getDirty() == 1){
-                // Trying to create a dirty position on server. // Ignore this will be retried later.
-            }else {
-                position.setDirty(1);
-                position.setDirtyAction("update");
-                pdh.addPostion(position);
-            }
-        }else {
-            // Area was created on server end.
-            position.setDirty(0);
-            position.setDirtyAction("none");
-            pdh.updatePosition(position);
-        }
         if(finishedListener != null){
-            finishedListener.onTaskFinished(position.toString());
+            finishedListener.onTaskFinished(result);
         }
     }
-
 }

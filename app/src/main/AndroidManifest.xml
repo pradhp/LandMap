@@ -129,7 +129,7 @@
             android:screenOrientation="portrait"></activity>
 
         <service
-            android:name="com.pearnode.app.placero.connectivity.services.AreaSynchronizationService"
+            android:name="com.pearnode.app.placero.connectivity.services.AreaSynchronizationTask"
             android:exported="false"/>
         <service
             android:name="com.pearnode.app.placero.connectivity.services.PositionSynchronizationService"

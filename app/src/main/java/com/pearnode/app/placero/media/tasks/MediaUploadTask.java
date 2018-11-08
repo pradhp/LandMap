@@ -1,4 +1,4 @@
-package com.pearnode.app.placero.media;
+package com.pearnode.app.placero.media.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;

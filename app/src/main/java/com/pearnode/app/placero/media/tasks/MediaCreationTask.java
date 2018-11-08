@@ -1,4 +1,4 @@
-package com.pearnode.app.placero.media;
+package com.pearnode.app.placero.media.tasks;
 
 import android.os.AsyncTask;
 
@@ -25,27 +25,27 @@ import java.util.Map;
 /**
  * Created by USER on 11/5/2015.
  */
-public class MediaRemoveTask extends AsyncTask<Object, String, String> {
+public class MediaCreationTask extends AsyncTask<Object, String, String> {
 
     private TaskFinishedListener finishedListener;
     private Media media = null;
 
-    public MediaRemoveTask(TaskFinishedListener listener) {
+    public MediaCreationTask(TaskFinishedListener listener) {
         this.finishedListener = listener;
     }
 
     @Override
     protected String doInBackground(Object[] params) {
         media = (Media) params[0];
-        return removeMedia(media);
+        return addMedia(media);
     }
 
-    private String removeMedia(Media media) {
+    private String addMedia(Media media) {
         String response = null;
         HttpURLConnection conn = null;
         URL url = null;
         try {
-            url = new URL(APIRegistry.MEDIA_REMOVE);
+            url = new URL(APIRegistry.MEDIA_CREATE);
             conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
@@ -89,7 +89,7 @@ public class MediaRemoveTask extends AsyncTask<Object, String, String> {
             }
             conn.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
         return response;
     }
@@ -116,19 +116,11 @@ public class MediaRemoveTask extends AsyncTask<Object, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        super.onPostExecute(result);
-        JSONTokener tokener = new JSONTokener(result);
-        String response = "SUCCESS";
-        try {
-            JSONObject orgJsonObj = new JSONObject(tokener);
-            // Not saving to local as org details will be reloaded.
-        } catch (Exception e) {
-            e.printStackTrace();
-            response = "ERROR";
-        } finally {
-            if(finishedListener != null){
-                finishedListener.onTaskFinished(response); // Tell whoever was listening we have finished
-            }
+        if(result == null){
+            finishedListener.onTaskFinished(null); // Tell whoever was listening we have finished
+        }
+        if(finishedListener != null){
+            finishedListener.onTaskFinished(result); // Tell whoever was listening we have finished
         }
     }
 
