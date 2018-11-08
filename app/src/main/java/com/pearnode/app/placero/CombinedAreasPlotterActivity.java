@@ -48,7 +48,7 @@ import com.pearnode.app.placero.R.drawable;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
@@ -118,7 +118,7 @@ public class CombinedAreasPlotterActivity extends FragmentActivity implements On
     }
 
     private void plotUsingAreas() {
-        AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(getApplicationContext());
         for (String areaId : areaIds) {
             Area ae = adh.getAreaById(areaId);
             plotPolygonUsingPositions(ae);

@@ -15,7 +15,7 @@ import java.util.List;
 
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 
-public class TagsDBHelper extends SQLiteOpenHelper {
+public class TagDatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
     public static final String TABLE_NAME = "tag_master";
@@ -30,12 +30,12 @@ public class TagsDBHelper extends SQLiteOpenHelper {
 
     private AsyncTaskCallback callback;
 
-    public TagsDBHelper(Context context, AsyncTaskCallback callback) {
+    public TagDatabaseHandler(Context context, AsyncTaskCallback callback) {
         super(context, DATABASE_NAME, null, 1);
         this.callback = callback;
     }
 
-    public TagsDBHelper(Context context) {
+    public TagDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 

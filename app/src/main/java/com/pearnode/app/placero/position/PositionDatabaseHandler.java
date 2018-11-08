@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.util.AndroidSystemUtil;
 
-public class PositionsDBHelper extends SQLiteOpenHelper {
+public class PositionDatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
     public static final String TABLE_NAME = "pm";
@@ -33,7 +33,7 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
     private static final String CREATED_ON = "created_on";
 
     private Context context = null;
-    public PositionsDBHelper(Context context) {
+    public PositionDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, 1);
         this.context = context;
     }
@@ -202,59 +202,6 @@ public class PositionsDBHelper extends SQLiteOpenHelper {
         }
         db.close();
         return pes;
-    }
-
-    public Position getPositionById(String positionId) {
-        SQLiteDatabase db = getReadableDatabase();
-        Position pe = null;
-        Cursor cursor = db.rawQuery("select * from " + TABLE_NAME
-                        + " WHERE " + UNIQUE_ID + "=?",
-                new String[]{positionId});
-        if((cursor != null) && (cursor.getCount() > 0)){
-            cursor.moveToFirst();
-            pe = new Position();
-            pe.setId(cursor.getString(cursor.getColumnIndex(UNIQUE_ID)));
-            pe.setAreaRef(cursor.getString(cursor.getColumnIndex(AREA_REF)));
-            pe.setName(cursor.getString(cursor.getColumnIndex(NAME)));
-            pe.setType(cursor.getString(cursor.getColumnIndex(TYPE)));
-            pe.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
-
-            String latStr = cursor.getString(cursor.getColumnIndex(LAT));
-            pe.setLat(Double.parseDouble(latStr));
-
-            String lonStr = cursor.getString(cursor.getColumnIndex(LNG));
-            pe.setLng(Double.parseDouble(lonStr));
-
-            pe.setTags(cursor.getString(cursor.getColumnIndex(TAGS)));
-            pe.setCreatedOn(cursor.getString(cursor.getColumnIndex(CREATED_ON)));
-            pe.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY)));
-            pe.setDirtyAction(cursor.getString(cursor.getColumnIndex(D_ACTION)));
-
-            cursor.close();
-        }
-        db.close();
-        return pe;
-    }
-
-    private JSONObject preparePostParams(String queryType, Position pe) {
-        JSONObject postParams = new JSONObject();
-        try {
-            postParams.put("requestType", "PositionMaster");
-            postParams.put("queryType", queryType);
-            postParams.put("deviceID", AndroidSystemUtil.getDeviceId(context));
-            postParams.put("lon", pe.getLng() + "");
-            postParams.put("lat", pe.getLat() + "");
-            postParams.put("desc", pe.getDescription());
-            postParams.put("tags", pe.getTags());
-            postParams.put("name", pe.getName());
-            postParams.put("type", pe.getType());
-            postParams.put("area_ref", pe.getAreaRef());
-            postParams.put("id", pe.getId());
-            postParams.put("created_on", pe.getCreatedOn());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return postParams;
     }
 
     public void deletePositionsLocally() {

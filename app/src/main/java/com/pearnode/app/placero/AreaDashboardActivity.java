@@ -2,12 +2,9 @@ package com.pearnode.app.placero;
 
 import android.R.drawable;
 import android.app.AlertDialog.Builder;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -33,7 +30,7 @@ import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.dashboard.AreaDashboardOwnedFragment;
 import com.pearnode.app.placero.area.dashboard.AreaDashboardPublicFragment;
 import com.pearnode.app.placero.area.dashboard.AreaDashboardSharedFragment;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.reporting.AreaReportingService;
 import com.pearnode.app.placero.area.reporting.ReportingContext;
 import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
@@ -50,9 +47,9 @@ import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.Permission;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
@@ -143,7 +140,7 @@ public class AreaDashboardActivity extends AppCompatActivity {
         tagAssignmentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), TagAssignmentActivity.class);
+                Intent intent = new Intent(getApplicationContext(), TagManagementActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -181,8 +178,8 @@ public class AreaDashboardActivity extends AppCompatActivity {
         });
 
         ImageView saveOfflineView = (ImageView) findViewById(R.id.action_save_offline);
-        final ArrayList<Area> dirtyAreas = new AreaDBHelper(getApplicationContext()).getDirtyAreas();
-        final ArrayList<Position> dirtyPositions = new PositionsDBHelper(getApplicationContext()).getDirtyPositions();
+        final ArrayList<Area> dirtyAreas = new AreaDatabaseHandler(getApplicationContext()).getDirtyAreas();
+        final ArrayList<Position> dirtyPositions = new PositionDatabaseHandler(getApplicationContext()).getDirtyPositions();
         final List<Media> dirtyMedia = new MediaDataBaseHandler(getApplicationContext()).getDirtyMedia();
 
         saveOfflineView.setOnClickListener(new View.OnClickListener() {
@@ -248,11 +245,11 @@ public class AreaDashboardActivity extends AppCompatActivity {
         public void onTaskFinished(String response) {
             AreaContext.INSTANCE.setArea(area, getApplicationContext());
 
-            PermissionsDBHelper pdh = new PermissionsDBHelper(getApplicationContext());
+            PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(getApplicationContext());
             Map<String, Permission> permissions = area.getPermissions();
             Collection<Permission> permissionElements = permissions.values();
             for(Permission permission : permissionElements){
-                pdh.insertPermissionLocally(permission);
+                pdh.addPermission(permission);
             }
 
             Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);

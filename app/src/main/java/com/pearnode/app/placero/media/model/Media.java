@@ -21,7 +21,7 @@ public class Media {
     private Long createdOn = -1L;
     private Long fetchedOn = -1L;
 
-    public void Media(){
+    public Media(){
         id = UUID.randomUUID().toString();
     }
 

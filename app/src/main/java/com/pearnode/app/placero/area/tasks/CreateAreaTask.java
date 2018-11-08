@@ -3,11 +3,8 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.area.model.Address;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.google.geo.CommonGeoHelper;
-import com.pearnode.app.placero.position.Position;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -85,7 +82,7 @@ public class CreateAreaTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        AreaDBHelper adh = new AreaDBHelper(context);
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(context);
         if(result == null){
             if(area.getDirty() == 1){
                 // Trying to create a dirty area on server. // Ignore this will be retried later.

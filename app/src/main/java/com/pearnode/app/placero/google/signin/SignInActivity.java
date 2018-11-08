@@ -37,7 +37,7 @@ import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GlobalContext;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.UserDBHelper;
+import com.pearnode.app.placero.user.UserDatabaseHandler;
 import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserInfoSearchTask;
 import com.pearnode.app.placero.user.task.UserCreateTask;
@@ -65,7 +65,7 @@ public class SignInActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         // Create the database.
-        new UserDBHelper(getApplicationContext()).dryRun();
+        new UserDatabaseHandler(getApplicationContext()).dryRun();
         GlobalContext.INSTANCE.put(GlobalContext.APPLICATION_STARTED, "true");
 
         setContentView(R.layout.activity_google_signin_main);

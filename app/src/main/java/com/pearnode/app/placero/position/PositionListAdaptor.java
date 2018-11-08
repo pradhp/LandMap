@@ -34,13 +34,13 @@ public class PositionListAdaptor extends ArrayAdapter<Position> {
 
     private final ArrayList<Position> items;
     private final Context context;
-    private PositionsDBHelper pdh;
+    private PositionDatabaseHandler pdh;
 
     public PositionListAdaptor(Context context, int textViewResourceId, ArrayList<Position> items) {
         super(context, textViewResourceId, items);
         this.context = context;
         this.items = items;
-        pdh = new PositionsDBHelper(context);
+        pdh = new PositionDatabaseHandler(context);
     }
 
     @Override

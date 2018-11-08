@@ -13,19 +13,16 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
-import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.app.placero.sync.LocalDataRefresher;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
-import com.pearnode.app.placero.tags.TagsDBHelper;
-import com.pearnode.app.placero.user.UserDBHelper;
-
-import java.io.File;
+import com.pearnode.app.placero.tags.TagDatabaseHandler;
+import com.pearnode.app.placero.user.UserDatabaseHandler;
 
 public class SplashActivity extends Activity {
 
@@ -35,17 +32,17 @@ public class SplashActivity extends Activity {
         new GenericActivityExceptionHandler(this);
         setContentView(R.layout.activity_splash);
 
-        new UserDBHelper(getApplicationContext()).dryRun();
-        new AreaDBHelper(getApplicationContext()).dryRun();
-        new PositionsDBHelper(getApplicationContext()).dryRun();
-        new PermissionsDBHelper(getApplicationContext()).dryRun();
+        new UserDatabaseHandler(getApplicationContext()).dryRun();
+        new AreaDatabaseHandler(getApplicationContext()).dryRun();
+        new PositionDatabaseHandler(getApplicationContext()).dryRun();
+        new PermissionDatabaseHandler(getApplicationContext()).dryRun();
         new MediaDataBaseHandler(getApplicationContext()).dryRun();
-        new TagsDBHelper(getApplicationContext()).dryRun();
+        new TagDatabaseHandler(getApplicationContext()).dryRun();
 
-        isPermissionsGranted();
+        askForPermissions();
     }
 
-    public  boolean isPermissionsGranted() {
+    public  boolean askForPermissions() {
         if (Build.VERSION.SDK_INT >= 23) {
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.INTERNET,

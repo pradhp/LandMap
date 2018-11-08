@@ -28,4 +28,7 @@ public final class APIRegistry {
     public static final String USER_AREA_SEARCH = API_ROOT + "/area/search/user.php";
     public static final String USER_SHARED_AREA_SEARCH = API_ROOT + "/area/search/user_shared.php";
     public static final String USER_SEARCH_GENERIC = API_ROOT + "/user/search/kv.php";
+
+    public static final String USER_TAGS_LOAD = API_ROOT + "/tag/user_tags.php";
+    public static final String USER_TAGS_UPDATE = API_ROOT + "/tag/update_user_tags.php";
 }

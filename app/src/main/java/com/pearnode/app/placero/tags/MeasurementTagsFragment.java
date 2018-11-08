@@ -4,41 +4,41 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.cunoraz.tagview.TagView;
+
+import java.util.List;
+
 import com.pearnode.app.placero.R;
-import com.pearnode.app.placero.TagAssignmentActivity;
+import com.pearnode.app.placero.TagManagementActivity;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
-import com.pearnode.app.placero.util.ColorProvider;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by USER on 11/4/2017.
  */
-public class TagsAddressFragment extends Fragment implements FragmentHandler {
+public class MeasurementTagsFragment extends Fragment implements FragmentHandler {
 
     private Activity mActivity = null;
     private View mView = null;
-    private boolean offline = false;
 
-    public TagsAddressFragment(){
+    public MeasurementTagsFragment(){
         setArguments(new Bundle());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_address_tags, container, false);
+        return inflater.inflate(R.layout.fragment_area_tags, container, false);
     }
 
     @Override
@@ -54,7 +54,6 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
         if(getUserVisibleHint()){
             loadFragment();
         }
-        offline = ((TagAssignmentActivity)mActivity).isOffline();
     }
 
     @Override
@@ -68,40 +67,36 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
 
 
     private void loadFragment() {
-        final TagView topContainer = (TagView) mView.findViewById(R.id.tag_group);
-        topContainer.removeAll();
-
-        TagsDBHelper tdh = new TagsDBHelper(getContext());
-        ArrayList<Tag> tags = tdh.getTagsByContext("area");
-        for(Tag te: tags){
-            com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(te.getName());
-            tag.tagTextSize = 16;
-            tag.layoutColor = ColorProvider.getDefaultToolBarColor();
-            topContainer.addTag(tag);
-        }
-
-        final LinearLayout bottomLayout = (LinearLayout) mView.findViewById(R.id.bottom_container);
+        Button addConditionTagButton = (Button) mView.findViewById(R.id.add_condition_tag);
         final TagView bottomContainer = (TagView) mView.findViewById(R.id.tag_selection_view);
         bottomContainer.removeAll();
 
-        topContainer.setOnTagLongClickListener(new TagView.OnTagLongClickListener() {
+        addConditionTagButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onTagLongClick(com.cunoraz.tagview.Tag tag, int i) {
-                tag.isDeletable = true;
-                topContainer.remove(i);
-                bottomContainer.setOnTagDeleteListener(new TagView.OnTagDeleteListener() {
-                    @Override
-                    public void onTagDeleted(TagView tagView, com.cunoraz.tagview.Tag tag, int i) {
-                        tag.isDeletable = false;
-                        topContainer.addTag(tag);
-                        bottomContainer.remove(i);
-                        if (bottomContainer.getTags().size() == 0) {
-                            bottomLayout.setVisibility(View.GONE);
-                        }
-                    }
-                });
+            public void onClick(View v) {
+                Spinner measureSpinner = (Spinner) mView.findViewById(R.id.measure_spinner);
+                String selectedMeasure = measureSpinner.getSelectedItem().toString();
 
+                Spinner compareSpinner = (Spinner) mView.findViewById(R.id.compare_spinner);
+                String selectedCompare = compareSpinner.getSelectedItem().toString();
+
+                EditText compareValue = (EditText) mView.findViewById(R.id.compare_value);
+                Editable text = compareValue.getText();
+                if(text.toString().trim().equalsIgnoreCase("")
+                        || text.toString().equalsIgnoreCase("?")){
+                    compareValue.setText("?");
+                    return;
+                }
+                com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(selectedMeasure + " " + selectedCompare + " " + text);
+                tag.isDeletable = true;
                 bottomContainer.addTag(tag);
+            }
+        });
+
+        bottomContainer.setOnTagDeleteListener(new TagView.OnTagDeleteListener() {
+            @Override
+            public void onTagDeleted(TagView tagView, com.cunoraz.tagview.Tag tag, int i) {
+                bottomContainer.remove(i);
             }
         });
 
@@ -112,15 +107,15 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
                 List<com.cunoraz.tagview.Tag> selectedTags = bottomContainer.getTags();
                 User user = UserContext.getInstance().getUser();
                 UserPersistableSelections preferences = user.getSelections();
-                if(selectedTags.size() > 0){
-                    for(com.cunoraz.tagview.Tag selectedTag: selectedTags){
-                        Tag tag = new Tag(selectedTag.text, "filterable", "address");
+                if (selectedTags.size() > 0) {
+                    for (com.cunoraz.tagview.Tag selectedTag : selectedTags) {
+                        Tag tag = new Tag(selectedTag.text, "executable", "area");
                         preferences.getTags().add(tag);
                     }
                     Integer position = TagsDisplayMetaStore.INSTANCE.getTabPositionByType("user");
                     TabLayout tabLayout = (TabLayout) mActivity.findViewById(R.id.areas_tags_tab_layout);
                     tabLayout.getTabAt(position).select();
-                }else {
+                } else {
                     Toast.makeText(getContext(), "No tags selected. Long click on tag to select", Toast.LENGTH_LONG).show();
                 }
             }
@@ -129,7 +124,7 @@ public class TagsAddressFragment extends Fragment implements FragmentHandler {
 
     @Override
     public String getFragmentTitle() {
-        return "Address";
+        return "Measure";
     }
 
     @Override

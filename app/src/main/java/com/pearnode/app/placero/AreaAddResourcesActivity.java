@@ -59,7 +59,6 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
         ListView resListView = (ListView) findViewById(R.id.file_display_list);
         adaptor = new AreaAddResourceAdaptor(getApplicationContext(),resourceList);
         resListView.setAdapter(adaptor);
-        adaptor.notifyDataSetChanged();
 
         Button takeSnapButton = (Button) findViewById(R.id.take_snap_button);
         takeSnapButton.setOnClickListener(new OnClickListener() {
@@ -97,42 +96,18 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
                     showMessage("Nothing to upload.", "error");
                     return;
                 }else {
-                    // Check internet connection here before upload.
-                    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
-                    if(activeNetworkInfo != null){
-                        try {
-                            InetAddress ipAddr = InetAddress.getByName("ftp.pearnode.com");
-                            if(!ipAddr.equals("")){
-                                for (int i = 0; i < itemCnt; i++) {
-                                    Media media = adaptor.getItem(i);
-                                    AsyncTask mediaHandlerTask = new MediaHandlerTask(getApplicationContext(), null);
-                                    mediaHandlerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, media);
-                                }
-                                Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
-                                intent.putExtra("action", "Upload Media");
-                                intent.putExtra("outcome", "Media upload started in background");
-                                intent.putExtra("outcome_type", "info");
-                                startActivity(intent);
-                            }else {
-                                Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
-                                intent.putExtra("action", "Upload Media");
-                                intent.putExtra("outcome", "Media upload failed : No internet");
-                                intent.putExtra("outcome_type", "error");
-                                startActivity(intent);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }else {
-                        Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
-                        intent.putExtra("action", "Upload Media");
-                        intent.putExtra("outcome", "Media upload failed : No network");
-                        intent.putExtra("outcome_type", "error");
-                        startActivity(intent);
+                    for (int i = 0; i < itemCnt; i++) {
+                        Media media = adaptor.getItem(i);
+                        AsyncTask mediaHandlerTask = new MediaHandlerTask(getApplicationContext(), null);
+                        mediaHandlerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, media);
+                        AreaContext.INSTANCE.getUploadedQueue().remove(media);
                     }
+                    Intent intent = new Intent(getApplicationContext(), AreaDetailsActivity.class);
+                    intent.putExtra("action", "Upload Media");
+                    intent.putExtra("outcome", "Media upload started in background");
+                    intent.putExtra("outcome_type", "info");
+                    startActivity(intent);
                 }
-
             }
         });
         showErrorsIfAny();
@@ -182,5 +157,4 @@ public class AreaAddResourcesActivity extends AppCompatActivity {
         });
         snackbar.show();
     }
-
 }

@@ -30,7 +30,6 @@ public class AreaPictureCaptureActivity extends Activity implements LocationPosi
 
     private Uri fileUri; // file url to store image/video_map
     private final Media media = new Media();
-    private static final int TAG_CODE_PERMISSION_LOCATION = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,13 +121,9 @@ public class AreaPictureCaptureActivity extends Activity implements LocationPosi
 
     @Override
     public void locationFixTimedOut() {
-
     }
 
     @Override
     public void providerDisabled() {
-
     }
-
-
 }

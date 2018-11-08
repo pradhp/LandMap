@@ -2,15 +2,15 @@ package com.pearnode.app.placero.sync;
 
 import android.content.Context;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.tasks.PublicAreasLoadTask;
 import com.pearnode.app.placero.area.tasks.SharedAreasLoadTask;
 import com.pearnode.app.placero.area.tasks.UserAreaDetailsLoadTask;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.tags.TagsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
+import com.pearnode.app.placero.tags.TagDatabaseHandler;
 import com.pearnode.app.placero.user.UserContext;
 
 import org.json.JSONObject;
@@ -30,11 +30,11 @@ public class LocalDataRefresher implements AsyncTaskCallback {
 
     public void refreshLocalData() {
 
-        AreaDBHelper adh = new AreaDBHelper(this.context);
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(this.context);
         adh.dryRun();
         adh.deleteAreasLocally();
 
-        PositionsDBHelper pdh = new PositionsDBHelper(this.context);
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(this.context);
         pdh.dryRun();
         pdh.deletePositionsLocally();
 
@@ -42,11 +42,11 @@ public class LocalDataRefresher implements AsyncTaskCallback {
         ddh.dryRun();
         ddh.deleteAllMedia();
 
-        PermissionsDBHelper pmh = new PermissionsDBHelper(this.context);
+        PermissionDatabaseHandler pmh = new PermissionDatabaseHandler(this.context);
         pmh.dryRun();
         pmh.deletePermissionsLocally();
 
-        TagsDBHelper tdh = new TagsDBHelper(this.context);
+        TagDatabaseHandler tdh = new TagDatabaseHandler(this.context);
         tdh.dryRun();
         tdh.deleteAllTags();
 
@@ -63,7 +63,7 @@ public class LocalDataRefresher implements AsyncTaskCallback {
     }
 
     public void refreshPublicAreas() {
-        AreaDBHelper adh = new AreaDBHelper(this.context);
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(this.context);
         adh.deletePublicAreas();
 
         PublicAreasLoadTask loadTask = new PublicAreasLoadTask(this.context);
@@ -76,7 +76,7 @@ public class LocalDataRefresher implements AsyncTaskCallback {
     }
 
     public void refreshSharedAreas() {
-        AreaDBHelper adh = new AreaDBHelper(this.context);
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(this.context);
         adh.deleteSharedAreas();
 
         SharedAreasLoadTask loadTask = new SharedAreasLoadTask(this.context);
@@ -89,7 +89,7 @@ public class LocalDataRefresher implements AsyncTaskCallback {
     }
 
     public void refreshPublicAreas(String searchKey) {
-        AreaDBHelper adh = new AreaDBHelper(this.context);
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(this.context);
         adh.deletePublicAreas();
 
         PublicAreasLoadTask loadTask = new PublicAreasLoadTask(this.context);

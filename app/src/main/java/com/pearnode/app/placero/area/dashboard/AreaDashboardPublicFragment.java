@@ -17,14 +17,13 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
@@ -146,7 +145,7 @@ public class AreaDashboardPublicFragment extends Fragment
 
         @Override
         public void taskCompleted(Object result) {
-            AreaDBHelper adh = new AreaDBHelper(mActivity);
+            AreaDatabaseHandler adh = new AreaDatabaseHandler(mActivity);
 
             final ArrayList<Area> publicAreas = adh.getAreas("public");
             if(publicAreas.size() > 0){

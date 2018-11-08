@@ -7,19 +7,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
-import com.pearnode.app.placero.user.UserContext;
-import com.pearnode.app.placero.user.User;
 
-public class PermissionsDBHelper extends SQLiteOpenHelper {
+public class PermissionDatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
     public static final String TABLE_NAME = "area_access";
@@ -29,18 +22,16 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
     private static final String DIRTY_FLAG = "dirty";
     private static final String DIRTY_ACTION = "d_action";
 
-    private AsyncTaskCallback callback;
-    private Context localContext;
+    private Context context;
 
-    public PermissionsDBHelper(Context context, AsyncTaskCallback callback) {
+    public PermissionDatabaseHandler(Context context, AsyncTaskCallback callback) {
         super(context, DATABASE_NAME, null, 1);
-        this.callback = callback;
-        this.localContext = context;
+        this.context = context;
     }
 
-    public PermissionsDBHelper(Context context) {
+    public PermissionDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, 1);
-        this.localContext = context;
+        this.context = context;
     }
 
     @Override
@@ -68,7 +59,7 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    public Permission insertPermissionLocally(Permission pe) {
+    public Permission addPermission(Permission pe) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -118,13 +109,4 @@ public class PermissionsDBHelper extends SQLiteOpenHelper {
         db.delete(TABLE_NAME, DIRTY_FLAG + " = 0 ", null);
         db.close();
     }
-
-    public void setCompletionCallback(AsyncTaskCallback callback) {
-        this.callback = callback;
-    }
-
-    public void finalizeTaskCompletion() {
-        this.callback.taskCompleted("");
-    }
-
 }

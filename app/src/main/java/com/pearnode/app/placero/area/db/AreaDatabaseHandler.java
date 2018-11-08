@@ -12,18 +12,14 @@ import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.media.model.Media;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.tags.TagsDBHelper;
-import com.pearnode.app.placero.util.AndroidSystemUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 
 import java.util.ArrayList;
 
-public class AreaDBHelper extends SQLiteOpenHelper {
+public class AreaDatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
     private Context context;
@@ -45,12 +41,12 @@ public class AreaDBHelper extends SQLiteOpenHelper {
 
     private AsyncTaskCallback callback;
 
-    public AreaDBHelper(Context context) {
+    public AreaDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, 1);
         this.context = context;
     }
 
-    public AreaDBHelper(Context context, AsyncTaskCallback callback) {
+    public AreaDatabaseHandler(Context context, AsyncTaskCallback callback) {
         super(context, DATABASE_NAME, null, 1);
         this.context = context;
         this.callback = callback;
@@ -172,8 +168,11 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         db.delete(TABLE_NAME, UNIQUE_ID + " = ? ", new String[]{ae.getId()});
         db.close();
 
-        PositionsDBHelper pdb = new PositionsDBHelper(context);
+        PositionDatabaseHandler pdb = new PositionDatabaseHandler(context);
         pdb.deletePositionByAreaId(ae.getId());
+
+        MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
+        mdh.deletePlaceMedia(ae.getId());
     }
 
     public Area getAreaById(String areaId) {
@@ -181,8 +180,8 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         Area ae = new Area();
 
         MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
-        PermissionsDBHelper pmh = new PermissionsDBHelper(context);
-        PositionsDBHelper pdh = new PositionsDBHelper(context);
+        PermissionDatabaseHandler pmh = new PermissionDatabaseHandler(context);
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
 
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE "
                 + UNIQUE_ID + " =?"
@@ -229,8 +228,8 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         Area ae = new Area();
 
         MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
-        PermissionsDBHelper pmh = new PermissionsDBHelper(context);
-        PositionsDBHelper pdh = new PositionsDBHelper(context);
+        PermissionDatabaseHandler pmh = new PermissionDatabaseHandler(context);
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
 
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME + " WHERE "
                         + UNIQUE_ID + " =? and " + TYPE + "=?"
@@ -277,8 +276,8 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
 
         MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
-        PermissionsDBHelper pdh = new PermissionsDBHelper(context);
-        PositionsDBHelper posdh = new PositionsDBHelper(context);
+        PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(context);
+        PositionDatabaseHandler posdh = new PositionDatabaseHandler(context);
 
         Cursor cursor = null;
         try {
@@ -331,7 +330,7 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
 
         MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
-        PermissionsDBHelper pdh = new PermissionsDBHelper(context);
+        PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(context);
         Cursor cursor = null;
         try {
             cursor = db.rawQuery("select * from " + TABLE_NAME
@@ -375,31 +374,6 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         return allAreas;
     }
 
-    private JSONObject preparePostParams(String queryType, Area ae) {
-        JSONObject postParams = new JSONObject();
-        try {
-            postParams.put("requestType", "AreaMaster");
-            postParams.put("queryType", queryType);
-            postParams.put("deviceID", AndroidSystemUtil.getDeviceId(context));
-            postParams.put("center_lon", ae.getCenterPosition().getLng());
-            postParams.put("center_lat", ae.getCenterPosition().getLat());
-            postParams.put("desc", ae.getDescription());
-            postParams.put("name", ae.getName());
-            postParams.put("created_by", ae.getCreatedBy());
-            postParams.put("unique_id", ae.getId());
-            postParams.put("msqft", ae.getMeasure().getSqFeet());
-            Address address = ae.getAddress();
-            if (address != null) {
-                postParams.put("address", address.getStorableAddress());
-            } else {
-                postParams.put("address", "");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return postParams;
-    }
-
     public void deleteAreasLocally() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, DIRTY_FLAG + "=0", null);
@@ -409,9 +383,9 @@ public class AreaDBHelper extends SQLiteOpenHelper {
     public void deletePublicAreas() {
         ArrayList<Area> publicAreas = getAreas("public");
 
-        PositionsDBHelper pdh = new PositionsDBHelper(context);
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
         MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
-        PermissionsDBHelper pmh = new PermissionsDBHelper(context);
+        PermissionDatabaseHandler pmh = new PermissionDatabaseHandler(context);
 
         SQLiteDatabase db = getWritableDatabase();
         for (int i = 0; i < publicAreas.size(); i++) {
@@ -428,9 +402,9 @@ public class AreaDBHelper extends SQLiteOpenHelper {
     public void deleteSharedAreas() {
         ArrayList<Area> publicAreas = getAreas("shared");
 
-        PositionsDBHelper pdh = new PositionsDBHelper(context);
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
         MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
-        PermissionsDBHelper pmh = new PermissionsDBHelper(context);
+        PermissionDatabaseHandler pmh = new PermissionDatabaseHandler(context);
 
         SQLiteDatabase db = getWritableDatabase();
         for (int i = 0; i < publicAreas.size(); i++) {
@@ -443,13 +417,4 @@ public class AreaDBHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
-
-    public void insertAreaAddressTagsLocally(Area ae) {
-        TagsDBHelper tagsDBHelper = new TagsDBHelper(context);
-        Address address = ae.getAddress();
-        if (address != null) {
-            tagsDBHelper.addTags(address.getTags(), "area", ae.getId());
-        }
-    }
-
 }

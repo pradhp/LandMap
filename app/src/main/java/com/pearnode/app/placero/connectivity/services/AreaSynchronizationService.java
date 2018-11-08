@@ -3,13 +3,11 @@ package com.pearnode.app.placero.connectivity.services;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.tasks.CreateAreaTask;
 import com.pearnode.app.placero.area.tasks.RemoveAreaTask;
 import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
-import com.pearnode.app.placero.custom.GlobalContext;
-import com.pearnode.app.placero.position.PositionsDBHelper;
 
 import java.util.ArrayList;
 
@@ -25,7 +23,7 @@ public class AreaSynchronizationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        AreaDBHelper adh = new AreaDBHelper(getApplicationContext());
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(getApplicationContext());
         final ArrayList<Area> dirtyAreas = adh.getDirtyAreas();
         String[] areaIds = new String[dirtyAreas.size()];
         for (Area area : dirtyAreas) {

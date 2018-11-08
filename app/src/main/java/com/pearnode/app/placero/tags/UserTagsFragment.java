@@ -14,24 +14,25 @@ import android.widget.Button;
 import com.cunoraz.tagview.TagView;
 import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.R;
-import com.pearnode.app.placero.TagAssignmentActivity;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserPersistableSelections;
+import com.pearnode.app.placero.user.task.UserTagsLoadingTask;
+import com.pearnode.app.placero.user.task.UserTagsUpdateTask;
+import com.pearnode.common.TaskFinishedListener;
 
 import java.util.List;
 
 /**
  * Created by USER on 11/4/2017.
  */
-public class TagsUserFragment extends Fragment implements FragmentHandler {
+public class UserTagsFragment extends Fragment implements FragmentHandler {
 
     private Activity mActivity = null;
     private View mView = null;
-    private boolean offline = false;
 
-    public TagsUserFragment(){
+    public UserTagsFragment(){
         setArguments(new Bundle());
     }
 
@@ -53,7 +54,6 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
         if(getUserVisibleHint()){
             loadFragment();
         }
-        offline = ((TagAssignmentActivity)mActivity).isOffline();
     }
 
     @Override
@@ -61,7 +61,13 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
         super.setUserVisibleHint(visible);
         if (visible && (mView != null) && (mActivity != null)) {
             TagsDisplayMetaStore.INSTANCE.setActiveTab(TagsDisplayMetaStore.TAB_USER_SEQ);
-            loadFragment();
+            UserTagsLoadingTask tagsLoadingTask = new UserTagsLoadingTask(getContext(), new TaskFinishedListener() {
+                @Override
+                public void onTaskFinished(String response) {
+                    loadFragment();
+                }
+            });
+            tagsLoadingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
@@ -70,7 +76,7 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
         final TagView topContainer = (TagView) mView.findViewById(R.id.tag_group);
         topContainer.removeAll();
 
-        User user = UserContext.getInstance().getUser();
+        final User user = UserContext.getInstance().getUser();
         final UserPersistableSelections preferences = user.getSelections();
         final String userId = user.getEmail();
 
@@ -100,17 +106,16 @@ public class TagsUserFragment extends Fragment implements FragmentHandler {
         addTags.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TagsDBHelper tdh = new TagsDBHelper(mActivity);
+                TagDatabaseHandler tdh = new TagDatabaseHandler(mActivity);
+                // Remove and add in local
                 tdh.deleteTagsByContext("user", userId);
-                for (int i = 0; i < userTags.size(); i++) {
-                    Tag tag = userTags.get(i);
-                    tag.setContext("user");
-                    tag.setContextId(userId);
-                    tag.setCreatedOn(System.currentTimeMillis());
-                    tdh.addTag(tag);
-                    CreateTagTask createTagTask = new CreateTagTask(getContext(), null);
-                    createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
-                }
+                tdh.addTags(user.getSelections().getTags(), "user", user.getEmail());
+
+                // Update on server.
+                UserTagsUpdateTask updateTask = new UserTagsUpdateTask(getContext(), null);
+                updateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+                // Start the details activity
                 Intent intent = new Intent(mActivity, AreaDashboardActivity.class);
                 startActivity(intent);
             }

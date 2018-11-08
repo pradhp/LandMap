@@ -34,13 +34,8 @@ public class AreaVideoDisplayFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         GridView gridView = (GridView) this.getView().findViewById(R.id.gridView);
-
-        MediaDataBaseHandler mdh = new MediaDataBaseHandler(getContext());
         Area area = AreaContext.INSTANCE.getArea();
-        String areaId = area.getId();
-        List<Media> placeVideos = mdh.getPlaceVideos(areaId);
-
-        VideoDisplayAdaptor adaptor = new VideoDisplayAdaptor(getContext(), R.layout.media_display_item, placeVideos);
+        VideoDisplayAdaptor adaptor = new VideoDisplayAdaptor(getContext(), R.layout.media_display_item, area.getVideos());
         adaptor.setFragment(this);
         gridView.setAdapter(adaptor);
     }

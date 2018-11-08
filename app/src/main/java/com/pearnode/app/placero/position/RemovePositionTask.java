@@ -80,7 +80,7 @@ public class RemovePositionTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        PositionsDBHelper pdh = new PositionsDBHelper(context);
+        PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
         if(result == null){
             if(position.getDirty() == 1){
                 // Trying to create a dirty position on server. // Ignore this will be retried later.

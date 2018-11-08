@@ -28,7 +28,6 @@ import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.tasks.RemoveAreaTask;
-import com.pearnode.app.placero.connectivity.ConnectivityChangeReceiver;
 import com.pearnode.app.placero.custom.GenericActivityExceptionHandler;
 import com.pearnode.app.placero.custom.LocationPositionReceiver;
 import com.pearnode.app.placero.permission.PermissionConstants;
@@ -36,7 +35,6 @@ import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.position.CreatePositionTask;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionListAdaptor;
-import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
 import com.pearnode.app.placero.user.UserContext;
@@ -83,7 +81,6 @@ public class AreaDetailsActivity extends AppCompatActivity implements LocationPo
 
         adaptor = new PositionListAdaptor(this, R.id.positionList, positionList);
         posListView.setAdapter(adaptor);
-        adaptor.notifyDataSetChanged();
 
         TextView areaNameView = (TextView) findViewById(R.id.area_name_text);
         String areaName = area.getName();

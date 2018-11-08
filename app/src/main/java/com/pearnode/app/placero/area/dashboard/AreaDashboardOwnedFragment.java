@@ -23,7 +23,7 @@ import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.area.tasks.CreateAreaTask;
@@ -31,7 +31,7 @@ import com.pearnode.app.placero.custom.FragmentFilterHandler;
 import com.pearnode.app.placero.custom.FragmentHandler;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.Permission;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.tags.Tag;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
@@ -85,7 +85,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
     private void loadFragment() {
         mView.findViewById(id.splash_panel).setVisibility(View.VISIBLE);
 
-        ArrayList<Area> areas = new AreaDBHelper(activity).getAreas("self");
+        ArrayList<Area> areas = new AreaDatabaseHandler(activity).getAreas("self");
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
 
         ImageView createAreaView = (ImageView) mView.findViewById(id.owned_area_empty_layout_action);
@@ -178,11 +178,11 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
         public void onTaskFinished(String response) {
             AreaContext.INSTANCE.setArea(area, getContext());
 
-            PermissionsDBHelper pdh = new PermissionsDBHelper(getContext());
+            PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(getContext());
             Map<String, Permission> permissions = area.getPermissions();
             Collection<Permission> permissionElements = permissions.values();
             for(Permission permission : permissionElements){
-                pdh.insertPermissionLocally(permission);
+                pdh.addPermission(permission);
             }
 
             Intent intent = new Intent(getContext(), AreaDetailsActivity.class);

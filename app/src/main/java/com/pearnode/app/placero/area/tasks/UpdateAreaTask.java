@@ -3,8 +3,7 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.google.geo.CommonGeoHelper;
@@ -96,7 +95,7 @@ public class UpdateAreaTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        AreaDBHelper adh = new AreaDBHelper(context);
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(context);
         if(result == null){
             area.setDirty(1);
             area.setDirtyAction("update");

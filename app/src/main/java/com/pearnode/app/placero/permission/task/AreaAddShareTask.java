@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.pearnode.app.placero.area.AreaContext;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.user.User;
 import com.pearnode.app.placero.user.UserContext;

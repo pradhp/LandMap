@@ -62,12 +62,12 @@ import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.PermissionConstants;
 import com.pearnode.app.placero.permission.PermissionManager;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.app.placero.position.RemovePositionTask;
 import com.pearnode.app.placero.position.UpdatePositionTask;
 import com.pearnode.app.placero.tags.CreateTagTask;
 import com.pearnode.app.placero.tags.Tag;
-import com.pearnode.app.placero.tags.TagsDBHelper;
+import com.pearnode.app.placero.tags.TagDatabaseHandler;
 import com.pearnode.app.placero.util.ColorProvider;
 import com.pearnode.common.TaskFinishedListener;
 
@@ -199,7 +199,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
         @Override
         public void onTaskFinished(String response) {
             List<Tag> tags = ae.getAddress().getTags();
-            TagsDBHelper tdh = new TagsDBHelper(getApplicationContext());
+            TagDatabaseHandler tdh = new TagDatabaseHandler(getApplicationContext());
             for (int i = 0; i < tags.size(); i++) {
                 Tag tag = tags.get(i);
                 tag.setContext("area");
@@ -441,7 +441,7 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
                     UpdatePositionTask updateTask = new UpdatePositionTask(getApplicationContext(), new TaskFinishedListener() {
                         @Override
                         public void onTaskFinished(String response) {
-                            PositionsDBHelper pdh = new PositionsDBHelper(getApplicationContext());
+                            PositionDatabaseHandler pdh = new PositionDatabaseHandler(getApplicationContext());
                             ae.setPositions(pdh.getPositionsForArea(ae));
                             ac.deriveCenter(ae);
                             polygon.remove();

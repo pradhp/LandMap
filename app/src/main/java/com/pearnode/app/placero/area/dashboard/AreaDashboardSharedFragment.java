@@ -18,14 +18,13 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
 import com.pearnode.app.placero.area.AreaDashboardDisplayMetaStore;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.res.disp.AreaListAdaptor;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.custom.FragmentFilterHandler;
@@ -101,7 +100,7 @@ public class AreaDashboardSharedFragment extends Fragment
             }
         });
 
-        AreaDBHelper adh = new AreaDBHelper(mView.getContext());
+        AreaDatabaseHandler adh = new AreaDatabaseHandler(mView.getContext());
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
         ArrayList<Area> sharedAreas = adh.getAreas("shared");
         viewAdapter = new AreaListAdaptor(mView.getContext(), layout.area_element_row, sharedAreas);

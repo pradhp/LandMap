@@ -3,8 +3,6 @@ package com.pearnode.app.placero.tags;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -82,7 +80,7 @@ public class CreateTagTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        TagsDBHelper tdh = new TagsDBHelper(context);
+        TagDatabaseHandler tdh = new TagDatabaseHandler(context);
         if(result == null){
             if(tag.getDirty() == 1){
                 // Trying to create a dirty tag on server. // Ignore this will be retried later.

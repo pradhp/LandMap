@@ -16,16 +16,16 @@ import javax.net.ssl.HttpsURLConnection;
 
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.Permission;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.tags.TagsDBHelper;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
+import com.pearnode.app.placero.tags.TagDatabaseHandler;
 import com.pearnode.constants.APIRegistry;
 
 /**
@@ -35,20 +35,20 @@ import com.pearnode.constants.APIRegistry;
 public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     private Context localContext;
-    private AreaDBHelper adh;
-    private PositionsDBHelper pdh;
-    private PermissionsDBHelper pmh;
-    private TagsDBHelper tdh;
+    private AreaDatabaseHandler adh;
+    private PositionDatabaseHandler pdh;
+    private PermissionDatabaseHandler pmh;
+    private TagDatabaseHandler tdh;
     private MediaDataBaseHandler pmdh;
 
     private AsyncTaskCallback callback;
 
     public PublicAreasLoadTask(Context appContext) {
         localContext = appContext;
-        adh = new AreaDBHelper(localContext);
-        pdh = new PositionsDBHelper(localContext);
-        pmh = new PermissionsDBHelper(localContext, null);
-        tdh = new TagsDBHelper(localContext, null);
+        adh = new AreaDatabaseHandler(localContext);
+        pdh = new PositionDatabaseHandler(localContext);
+        pmh = new PermissionDatabaseHandler(localContext, null);
+        tdh = new TagDatabaseHandler(localContext, null);
         pmdh = new MediaDataBaseHandler(localContext);
     }
 
@@ -164,7 +164,7 @@ public class PublicAreasLoadTask extends AsyncTask<JSONObject, Void, String> {
                 pe.setUserId(permissionObj.getString("user_id"));
                 pe.setAreaId(permissionObj.getString("area_id"));
                 pe.setFunctionCode(permissionObj.getString("function_code"));
-                pmh.insertPermissionLocally(pe);
+                pmh.addPermission(pe);
             }
         } catch (Exception e) {
             e.printStackTrace();

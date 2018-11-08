@@ -3,7 +3,7 @@ package com.pearnode.app.placero.area.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.pearnode.app.placero.area.db.AreaDBHelper;
+import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
@@ -11,10 +11,10 @@ import com.pearnode.app.placero.custom.AsyncTaskCallback;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.permission.Permission;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
-import com.pearnode.app.placero.tags.TagsDBHelper;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
+import com.pearnode.app.placero.tags.TagDatabaseHandler;
 import com.pearnode.app.placero.user.UserContext;
 import com.pearnode.app.placero.user.User;
 import com.pearnode.constants.APIRegistry;
@@ -33,20 +33,20 @@ import javax.net.ssl.HttpsURLConnection;
 public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String> {
 
     private Context localContext;
-    private AreaDBHelper adh;
-    private PositionsDBHelper pdh;
-    private PermissionsDBHelper pmh;
-    private TagsDBHelper tdh;
+    private AreaDatabaseHandler adh;
+    private PositionDatabaseHandler pdh;
+    private PermissionDatabaseHandler pmh;
+    private TagDatabaseHandler tdh;
     private MediaDataBaseHandler pmdh;
 
     private AsyncTaskCallback callback;
 
     public UserAreaDetailsLoadTask(Context appContext) {
         localContext = appContext;
-        adh = new AreaDBHelper(localContext);
-        pdh = new PositionsDBHelper(localContext);
-        pmh = new PermissionsDBHelper(localContext, null);
-        tdh = new TagsDBHelper(localContext, null);
+        adh = new AreaDatabaseHandler(localContext);
+        pdh = new PositionDatabaseHandler(localContext);
+        pmh = new PermissionDatabaseHandler(localContext, null);
+        tdh = new TagDatabaseHandler(localContext, null);
         pmdh = new MediaDataBaseHandler(localContext);
     }
 
@@ -129,7 +129,7 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
                 permission.setUserId(permissionObj.getString("source_user"));
                 permission.setAreaId(permissionObj.getString("area_id"));
                 permission.setFunctionCode(permissionObj.getString("function_codes"));
-                pmh.insertPermissionLocally(permission);
+                pmh.addPermission(permission);
 
                 JSONArray positions = dataObj.getJSONArray("positions");
                 for (int p = 0; p < positions.length(); p++) {

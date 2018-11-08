@@ -88,9 +88,6 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
 
     public void addMedia(Media media) {
         String mediaId = media.getId();
-        if(mediaId == null){
-            media.setId(UUID.randomUUID().toString());
-        }
         Media fetchedMedia = findMediaById(mediaId);
         if(fetchedMedia == null){
             SQLiteDatabase db = this.getWritableDatabase();
@@ -111,12 +108,6 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
             values.put(FETCHED_ON, new Long(System.currentTimeMillis()));
             db.insert(TABLE_NAME, null, values);
             db.close();
-        }
-    }
-
-    public void addMedias(List<Media> media) {
-        for (Media eachMedia : media) {
-            addMedia(eachMedia);
         }
     }
 
@@ -178,17 +169,6 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
         return medias;
     }
 
-    public int getMediaCount() {
-        String countQuery = "SELECT count(*) FROM " + TABLE_NAME;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.moveToFirst();
-        String count = cursor.getString(0);
-        cursor.close();
-        db.close();
-        return Integer.parseInt(count);
-    }
-
     public void deleteAllMedia() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
@@ -207,31 +187,6 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
                 + PLACE_REF + " = '" + placeRef + "' and " + KEY_ID + "='" + docId + "'");
         db.close();
-    }
-
-    public boolean checkIfStale(){
-        String selectQuery = "SELECT * FROM "+ TABLE_NAME + " limit 0,1";
-        List<Media> mediaList = prepareDataFromQuery(selectQuery);
-        if(mediaList.size() > 0){
-            Media media = mediaList.get(0);
-            Long fetchedOn = media.getFetchedOn();
-            Date fetchDate = new Date(fetchedOn);
-
-            Calendar todayCal = Calendar.getInstance();
-            // set the calendar to start of today
-            todayCal.set(Calendar.HOUR_OF_DAY, 0);
-            todayCal.set(Calendar.MINUTE, 0);
-            todayCal.set(Calendar.SECOND, 0);
-            todayCal.set(Calendar.MILLISECOND, 0);
-            Date todayDate = todayCal.getTime();
-
-            if(fetchDate.before(todayDate)){
-                return true;
-            }
-        }else {
-            return true;
-        }
-        return false;
     }
 
 }

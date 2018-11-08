@@ -10,7 +10,7 @@ import com.pearnode.app.placero.util.AndroidSystemUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class UserDBHelper extends SQLiteOpenHelper {
+public class UserDatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "com.pearnode.app.placero.db";
     private Context localContext;
@@ -23,7 +23,7 @@ public class UserDBHelper extends SQLiteOpenHelper {
     public static final String PHOTO_URL = "photo_url";
     public static final String AUTH_SYS_ID = "auth_sys_id";
 
-    public UserDBHelper(Context context) {
+    public UserDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, 1);
         this.localContext = context;
     }

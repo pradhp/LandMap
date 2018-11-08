@@ -121,7 +121,7 @@
             android:screenOrientation="portrait"></activity>
 
         <activity
-            android:name="com.pearnode.app.placero.TagAssignmentActivity"
+            android:name="com.pearnode.app.placero.TagManagementActivity"
             android:label="@string/choose_document"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"

@@ -9,10 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
 
 /**
@@ -25,39 +26,43 @@ public class AreaContext {
     private AreaContext() {
     }
 
-    private Area currentArea;
+    private Area ca;
     private Bitmap displayBMap;
     private List<Bitmap> viewBitmaps = new ArrayList<>();
     private final ArrayList<Media> mediaQueue = new ArrayList<>();
 
     public Area getArea() {
-        return this.currentArea;
+        return this.ca;
     }
 
     public void setArea(Area area, Context context) {
         clearContext();
-
-        currentArea = area;
+        ca = area;
         mediaQueue.clear();
 
-        PositionsDBHelper pdb = new PositionsDBHelper(context);
-        currentArea.setPositions(pdb.getPositionsForArea(currentArea));
-        deriveCenter(currentArea);
+        PositionDatabaseHandler pdb = new PositionDatabaseHandler(context);
+        ca.setPositions(pdb.getPositionsForArea(ca));
+        deriveCenter(ca);
 
-        PermissionsDBHelper pdh = new PermissionsDBHelper(context);
-        currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getId()));
+        PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(context);
+        ca.setPermissions(pdh.fetchPermissionsByAreaId(ca.getId()));
+
+        MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
+        ca.setPictures(mdh.getPlacePictures(ca.getId()));
+        ca.setVideos(mdh.getPlaceVideos(ca.getId()));
+        ca.setDocuments(mdh.getPlaceDocuments(ca.getId()));
     }
 
 
     private void clearContext(){
-        if(currentArea != null){
-            currentArea.getPositions().clear();
-            currentArea.getPictures().clear();
-            currentArea.getVideos().clear();
-            currentArea.getDocuments().clear();
-            currentArea.getPermissions().clear();
+        if(ca != null){
+            ca.getPositions().clear();
+            ca.getPictures().clear();
+            ca.getVideos().clear();
+            ca.getDocuments().clear();
+            ca.getPermissions().clear();
 
-            currentArea = null;
+            ca = null;
             mediaQueue.clear();
 
             if(displayBMap != null){

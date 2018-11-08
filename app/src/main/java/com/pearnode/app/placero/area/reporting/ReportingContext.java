@@ -3,13 +3,11 @@ package com.pearnode.app.placero.area.reporting;
 import android.content.Context;
 
 import java.io.File;
-import java.util.List;
 
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
-import com.pearnode.app.placero.permission.PermissionsDBHelper;
-import com.pearnode.app.placero.position.Position;
-import com.pearnode.app.placero.position.PositionsDBHelper;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
+import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
 
 /**
@@ -34,7 +32,7 @@ public class ReportingContext {
         this.currentArea = area;
         this.context = context;
 
-        PositionsDBHelper pdb = new PositionsDBHelper(context);
+        PositionDatabaseHandler pdb = new PositionDatabaseHandler(context);
         this.currentArea.setPositions(pdb.getPositionsForArea(this.currentArea));
 
         MediaDataBaseHandler ddh = new MediaDataBaseHandler(context);
@@ -42,7 +40,7 @@ public class ReportingContext {
         this.currentArea.setVideos(ddh.getPlaceVideos(this.currentArea.getId()));
         this.currentArea.setDocuments(ddh.getPlaceDocuments(this.currentArea.getId()));
 
-        PermissionsDBHelper pdh = new PermissionsDBHelper(context);
+        PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(context);
         currentArea.setPermissions(pdh.fetchPermissionsByAreaId(currentArea.getId()));
     }
 
