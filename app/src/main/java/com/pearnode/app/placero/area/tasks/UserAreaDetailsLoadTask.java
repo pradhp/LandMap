@@ -50,9 +50,6 @@ public class UserAreaDetailsLoadTask extends AsyncTask<JSONObject, Void, String>
         pmdh = new MediaDataBaseHandler(localContext);
     }
 
-    protected void onPreExecute() {
-    }
-
     protected String doInBackground(JSONObject... postDataParams) {
         try {
             String urlString = APIRegistry.USER_AREA_SEARCH + "?us=";

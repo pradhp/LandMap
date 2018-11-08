@@ -37,11 +37,19 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
             File mediaFile = new File(media.getRfPath());
             Area area = AreaContext.INSTANCE.getArea();
 
+            SiliCompressor compressor = SiliCompressor.with(context);
+
             ThumbnailCreator thumbnailCreator = new ThumbnailCreator(context);
-            File thumbnailFile = thumbnailCreator.createThumbnail(media);
+            File tnFile = thumbnailCreator.createThumbnail(media);
+            File tnRoot = LocalFolderStructureManager.getThumbnailStorageDir();
+            String ctnPath = compressor.compress(tnFile.getAbsolutePath(), tnRoot, true);
+            File ctnFile = new File(ctnPath);
+
+            AsyncTask thumbnailUploadTask = new MediaUploadTask(context, null);
+            thumbnailUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                    "thumbnail", ctnFile.getName(), ctnFile);
 
             if(mediaType.equalsIgnoreCase("picture")){
-                SiliCompressor compressor = SiliCompressor.with(context);
                 String compressedFilePath = compressor.compress(mediaFile.getAbsolutePath(),
                         LocalFolderStructureManager.getImageStorageDir(), true);
                 File compressedPictureFile = new File(compressedFilePath);
@@ -50,19 +58,13 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                 mediaUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                         "picture", compressedPictureFile.getName(), compressedPictureFile);
 
-                if(thumbnailFile != null && thumbnailFile.exists()){
-                    AsyncTask thumbnailUploadTask = new MediaUploadTask(context, null);
-                    thumbnailUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                            "thumbnail", thumbnailFile.getName(), thumbnailFile);
-                }
-
                 // Add the picture
                 Media mediaP = new Media();
                 mediaP.setPlaceRef(area.getId());
                 mediaP.setName(compressedPictureFile.getName());
-                mediaP.setTfName(thumbnailFile.getName());
-                mediaP.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + thumbnailFile.getName());
-                mediaP.setTlPath(thumbnailFile.getAbsolutePath());
+                mediaP.setTfName(ctnFile.getName());
+                mediaP.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + ctnFile.getName());
+                mediaP.setTlPath(ctnFile.getAbsolutePath());
                 mediaP.setRfName(compressedPictureFile.getName());
                 mediaP.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/pictures/" + compressedPictureFile.getName());
                 mediaP.setRlPath(compressedPictureFile.getAbsolutePath());
@@ -77,9 +79,7 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
 
                 MediaCreationTask mediaCreationTaskP = new MediaCreationTask(mediaCreateListenerP);
                 mediaCreationTaskP.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mediaP);
-
             } else if(mediaType.equalsIgnoreCase("video")){
-                SiliCompressor compressor = SiliCompressor.with(context);
                 try{
                     String compressedFilePath = compressor.compressVideo(mediaFile.getAbsolutePath(),
                             LocalFolderStructureManager.getVideoStorageDir().getAbsolutePath());
@@ -89,17 +89,13 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                     videoUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                             "video", compressedVideoFile.getName(), compressedVideoFile);
 
-                    AsyncTask thumbnailUploadTask = new MediaUploadTask(context, null);
-                    thumbnailUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                            "thumbnail", thumbnailFile.getName(), thumbnailFile);
-
                     // Add the video
                     Media mediaV = new Media();
                     mediaV.setPlaceRef(area.getId());
                     mediaV.setName(compressedVideoFile.getName());
-                    mediaV.setTfName(thumbnailFile.getName());
-                    mediaV.setTlPath(thumbnailFile.getAbsolutePath());
-                    mediaV.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + thumbnailFile.getName());
+                    mediaV.setTfName(ctnFile.getName());
+                    mediaV.setTlPath(ctnFile.getAbsolutePath());
+                    mediaV.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + ctnFile.getName());
                     mediaV.setRfName(compressedVideoFile.getName());
                     mediaV.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/videos/" + compressedVideoFile.getName());
                     mediaV.setRlPath(compressedVideoFile.getAbsolutePath());
@@ -124,17 +120,13 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
                     documentUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                             "document", media.getName(), mediaFile);
 
-                    AsyncTask thumbnailUploadTask = new MediaUploadTask(context, null);
-                    thumbnailUploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                            "thumbnail", thumbnailFile.getName(), thumbnailFile);
-
                     // Add the video
                     Media mediaD = new Media();
                     mediaD.setPlaceRef(area.getId());
                     mediaD.setName(mediaFile.getName());
-                    mediaD.setTfName(thumbnailFile.getName());
-                    mediaD.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + thumbnailFile.getName());
-                    mediaD.setTlPath(thumbnailFile.getAbsolutePath());
+                    mediaD.setTfName(ctnFile.getName());
+                    mediaD.setTfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/thumbnails/" + ctnFile.getName());
+                    mediaD.setTlPath(ctnFile.getAbsolutePath());
                     mediaD.setRfName(mediaFile.getName());
                     mediaD.setRfPath(FixedValuesRegistry.MEDIA_ACCESS_URL + "/documents/" + mediaFile.getName());
                     mediaD.setRlPath(mediaFile.getAbsolutePath());
@@ -167,15 +159,20 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
         }
         @Override
         public void onTaskFinished(String response) {
-            try {
-                if(response == null){
-                    media.setDirty(1);
-                    media.setDirtyAction("insert");
-                }
-                MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
-                mdh.addMedia(media);
-            }catch (Exception e){
-                e.printStackTrace();
+            if(response == null){
+                media.setDirty(1);
+                media.setDirtyAction("insert");
+            }
+            MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
+            mdh.addMedia(media);
+
+            Area area = AreaContext.INSTANCE.getArea();
+            if(media.getType().equals("picture")){
+                area.getPictures().add(media);
+            }else if(media.getType().equals("video")){
+                area.getVideos().add(media);
+            }else if(media.getType().equals("document")){
+                area.getDocuments().add(media);
             }
         }
     }

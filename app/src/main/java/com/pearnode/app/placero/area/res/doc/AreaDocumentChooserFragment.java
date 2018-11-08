@@ -90,12 +90,9 @@ public class AreaDocumentChooserFragment extends Fragment {
                     resource.setDirty(1);
                     resource.setDirtyAction("upload");
 
-                    ae.getDocuments().add(resource);
                     areaContext.addMediaToQueue(resource);
-
                     Intent intent = new Intent(getContext(), AreaAddResourcesActivity.class);
                     startActivity(intent);
-
                     getActivity().finish();
                 }
             });

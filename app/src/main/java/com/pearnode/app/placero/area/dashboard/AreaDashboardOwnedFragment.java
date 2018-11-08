@@ -199,7 +199,7 @@ public class AreaDashboardOwnedFragment extends Fragment implements FragmentFilt
     public void doFilter(List<String> filterables, List<String> executables) {
         ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
         AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
-        if(adapter.getCount() == 0){
+        if(adapter == null || adapter.getCount() == 0){
             return;
         }
         EditText inputSearch = (EditText) activity.findViewById(id.dashboard_search_box);

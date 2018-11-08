@@ -66,7 +66,6 @@ public class ThumbnailCreator {
 
         // Let's search just the part of the image necessary for creating the thumbBmap, not the whole image
         Bitmap thumbBmap = BitmapFactory.decodeFile(resourceFile.getAbsolutePath(), bitmapOptions);
-
         File thumbnailRoot = LocalFolderStructureManager.getThumbnailStorageDir();
         String thumbFilePath = thumbnailRoot.getAbsolutePath()
                 + File.separatorChar + "TH_" + resourceFile.getName();

@@ -61,13 +61,7 @@ public class UserTagsFragment extends Fragment implements FragmentHandler {
         super.setUserVisibleHint(visible);
         if (visible && (mView != null) && (mActivity != null)) {
             TagsDisplayMetaStore.INSTANCE.setActiveTab(TagsDisplayMetaStore.TAB_USER_SEQ);
-            UserTagsLoadingTask tagsLoadingTask = new UserTagsLoadingTask(getContext(), new TaskFinishedListener() {
-                @Override
-                public void onTaskFinished(String response) {
-                    loadFragment();
-                }
-            });
-            tagsLoadingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            loadFragment();
         }
     }
 

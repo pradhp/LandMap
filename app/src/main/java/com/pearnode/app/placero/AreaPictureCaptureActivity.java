@@ -80,12 +80,9 @@ public class AreaPictureCaptureActivity extends Activity implements LocationPosi
                 media.setDirty(1);
                 media.setDirtyAction("upload");
 
-                ae.getPictures().add(media);
                 areaContext.addMediaToQueue(media);
-
                 Intent i = new Intent(this, AreaAddResourcesActivity.class);
                 startActivity(i);
-
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // Cancelled case
                 finish();

@@ -1,6 +1,7 @@
 package com.pearnode.app.placero.sync;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.tasks.PublicAreasLoadTask;
@@ -12,6 +13,8 @@ import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.PositionDatabaseHandler;
 import com.pearnode.app.placero.tags.TagDatabaseHandler;
 import com.pearnode.app.placero.user.UserContext;
+import com.pearnode.app.placero.user.task.UserTagsLoadingTask;
+import com.pearnode.common.TaskFinishedListener;
 
 import org.json.JSONObject;
 
@@ -29,7 +32,24 @@ public class LocalDataRefresher implements AsyncTaskCallback {
     }
 
     public void refreshLocalData() {
+        cleanCurrentData();
 
+        UserAreaDetailsLoadTask userAreasLoadTask = new UserAreaDetailsLoadTask(this.context);
+        userAreasLoadTask.setCompletionCallback(this);
+        try {
+            JSONObject queryObj = new JSONObject();
+            queryObj.put("us", UserContext.getInstance().getUser().getEmail());
+            userAreasLoadTask.execute(queryObj);
+
+            UserTagsLoadingTask tagsLoadingTask = new UserTagsLoadingTask(context, null);
+            tagsLoadingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void cleanCurrentData() {
         AreaDatabaseHandler adh = new AreaDatabaseHandler(this.context);
         adh.dryRun();
         adh.deleteAllAreas();
@@ -49,17 +69,6 @@ public class LocalDataRefresher implements AsyncTaskCallback {
         TagDatabaseHandler tdh = new TagDatabaseHandler(this.context);
         tdh.dryRun();
         tdh.deleteAllTags();
-
-        UserAreaDetailsLoadTask loadTask = new UserAreaDetailsLoadTask(this.context);
-        loadTask.setCompletionCallback(this);
-
-        try {
-            JSONObject queryObj = new JSONObject();
-            queryObj.put("us", UserContext.getInstance().getUser().getEmail());
-            loadTask.execute(queryObj);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void refreshPublicAreas() {

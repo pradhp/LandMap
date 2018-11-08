@@ -8,8 +8,8 @@ android {
         applicationId "com.pearnode.app.placero"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 29
-        versionName "4.2"
+        versionCode 30
+        versionName "4.3"
         multiDexEnabled true
     }
     signingConfigs {
@@ -83,7 +83,7 @@ dependencies {
     compile ('org.apache.commons:commons-io:1.3.2'){
         exclude module: 'commons-io'
     }
-    compile('com.iceteck.silicompressorr:silicompressor:2.1') {
+    compile('com.iceteck.silicompressorr:silicompressor:2.2.1') {
         exclude group: 'com.android.support'
     }
     compile 'com.tom_roush:pdfbox-android:1.8.9.1'

@@ -116,7 +116,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.firebase/firebase-measurement-connector-impl/16.0.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.firebase/firebase-measurement-connector/16.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.maps.android/android-maps-utils/0.5/jars" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.iceteck.silicompressorr/silicompressor/2.1/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.iceteck.silicompressorr/silicompressor/2.2.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.pnikosis/materialish-progress/1.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.tom_roush/pdfbox-android/1.8.9.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
@@ -159,9 +159,9 @@
     <orderEntry type="library" exported="" name="Gradle: com.google.android.gms:play-services-identity-15.0.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.bumptech.glide:glide:3.7.0@jar" level="project" />
     <orderEntry type="library" exported="" name="Gradle: org.apache.commons:commons-lang3:3.6@jar" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.iceteck.silicompressorr:silicompressor-2.2.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.google.android.gms:play-services-drive-15.0.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.google.code.gson:gson:2.1@jar" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.iceteck.silicompressorr:silicompressor-2.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.madgag.spongycastle:prov:1.51.0.0@jar" level="project" />
     <orderEntry type="library" exported="" name="Gradle: __local_jars__:D.\work\workspace\placero\app\libs\org.apache.http.legacy.jar:unspecified@jar" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.google.android.gms:play-services-auth-15.0.1" level="project" />

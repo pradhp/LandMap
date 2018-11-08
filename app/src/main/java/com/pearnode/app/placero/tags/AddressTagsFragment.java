@@ -69,11 +69,18 @@ public class AddressTagsFragment extends Fragment implements FragmentHandler {
 
         TagDatabaseHandler tdh = new TagDatabaseHandler(getContext());
         ArrayList<Tag> tags = tdh.getTagsByContext("area");
+        List<String> uniqueTagCheckList = new ArrayList<>();
         for(Tag te: tags){
-            com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(te.getName());
-            tag.tagTextSize = 16;
-            tag.layoutColor = ColorProvider.getDefaultToolBarColor();
-            topContainer.addTag(tag);
+            String tagName = te.getName();
+            if(uniqueTagCheckList.contains(tagName)){
+                continue;
+            }else {
+                uniqueTagCheckList.add(tagName);
+                com.cunoraz.tagview.Tag tag = new com.cunoraz.tagview.Tag(tagName);
+                tag.tagTextSize = 16;
+                tag.layoutColor = ColorProvider.getDefaultToolBarColor();
+                topContainer.addTag(tag);
+            }
         }
 
         final LinearLayout bottomLayout = (LinearLayout) mView.findViewById(R.id.bottom_container);

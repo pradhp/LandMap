@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.pearnode.common.TaskFinishedListener;
+import com.pearnode.common.ftp.DocumentFTPUploader;
 import com.pearnode.common.ftp.PictureFTPUploader;
 import com.pearnode.common.ftp.ThumbnailFTPUploader;
 import com.pearnode.common.ftp.VideoFTPUploader;
@@ -38,6 +39,9 @@ public class MediaUploadTask extends AsyncTask<Object, String, String> {
                 uploader.doUpload();
             } else if(mediaType.equalsIgnoreCase("video")){
                 VideoFTPUploader uploader = new VideoFTPUploader(mediaName, mediaFile);
+                uploader.doUpload();
+            }else if(mediaType.equalsIgnoreCase("document")){
+                DocumentFTPUploader uploader = new DocumentFTPUploader(mediaName, mediaFile);
                 uploader.doUpload();
             }
         }catch (Exception e){

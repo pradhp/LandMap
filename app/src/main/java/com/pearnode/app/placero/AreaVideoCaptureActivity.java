@@ -82,12 +82,9 @@ public class AreaVideoCaptureActivity extends Activity implements LocationPositi
                 media.setDirtyAction("upload");
                 media.setCreatedOn(System.currentTimeMillis());
 
-                ae.getVideos().add(media);
                 areaContext.addMediaToQueue(media);
-
                 Intent i = new Intent(this, AreaAddResourcesActivity.class);
                 startActivity(i);
-
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // Cancelled case
                 finish();
