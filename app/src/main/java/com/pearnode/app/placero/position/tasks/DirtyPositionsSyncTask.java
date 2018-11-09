@@ -11,6 +11,9 @@ import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -33,6 +36,7 @@ public class DirtyPositionsSyncTask extends AsyncTask<Object, Void, String> {
 
     private Context context;
     private TaskFinishedListener finishedListener;
+    private List<Position> dirtyPositions;
 
     public DirtyPositionsSyncTask(Context context, TaskFinishedListener listener) {
         this.context = context;
@@ -42,7 +46,10 @@ public class DirtyPositionsSyncTask extends AsyncTask<Object, Void, String> {
     protected String doInBackground(Object... params) {
         try {
             PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
-            List<Position> dirtyPositions = pdh.getDirtyPositions();
+            dirtyPositions = pdh.getDirtyPositions();
+            if(dirtyPositions.size() == 0){
+                return "";
+            }
 
             URL url = new URL(APIRegistry.OFFLINE_POSITION_SYNC);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -87,6 +94,25 @@ public class DirtyPositionsSyncTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        if(result != null){
+            PositionDatabaseHandler pdh = new PositionDatabaseHandler(context);
+            try {
+                JSONObject respObj = new JSONObject(result);
+                JSONObject retAreas = respObj.getJSONObject("ret_obj");
+                for (int i = 0; i < dirtyPositions.size(); i++) {
+                    Position dirtyPosition = dirtyPositions.get(i);
+                    String id = dirtyPosition.getId();
+                    String posStatus = (String) retAreas.get(id);
+                    if(posStatus != null && posStatus.equalsIgnoreCase("SUCCESS")){
+                        dirtyPosition.setDirty(0);
+                        dirtyPosition.setDirtyAction("");
+                        pdh.updatePosition(dirtyPosition);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         if(finishedListener != null){
             finishedListener.onTaskFinished(result);
         }

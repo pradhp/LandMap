@@ -9,6 +9,10 @@ import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -30,6 +34,7 @@ public class DirtyAreaSyncTask extends AsyncTask<Object, Void, String> {
 
     private Context context;
     private TaskFinishedListener finishedListener;
+    private List<Area> dirtyAreas = null;
 
     public DirtyAreaSyncTask(Context context, TaskFinishedListener listener) {
         this.context = context;
@@ -39,8 +44,10 @@ public class DirtyAreaSyncTask extends AsyncTask<Object, Void, String> {
     protected String doInBackground(Object... params) {
         try {
             AreaDatabaseHandler adh = new AreaDatabaseHandler(context);
-            List<Area> dirtyAreas = adh.getDirtyAreas();
-
+            dirtyAreas = adh.getDirtyAreas();
+            if(dirtyAreas.size() == 0){
+                return "";
+            }
             URL url = new URL(APIRegistry.OFFLINE_AREAS_SYNC);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(15000);
@@ -84,6 +91,25 @@ public class DirtyAreaSyncTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        if(result != null){
+            AreaDatabaseHandler adh = new AreaDatabaseHandler(context);
+            try {
+                JSONObject respObj = new JSONObject(result);
+                JSONObject retAreas = respObj.getJSONObject("ret_obj");
+                for (int i = 0; i < dirtyAreas.size(); i++) {
+                    Area dirtyArea = dirtyAreas.get(i);
+                    String id = dirtyArea.getId();
+                    String areaStatus = (String) retAreas.get(id);
+                    if(areaStatus != null && areaStatus.equalsIgnoreCase("SUCCESS")){
+                        dirtyArea.setDirty(0);
+                        dirtyArea.setDirtyAction("");
+                        adh.updateArea(dirtyArea);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         if(finishedListener != null){
             finishedListener.onTaskFinished(result);
         }

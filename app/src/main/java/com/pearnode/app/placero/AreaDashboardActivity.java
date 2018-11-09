@@ -183,7 +183,10 @@ public class AreaDashboardActivity extends AppCompatActivity {
             List<Media> dirtyMedia = new MediaDataBaseHandler(getApplicationContext()).getDirtyMedia();
             if(dirtyAreas.size() == 0 && dirtyPositions.size() == 0 && dirtyMedia.size() == 0){
                 showMessage("All caught up !!", "info");
-                return;
+                finish();
+                overridePendingTransition(0, 0);
+                startActivity(getIntent());
+                overridePendingTransition(0, 0);
             }else {
                 OfflineElementsSyncTask syncTask
                         = new OfflineElementsSyncTask(getApplicationContext(), new TaskFinishedListener() {

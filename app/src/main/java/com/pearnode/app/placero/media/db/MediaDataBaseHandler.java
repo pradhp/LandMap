@@ -117,6 +117,29 @@ public class MediaDataBaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void updateMedia(Media media) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_ID, media.getId());
+        values.put(PLACE_REF, media.getPlaceRef());
+        values.put(NAME, media.getName());
+        values.put(TYPE, media.getType());
+        values.put(THUMBNAIL_FILE_NAME, media.getTfName());
+        values.put(THUMBNAIL_FILE_PATH, media.getTfPath());
+        values.put(THUMBNAIL_LFILE_PATH, media.getTlPath());
+        values.put(RESOURCE_FILE_NAME, media.getRfName());
+        values.put(RESOURCE_FILE_PATH, media.getRfPath());
+        values.put(RESOURCE_LFILE_PATH, media.getRlPath());
+        values.put(LATITUDE, media.getLat());
+        values.put(LONGITUDE, media.getLng());
+        values.put(DIRTY_FLAG, media.getDirty());
+        values.put(DIRTY_ACTION, media.getDirtyAction());
+        values.put(CREATED_ON, media.getCreatedOn());
+        values.put(FETCHED_ON, new Long(System.currentTimeMillis()));
+        db.update(TABLE_NAME, values, KEY_ID + " = ? ", new String[]{media.getId()});
+        db.close();
+    }
+
     public List<Media> getPlaceDocuments(String id) {
         String selectQuery = "SELECT * FROM " + TABLE_NAME + " where "+ PLACE_REF +" ='" + id + "' and " + TYPE  + "='document' ";
         return prepareDataFromQuery(selectQuery);

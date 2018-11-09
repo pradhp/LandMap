@@ -11,6 +11,9 @@ import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,6 +37,7 @@ public class DirtyMediaSyncTask extends AsyncTask<Object, Void, String> {
 
     private Context context;
     private TaskFinishedListener finishedListener;
+    private List<Media> dirtyMedias;
 
     public DirtyMediaSyncTask(Context context, TaskFinishedListener listener) {
         this.context = context;
@@ -43,7 +47,10 @@ public class DirtyMediaSyncTask extends AsyncTask<Object, Void, String> {
     protected String doInBackground(Object... params) {
         try {
             MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
-            List<Media> dirtyMedias = mdh.getDirtyMedia();
+            dirtyMedias = mdh.getDirtyMedia();
+            if(dirtyMedias.size() == 0){
+                return "";
+            }
 
             for (int i = 0; i < dirtyMedias.size(); i++) {
                 Media dmedia = dirtyMedias.get(i);
@@ -103,6 +110,25 @@ public class DirtyMediaSyncTask extends AsyncTask<Object, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        if(result != null){
+            MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
+            try {
+                JSONObject respObj = new JSONObject(result);
+                JSONObject retAreas = respObj.getJSONObject("ret_obj");
+                for (int i = 0; i < dirtyMedias.size(); i++) {
+                    Media dirtyMedia = dirtyMedias.get(i);
+                    String id = dirtyMedia.getId();
+                    String medStatus = (String) retAreas.get(id);
+                    if(medStatus != null && medStatus.equalsIgnoreCase("SUCCESS")){
+                        dirtyMedia.setDirty(0);
+                        dirtyMedia.setDirtyAction("");
+                        mdh.updateMedia(dirtyMedia);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         if(finishedListener != null){
             finishedListener.onTaskFinished(result);
         }

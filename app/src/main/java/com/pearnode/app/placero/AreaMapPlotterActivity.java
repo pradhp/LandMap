@@ -52,6 +52,7 @@ import com.pearnode.app.placero.R.drawable;
 import com.pearnode.app.placero.R.id;
 import com.pearnode.app.placero.R.layout;
 import com.pearnode.app.placero.area.AreaContext;
+import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.area.tasks.UpdateAreaTask;
@@ -198,17 +199,20 @@ public class AreaMapPlotterActivity extends FragmentActivity implements OnMapRea
 
         @Override
         public void onTaskFinished(String response) {
-            List<Tag> tags = ae.getAddress().getTags();
-            TagDatabaseHandler tdh = new TagDatabaseHandler(getApplicationContext());
-            for (int i = 0; i < tags.size(); i++) {
-                Tag tag = tags.get(i);
-                tag.setContext("area");
-                tag.setContextId(ae.getId());
-                tag.setCreatedOn(System.currentTimeMillis());
-                tdh.addTag(tag);
+            Address address = ae.getAddress();
+            if(address != null){
+                List<Tag> tags = address.getTags();
+                TagDatabaseHandler tdh = new TagDatabaseHandler(getApplicationContext());
+                for (int i = 0; i < tags.size(); i++) {
+                    Tag tag = tags.get(i);
+                    tag.setContext("area");
+                    tag.setContextId(ae.getId());
+                    tag.setCreatedOn(System.currentTimeMillis());
+                    tdh.addTag(tag);
 
-                CreateTagTask createTagTask = new CreateTagTask(getApplicationContext(), null);
-                createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
+                    CreateTagTask createTagTask = new CreateTagTask(getApplicationContext(), null);
+                    createTagTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tag);
+                }
             }
             AreaContext.INSTANCE.setArea(ae, getApplicationContext());
         }
