@@ -111,14 +111,16 @@ public class AreaDashboardPublicFragment extends Fragment
 
     @Override
     public void doFilter(List<String> filterables, List<String> executables) {
-        ListView areaListView = (ListView) mView.findViewById(id.area_display_list);
-        AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
-        if(adapter == null || adapter.getCount() == 0){
-            return;
+        ListView areaListView = (ListView) mView.findViewById(R.id.area_display_list);
+        if(areaListView != null){
+            AreaListAdaptor adapter = (AreaListAdaptor) areaListView.getAdapter();
+            if(adapter == null || adapter.getCount() == 0){
+                return;
+            }
+            EditText inputSearch = (EditText) mActivity.findViewById(id.dashboard_search_box);
+            Editable inputSearchText = inputSearch.getText();
+            adapter.getFilterChain(filterables, executables).filter(inputSearchText.toString());
         }
-        EditText inputSearch = (EditText) mActivity.findViewById(id.dashboard_search_box);
-        Editable inputSearchText = inputSearch.getText();
-        adapter.getFilterChain(filterables, executables).filter(inputSearchText.toString());
     }
 
     @Override

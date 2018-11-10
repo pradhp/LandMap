@@ -8,8 +8,8 @@ android {
         applicationId "com.pearnode.app.placero"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 33
-        versionName "4.6"
+        versionCode 34
+        versionName "4.7"
         multiDexEnabled true
     }
     signingConfigs {
