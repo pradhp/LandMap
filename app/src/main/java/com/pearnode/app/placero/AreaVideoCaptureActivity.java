@@ -18,6 +18,7 @@ import com.pearnode.app.placero.custom.LocationPositionReceiver;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.provider.GPSLocationProvider;
+import com.pearnode.common.DirtyActions;
 
 /**
  * Created by USER on 11/1/2017.
@@ -111,7 +112,7 @@ public class AreaVideoCaptureActivity extends Activity implements LocationPositi
     public void receivedLocationPostion(Position pe) {
         pe.setType("Media");
         pe.setDirty(1);
-        pe.setDirtyAction("insert");
+        pe.setDirtyAction(DirtyActions.CREATE);
         media.setLat(pe.getLat() + "");
         media.setLng(pe.getLng() + "");
     }

@@ -3,6 +3,7 @@ package com.pearnode.app.placero.tags;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.pearnode.common.DirtyActions;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -86,7 +87,7 @@ public class CreateTagTask extends AsyncTask<Object, Void, String> {
                 // Trying to create a dirty tag on server. // Ignore this will be retried later.
             }else {
                 tag.setDirty(1);
-                tag.setDirtyAction("insert");
+                tag.setDirtyAction(DirtyActions.CREATE);
                 tdh.addTag(tag);
             }
         }else {

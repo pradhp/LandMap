@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.pearnode.app.placero.position.Position;
 import com.pearnode.app.placero.position.PositionDatabaseHandler;
+import com.pearnode.common.DirtyActions;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -88,7 +89,7 @@ public class UpdatePositionTask extends AsyncTask<Object, Void, String> {
                 // Trying to create a dirty position on server. // Ignore this will be retried later.
             }else {
                 position.setDirty(1);
-                position.setDirtyAction("update");
+                position.setDirtyAction(DirtyActions.UPDATE);
                 pdh.addPostion(position);
             }
         }else {

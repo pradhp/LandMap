@@ -16,6 +16,7 @@ import com.pearnode.app.placero.AreaDashboardActivity;
 import com.pearnode.app.placero.AreaDetailsActivity;
 import com.pearnode.app.placero.R;
 import com.pearnode.app.placero.area.AreaContext;
+import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.area.model.AreaMeasure;
 import com.pearnode.app.placero.user.UserContext;
@@ -185,10 +186,13 @@ public class AreaListAdaptor extends ArrayAdapter {
                 List<Area> results = new ArrayList<>();
                 for (int i = 0; i < filterableItems.size(); i++) {
                     Area area = filterableItems.get(i);
-                    String address = area.getAddress().getDisplaybleAddress().toLowerCase();
-                    String lowerFilterable = filterable.toString().toLowerCase();
-                    if (address.contains(lowerFilterable)) {
-                        results.add(area);
+                    Address areaAddress = area.getAddress();
+                    if(areaAddress != null){
+                        String displayableAddress = areaAddress.getDisplaybleAddress().toLowerCase();
+                        String lowerFilterable = filterable.toString().toLowerCase();
+                        if (displayableAddress.contains(lowerFilterable)) {
+                            results.add(area);
+                        }
                     }
                 }
                 return results;
@@ -241,10 +245,13 @@ public class AreaListAdaptor extends ArrayAdapter {
                     Area area = filterableItems.get(i);
                     String areaName = area.getName().toLowerCase();
                     String description = area.getDescription().toLowerCase();
-                    String address = area.getAddress().getDisplaybleAddress();
-                    String cons = constraint.toString().toLowerCase();
-                    if (areaName.contains(cons) || description.contains(constraint) || address.contains(constraint)) {
-                        results.add(area);
+                    Address areaAddress = area.getAddress();
+                    if(areaAddress != null){
+                        String displaybleAddress = areaAddress.getDisplaybleAddress();
+                        String cons = constraint.toLowerCase();
+                        if (areaName.contains(cons) || description.contains(constraint) || displaybleAddress.contains(constraint)) {
+                            results.add(area);
+                        }
                     }
                 }
                 return results;

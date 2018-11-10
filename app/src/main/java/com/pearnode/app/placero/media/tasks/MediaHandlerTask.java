@@ -10,6 +10,7 @@ import com.pearnode.app.placero.custom.ThumbnailCreator;
 import com.pearnode.app.placero.media.db.MediaDataBaseHandler;
 import com.pearnode.app.placero.media.model.Media;
 import com.pearnode.app.placero.sync.LocalFolderStructureManager;
+import com.pearnode.common.DirtyActions;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.constants.FixedValuesRegistry;
 
@@ -161,7 +162,7 @@ public class MediaHandlerTask extends AsyncTask<Object, String, String> {
         public void onTaskFinished(String response) {
             if(response == null){
                 media.setDirty(1);
-                media.setDirtyAction("insert");
+                media.setDirtyAction(DirtyActions.CREATE);
             }
             MediaDataBaseHandler mdh = new MediaDataBaseHandler(context);
             mdh.addMedia(media);

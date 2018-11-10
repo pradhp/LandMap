@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 
 import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Area;
+import com.pearnode.app.placero.permission.Permission;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
+import com.pearnode.common.DirtyActions;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -16,7 +19,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -84,14 +89,18 @@ public class RemoveAreaTask extends AsyncTask<Object, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         AreaDatabaseHandler adh = new AreaDatabaseHandler(context);
+        PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(context);
         if(result == null){
-            area.setDirty(1);
-            area.setDirtyAction("delete");
-            adh.updateArea(area);
+            if(area.getDirty() == 1){
+                // Trying to create a dirty area on server. // Ignore this will be retried later.
+            }else {
+                area.setDirty(1);
+                area.setDirtyAction(DirtyActions.DELETE);
+                pdh.deletePermissionsByAreaId(area.getId());
+            }
         }else {
-            area.setDirty(0);
-            area.setDirtyAction("none");
             adh.deleteArea(area);
+            pdh.deletePermissionsByAreaId(area.getId());
         }
         if(finishedListener != null){
             finishedListener.onTaskFinished(area.toString());

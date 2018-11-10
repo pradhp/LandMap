@@ -58,17 +58,10 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class AreaDashboardActivity extends AppCompatActivity {
 
-    private boolean online = true;
-
-    public boolean isOffline(){
-        return !online;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new GenericActivityExceptionHandler(this);
-        online = ConnectivityChangeReceiver.isConnected(this);
 
         setContentView(R.layout.activity_area_dashboard);
 
@@ -182,11 +175,9 @@ public class AreaDashboardActivity extends AppCompatActivity {
             List<Position> dirtyPositions = new PositionDatabaseHandler(getApplicationContext()).getDirtyPositions();
             List<Media> dirtyMedia = new MediaDataBaseHandler(getApplicationContext()).getDirtyMedia();
             if(dirtyAreas.size() == 0 && dirtyPositions.size() == 0 && dirtyMedia.size() == 0){
-                showMessage("All caught up !!", "info");
                 finish();
-                overridePendingTransition(0, 0);
                 startActivity(getIntent());
-                overridePendingTransition(0, 0);
+                showMessage("All Caught up !!!", "info");
             }else {
                 OfflineElementsSyncTask syncTask
                         = new OfflineElementsSyncTask(getApplicationContext(), new TaskFinishedListener() {

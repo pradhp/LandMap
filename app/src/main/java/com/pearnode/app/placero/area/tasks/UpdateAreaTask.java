@@ -7,7 +7,10 @@ import com.pearnode.app.placero.area.db.AreaDatabaseHandler;
 import com.pearnode.app.placero.area.model.Address;
 import com.pearnode.app.placero.area.model.Area;
 import com.pearnode.app.placero.google.geo.CommonGeoHelper;
+import com.pearnode.app.placero.permission.Permission;
+import com.pearnode.app.placero.permission.PermissionDatabaseHandler;
 import com.pearnode.app.placero.position.Position;
+import com.pearnode.common.DirtyActions;
 import com.pearnode.common.TaskFinishedListener;
 import com.pearnode.common.URlUtils;
 import com.pearnode.constants.APIRegistry;
@@ -19,7 +22,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -53,7 +58,7 @@ public class UpdateAreaTask extends AsyncTask<Object, Void, String> {
             conn.setUseCaches(false);
 
             Address address = area.getAddress();
-            if (address.getDisplaybleAddress().trim().equals("")) {
+            if (address == null || address.getDisplaybleAddress().trim().equals("")) {
                 CommonGeoHelper geoHelper = CommonGeoHelper.INSTANCE;
                 Position centerPosition = area.getCenterPosition();
                 Address areaAddress = geoHelper.getAddressByGeoLocation(context,
@@ -96,14 +101,41 @@ public class UpdateAreaTask extends AsyncTask<Object, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         AreaDatabaseHandler adh = new AreaDatabaseHandler(context);
+        PermissionDatabaseHandler pdh = new PermissionDatabaseHandler(context);
         if(result == null){
-            area.setDirty(1);
-            area.setDirtyAction("update");
+            if(area.getDirty() == 1){
+                // Trying to create a dirty area on server. // Ignore this will be retried later.
+            }else {
+                area.setDirty(1);
+                area.setDirtyAction(DirtyActions.UPDATE);
+                adh.updateArea(area);
+
+                Map<String, Permission> permissions = area.getPermissions();
+                Collection<Permission> permissionCollection = permissions.values();
+                Iterator<Permission> perIter = permissionCollection.iterator();
+                while (perIter.hasNext()){
+                    Permission permission = perIter.next();
+                    permission.setDirty(1);
+                    permission.setDirtyAction(DirtyActions.UPDATE);
+                    pdh.updatePermission(permission);
+                }
+            }
         }else {
+            // Area was created on server end.
             area.setDirty(0);
             area.setDirtyAction("none");
+            adh.updateArea(area);
+
+            Map<String, Permission> permissions = area.getPermissions();
+            Collection<Permission> permissionCollection = permissions.values();
+            Iterator<Permission> perIter = permissionCollection.iterator();
+            while (perIter.hasNext()){
+                Permission permission = perIter.next();
+                permission.setDirty(0);
+                permission.setDirtyAction("none");
+                pdh.updatePermission(permission);
+            }
         }
-        adh.updateArea(area);
         if(finishedListener != null){
             finishedListener.onTaskFinished(area.toString());
         }

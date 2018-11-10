@@ -74,6 +74,21 @@ public class PermissionDatabaseHandler extends SQLiteOpenHelper {
         return pe;
     }
 
+    public Permission updatePermission(Permission pe) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(AREA_ID, pe.getAreaId());
+        contentValues.put(FUNCTION_CODE, pe.getFunctionCode());
+        contentValues.put(USER_ID, pe.getUserId());
+        contentValues.put(DIRTY_ACTION, pe.getDirtyAction());
+        contentValues.put(DIRTY_ACTION, pe.getDirtyAction());
+
+        db.update(TABLE_NAME, contentValues,  AREA_ID + " = ? ", new String[]{pe.getAreaId()});
+        db.close();
+        return pe;
+    }
+
     public void deletePermissionsByAreaId(String areaId) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + AREA_ID + " = '" + areaId + "'");

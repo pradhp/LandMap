@@ -356,12 +356,8 @@ public class AreaDatabaseHandler extends SQLiteOpenHelper {
                     ae.setDirty(cursor.getInt(cursor.getColumnIndex(DIRTY_FLAG)));
                     ae.setDirtyAction(cursor.getString(cursor.getColumnIndex(DIRTY_ACTION)));
 
-                    ae.getPictures().addAll(mdh.getPlacePictures(ae.getId()));
-                    ae.getVideos().addAll(mdh.getPlaceVideos(ae.getId()));
-                    ae.getDocuments().addAll(mdh.getPlaceDocuments(ae.getId()));
-                    allAreas.add(ae);
-
                     ae.setPermissions(pdh.fetchPermissionsByAreaId(ae.getId()));
+                    allAreas.add(ae);
                     cursor.moveToNext();
                 }
             }
