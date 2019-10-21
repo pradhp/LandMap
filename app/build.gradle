@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '25.0.3'
+    buildToolsVersion '26.0.3'
 
     defaultConfig {
         applicationId "com.pearnode.app.placero"
@@ -14,7 +14,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("C:/Users/Star/Google Drive/work/keystore/placero.jks")
+            storeFile file("C:/Users/intel/Google Drive/work/keystore/placero.jks")
             storePassword "pkp987126"
             keyAlias "placero"
             keyPassword "pkp987126"
@@ -47,8 +47,11 @@ android {
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:26.0.1'
-    compile 'com.android.support:design:26.0.1'
+    compile files('libs/appcompat_v7.jar')
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:design:26.+'
+    compile 'com.android.support:recyclerview-v7:26.+'
+    compile 'com.android.support:cardview-v7:26.+'
     compile 'com.google.maps.android:android-maps-utils:0.5+'
     compile('com.google.api-client:google-api-client-android:1.23.0') {
         exclude group: 'org.apache.httpcomponents'
@@ -66,9 +69,6 @@ dependencies {
     compile('com.google.android.gms:play-services-basement:15.0.1') {
         exclude group: 'com.android.support'
     }
-    compile('com.google.android.gms:play-services-drive:15.0.1') {
-        exclude group: 'com.android.support'
-    }
     compile('com.google.android.gms:play-services-maps:15.0.1') {
         exclude group: 'com.android.support'
     }
@@ -84,7 +84,7 @@ dependencies {
     compile ('org.apache.commons:commons-io:1.3.2'){
         exclude module: 'commons-io'
     }
-    compile('com.iceteck.silicompressorr:silicompressor:2.1') {
+    compile('com.iceteck.silicompressorr:silicompressor:2.2.1') {
         exclude group: 'com.android.support'
     }
     compile 'com.tom_roush:pdfbox-android:1.8.9.1'
